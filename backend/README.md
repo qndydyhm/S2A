@@ -2,7 +2,7 @@
 
 ## Add redirect URL
 Open [Google Cloud console](https://console.cloud.google.com/welcome), click credentials, then add a new OAuth2 credential  
-After that add a new **redirect URL**, for example http://localhost:4000/auth/google-callback (must end with /auth/google-callback)
+After that add a new **redirect URL**, for example http://localhost/auth/google-callback (must end with /auth/google-callback)
 
 
 ## Create .env file
@@ -12,7 +12,7 @@ After that add a new **redirect URL**, for example http://localhost:4000/auth/go
 cat << EOF || tee .env
 PROTOCOL=http # redirect URL prorocol
 DOMAIN_NAME=localhost # redirect URL domain name
-EXPRESS_PORT=4000 # redirect URL port number
+EXPRESS_PORT=4000
 MONGO_URL=mongodb://127.0.0.1:27017 # replace with your mongo URL
 MONGO_DBNAME=S2A # Any valid db name
 CLIENT_ID=google client id

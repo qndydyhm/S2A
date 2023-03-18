@@ -12,7 +12,7 @@ dotenv.config();
 const oauth2Client = new google.auth.OAuth2(
     process.env.CLIENT_ID,
     process.env.CLIENT_SECRET,
-    process.env.PROTOCOL + "://" + process.env.DOMAIN_NAME + ":" + process.env.EXPRESS_PORT + "/auth/google-callback"
+    process.env.PROTOCOL + "://" + process.env.DOMAIN_NAME + "/auth/google-callback"
 );
 
 const scopes = [
@@ -124,16 +124,7 @@ const googleCallback = async (req: express.Request, res: express.Response) => {
                 httpOnly: true,
                 secure: true,
                 sameSite: "none"
-            }).status(200).json({
-                success: true,
-                user: {
-                    name: savedUser.name,
-                    email: savedUser.email,
-                    profile: savedUser.profile
-                },
-                status: "OK",
-                message: "Welcome back!"
-            }).send();
+            }).redirect('http://localhost');
         }
         else {
             // else create a new user
@@ -147,23 +138,13 @@ const googleCallback = async (req: express.Request, res: express.Response) => {
                 expire: tokens.expiry_date
             });
             const savedUser = await newUser.save();
-            // console.log(savedUser)
             console.info("New user login: ", savedUser)
             const token = auth.signToken(savedUser);
             await res.cookie("token", token, {
                 httpOnly: true,
                 secure: true,
                 sameSite: "none"
-            }).status(200).json({
-                success: true,
-                user: {
-                    name: savedUser.name,
-                    email: savedUser.email,
-                    profile: savedUser.profile
-                },
-                status: "OK",
-                message: "Hello, new user!"
-            }).send();
+            }).redirect('http://localhost');
         }
     } catch (err) {
         console.error(err);
