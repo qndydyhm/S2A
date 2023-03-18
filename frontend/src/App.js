@@ -5,7 +5,7 @@ import { BrowserRouter, Route,Routes } from 'react-router-dom'
 import { AuthContextProvider } from './auth';
 import { GlobalStoreContextProvider } from './store'
 import AppBanner from './components/AppBanner';
-// import HomeWrapper from './components/HomeWrapper';
+import HomeScreen from './components/HomeScreen';
 import axios from 'axios';
 
 
@@ -40,9 +40,10 @@ function App() {
       <AuthContextProvider>
           <GlobalStoreContextProvider>              
               <AppBanner />
-              {/* <Routes>
-              <Route path="/" exact component={HomeWrapper} />
-              </Routes> */}
+              <HomeScreen/>
+              <Routes>
+              <Route exact component={HomeScreen} />
+              </Routes>
           </GlobalStoreContextProvider>
       </AuthContextProvider>
   </BrowserRouter>;
