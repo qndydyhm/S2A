@@ -50,7 +50,7 @@ here is a sample nginx config
                     proxy_send_timeout 360;
                     proxy_connect_timeout 360;
             }
-            location /auth {
+            location ~* /((auth)|(api)) {
                     proxy_pass http://backend;
 
                     ## Headers

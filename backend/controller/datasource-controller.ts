@@ -10,8 +10,8 @@ const createDS = async (req: express.Request, res: express.Response) => {
             return res.status(401).json({
                 status: "Fail to find User"
             })
-        const {name, URL, sheetindex, key, columns, appid} = req.body;
-        if (!name || !URL || !sheetindex || !key || !columns || !appid) 
+        const {name, URL, sheetindex, key, columns, owner} = req.body;
+        if (!name || !URL || !sheetindex || !key || !columns || !owner) 
             return res.status(400).json({
                 status: "Missing parameter"
             })
@@ -21,7 +21,7 @@ const createDS = async (req: express.Request, res: express.Response) => {
             sheetindex: sheetindex,
             key: key,
             columns: columns,
-            appid: appid
+            owner: owner
         })
         const savedDS = await newDS.save();
         console.info("New Datasource created: ", savedDS)
@@ -40,8 +40,8 @@ const updateDS = async (req: express.Request, res: express.Response) => {
                 status: "Fail to find User"
             })
         const dsId = req.params.id;
-        const {name, URL, sheetindex, key, columns, appid} = req.body;
-        if (!name || !URL || !sheetindex || !key || !columns || !appid) 
+        const {name, URL, sheetindex, key, columns, owner} = req.body;
+        if (!name || !URL || !sheetindex || !key || !columns || !owner) 
             return res.status(400).json({
                 status: "Missing parameter"
             })
@@ -51,7 +51,7 @@ const updateDS = async (req: express.Request, res: express.Response) => {
             sheetindex: sheetindex,
             key: key,
             columns: columns,
-            appid: appid
+            owner: owner
         }, { new: true });
         if (!existingDS)
             return res.status(401).json({

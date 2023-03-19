@@ -7,7 +7,7 @@ export type DataSource = {
     sheetindex: string;
     key: string;
     columns: [{name: string, initvalue: string, lable: string, reference: string, type: string}];
-    appid: string;
+    owner: string;
     //   organization: Types.ObjectId;
 }
 
@@ -18,7 +18,7 @@ const dataSchema = new Schema<DataSource>({
     URL: {type: String, required: true},
     key: { type: String, required: true },
     columns: { type: [{name: String, initvalue: String, lable: String, reference: String, type: String}], required: true },
-    appid: { type: String, required: true }
+    owner: { type: String, required: true }
     // And `Schema.Types.ObjectId` in the schema definition.
     //   organization: { type: Schema.Types.ObjectId, ref: 'Organization' }
 });

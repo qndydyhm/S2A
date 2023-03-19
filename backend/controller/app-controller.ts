@@ -1,7 +1,7 @@
 import express from 'express'
 import auth from '../auth'
 import App from '../models/app-model'
-
+import DataSource from '../models/datasource-model'
 
 
 const createApp = async (req: express.Request, res: express.Response) => {
@@ -12,9 +12,10 @@ const createApp = async (req: express.Request, res: express.Response) => {
                 status: "Fail to find User"
             })
         const {name, datasources, views, roleM, published} = req.body;
-        if (!name || !datasources || !views || !roleM || !published) 
+        if (typeof(name) != "string" || !Array.isArray(datasources) || !Array.isArray(views) || 
+            typeof(roleM) != "string" || typeof(published) != "boolean")
             return res.status(400).json({
-                status: "Missing parameter"
+                status: "Missing or wrong parameter"
             })
         const newApp = new App({
             name: name,
@@ -42,22 +43,49 @@ const updateApp = async (req: express.Request, res: express.Response) => {
             })
         const appId = req.params.id;
         const {name, datasources, views, roleM, published} = req.body;
-        if (!name || !datasources || !views || !roleM || !published || !appId) 
+        if (typeof(name) != "string" || !Array.isArray(datasources) || !Array.isArray(views) || 
+            typeof(roleM) != "string" || typeof(published) != "boolean")
             return res.status(400).json({
                 status: "Missing parameter"
             })
-        const existingApp = await App.findOneAndUpdate({_id: appId},{
-            name: name,
-            creator: loggedInUser.id,
-            datasources: datasources,
-            views: views,
-            roleM: roleM,
-            published: published
-        }, { new: true });
+        for (let key in datasources) {
+            if (typeof(datasources[key]) != "string") {
+                return res.status(400).json({
+                    status: "Datasources must be a list of string(datasources id)"
+                })
+            }
+            const existingDS = await DataSource.findById(datasources[key]);
+            if (!existingDS) {
+                return res.status(400).json({
+                    status: "Fail to find Datasource " + datasources[key]
+                })
+            }
+            if (existingDS.owner != appId) {
+                return res.status(400).json({
+                    status: "Missmatch app id " + appId + " and datasource owner " + existingDS.owner
+                })
+            }
+        }
+        for (let key in views) {
+            if (typeof(views[key]) != "string") {
+                return res.status(400).json({
+                    status: "Views must be a list of string(views id)"
+                })
+            }
+            // TODO check view owner
+        }
+        const existingApp = await App.findOne({_id: appId});
         if (!existingApp)
             return res.status(401).json({
                 status: "Fail to find App " + appId
             })
+        existingApp.name = name;
+        existingApp.datasources = datasources as [string]; //TODO remove deleted datasources
+        existingApp.views = views as [string]
+        existingApp.roleM = roleM
+        existingApp.published = published
+
+
         await res.send({status: "OK", app: existingApp});
     }
     catch (e) {
@@ -101,7 +129,7 @@ const deleteApp = async (req: express.Request, res: express.Response) => {
             return res.status(400).json({
                 status: "Missing parameter"
             })
-        const existingApp = await App.findOneAndDelete({_id: appId});
+        const existingApp = await App.findOneAndDelete({_id: appId}); //TODO remove deleted datasources
         if (!existingApp)
             return res.status(401).json({
                 status: "Fail to find App " + appId

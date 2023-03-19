@@ -1,8 +1,9 @@
 # S2A
 
 ## Add redirect URL
-Open [Google Cloud console](https://console.cloud.google.com/welcome), click credentials, then add a new OAuth2 credential  
-After that add a new **redirect URL**, for example http://localhost/auth/google-callback (must end with /auth/google-callback)
+1. Open [Google Cloud console](https://console.cloud.google.com/welcome), click credentials, then add a new OAuth2 credential  
+2. Add a new **redirect URL**, for example http://localhost/auth/google-callback (must end with /auth/google-callback)
+3. Add a test user in Oauth consent screen
 
 
 ## Create .env file
