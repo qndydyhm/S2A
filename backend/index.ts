@@ -8,6 +8,7 @@ dotenv.config();
 const PORT: Number = parseInt(process.env.EXPRESS_PORT!)
 const app: express.Application = express();
 app.use(cookieParser())
+app.use(express.json())
 app.use("/", router) // main router
 
 

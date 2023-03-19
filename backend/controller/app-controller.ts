@@ -11,6 +11,7 @@ const createApp = async (req: express.Request, res: express.Response) => {
             return res.status(401).json({
                 status: "Fail to find User"
             })
+        console.log(req)
         const {name, datasources, views, roleM, published} = req.body;
         if (typeof(name) != "string" || !Array.isArray(datasources) || !Array.isArray(views) || 
             typeof(roleM) != "string" || typeof(published) != "boolean")
