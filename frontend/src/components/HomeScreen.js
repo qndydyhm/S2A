@@ -2,7 +2,7 @@ import React, { useContext, useEffect } from 'react'
 import { GlobalStoreContext } from '../store'
 import AppCard from './AppCard.js'
 import AddIcon from '@mui/icons-material/Add';
-import Fab from '@mui/material/Fab'
+import Fab from '@mui/material/Fab';
 import List from '@mui/material/List';
 import AppworkSpace from './AppworkSpace';
 
@@ -24,7 +24,7 @@ const HomeScreen = () => {
             {
                 store.idAppPairs.map((pair) => (
                     <AppCard
-                        key={pair._id}
+                        key={pair.id}
                         idAppPairs={pair}
                     />
                 ))

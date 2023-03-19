@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useContext, useState } from 'react';
+import { useContext } from 'react';
 import AuthContext from '../auth';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
@@ -7,17 +7,16 @@ import IconButton from '@mui/material/IconButton';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import Star from '@mui/icons-material/Star';
+import GlobalStoreContext from '../store';
 
 
 export default function AppBanner() {
     const { auth } = useContext(AuthContext);
-    // const [user, setUser] = useState(auth.user);
-    // useEffect(()=>{
-    //     auth.getLogIn();
-    // });
+    const {store} = useContext(GlobalStoreContext);
+
     function handleGoToMainScreen(){
         console.log("GO TO MAIN SCREEN");
-        // store.returnToMainScreen();
+        store.returnToMainScreen();
     }
     return (
         <Box sx={{ flexGrow: 1 }}>

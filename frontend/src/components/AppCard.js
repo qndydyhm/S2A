@@ -13,10 +13,9 @@ function AppCard(props) {
 
 
     function handleLoadList(event, id) {
-        console.log("handleLoadList for " + id);
+        console.log("handleLoadApp for " + id);
         store.setCurrentApp(id);
-        store.setViewsByAppId(id);
-        store.setDatasourceByAppId(id);
+        //VIEW
         store.changeSideBarSection("APP_INFO_SECTION");
     }
 
