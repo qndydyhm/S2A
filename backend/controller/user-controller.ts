@@ -56,7 +56,7 @@ const logoutUser = async (req: express.Request, res: express.Response) => {
 
 const getLoggedIn = async (req: any, res: express.Response) => {
     try {
-        const loggedInUser: any = await auth.getUser(req, res);
+        const loggedInUser: any = await auth.getUser(req);
         if (!loggedInUser) {
             return res.status(200).json({
                 status: "OK",
