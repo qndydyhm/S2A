@@ -1,18 +1,12 @@
 import express from 'express'
 import auth from '../auth'
 import App from '../models/app-model'
-import User from '../models/user-model'
 
 
 
 const createApp = async (req: express.Request, res: express.Response) => {
     try {
-        const userId = (req as any)._id;
-        if (!userId)
-            return res.status(401).json({
-                status: "User not loggin"
-            })
-        const loggedInUser: any = await User.findOne({ _id: userId });
+        const loggedInUser: any = await auth.getUser(req, res);
         if (!loggedInUser)
             return res.status(401).json({
                 status: "Fail to find User"
@@ -41,12 +35,7 @@ const createApp = async (req: express.Request, res: express.Response) => {
 
 const updateApp = async (req: express.Request, res: express.Response) => {
     try {
-        const userId = (req as any)._id;
-        if (!userId)
-            return res.status(401).json({
-                status: "User not loggin"
-            })
-        const loggedInUser: any = await User.findOne({ _id: userId });
+        const loggedInUser: any = await auth.getUser(req, res);
         if (!loggedInUser)
             return res.status(401).json({
                 status: "Fail to find User"
@@ -78,12 +67,7 @@ const updateApp = async (req: express.Request, res: express.Response) => {
 
 const getApp = async (req: express.Request, res: express.Response) => {
     try {
-        const userId = (req as any)._id;
-        if (!userId)
-            return res.status(401).json({
-                status: "User not loggin"
-            })
-        const loggedInUser: any = await User.findOne({ _id: userId });
+        const loggedInUser: any = await auth.getUser(req, res);
         if (!loggedInUser)
             return res.status(401).json({
                 status: "Fail to find User"
@@ -107,12 +91,7 @@ const getApp = async (req: express.Request, res: express.Response) => {
 
 const deleteApp = async (req: express.Request, res: express.Response) => {
     try {
-        const userId = (req as any)._id;
-        if (!userId)
-            return res.status(401).json({
-                status: "User not loggin"
-            })
-        const loggedInUser: any = await User.findOne({ _id: userId });
+        const loggedInUser: any = await auth.getUser(req, res);
         if (!loggedInUser)
             return res.status(401).json({
                 status: "Fail to find User"

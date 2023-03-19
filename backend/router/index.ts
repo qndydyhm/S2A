@@ -18,9 +18,9 @@ api.get('/auth/google-callback', user.googleCallback)
 
 
 // app
-api.post('/api/app/', auth.verify, app.createApp)
-api.post('/api/app/:id', auth.verify, app.updateApp)
-api.get('/api/app/:id', auth.verify, app.getApp)
-api.delete('/api/app/:id', auth.verify, app.deleteApp)
+api.post('/api/app/', app.createApp)
+api.post('/api/app/:id', app.updateApp)
+api.get('/api/app/:id', app.getApp)
+api.delete('/api/app/:id', app.deleteApp)
 
 export default api

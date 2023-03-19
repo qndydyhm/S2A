@@ -1,36 +1,38 @@
 import jwt from "jsonwebtoken"
 import express from 'express'
-import { User } from '../models/user-model'
+import User from '../models/user-model'
 import dotenv from 'dotenv'
 dotenv.config();
 
 
-const verify = (req: any, res: express.Response, next: express.NextFunction) => {
+
+const getUser = async (req: express.Request, res: express.Response) => {
     try {
-        // try to decrypt _id from cookie
         const token = req.cookies.token;
-        if (!token) {
-            req._id = '';
+        if (token) {
+            const id = jwt.verify(token, process.env.JWT_SECRET!);
+            if (id) {
+                const user = await User.findById(id);
+                if (user) {
+                    return user
+                }
+            }
         }
-        else {
-            const verified: any = jwt.verify(token, process.env.JWT_SECRET!);
-            req._id = verified._id;
-        }
-        next();
-    } catch (err) {
+        return undefined;
+    }
+    catch (err) {
         console.error(err);
-        return res.redirect("/login");
     }
 }
 
-const signToken = (user: User) => {
+const signToken = (id: any) => {
     // encrypt _id
     return jwt.sign({
-        _id: (user as any)._id
+        _id: id
     }, process.env.JWT_SECRET!);
 }
 
 export default {
-    verify,
+    getUser,
     signToken
 }
