@@ -1,6 +1,6 @@
 import express from 'express'
-import auth from '../../auth'
-import User from '../../models/user-model'
+import auth from '../auth'
+import User from '../models/user-model'
 import {
     google   // The top level object used to access services
 } from 'googleapis';
