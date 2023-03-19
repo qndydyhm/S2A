@@ -11,18 +11,17 @@ const createApp = async (req: express.Request, res: express.Response) => {
             return res.status(401).json({
                 status: "Fail to find User"
             })
-        console.log(req)
-        const {name, datasources, views, roleM, published} = req.body;
-        if (typeof(name) != "string" || !Array.isArray(datasources) || !Array.isArray(views) || 
-            typeof(roleM) != "string" || typeof(published) != "boolean")
+        const {name, roleM, published} = req.body;
+        if (typeof(name) != "string" || name === "" || 
+            typeof(roleM) != "string" || roleM === "" || typeof(published) != "boolean")
             return res.status(400).json({
                 status: "Missing or wrong parameter"
             })
         const newApp = new App({
             name: name,
             creator: loggedInUser.id,
-            datasources: datasources,
-            views: views,
+            datasources: [],
+            views: [],
             roleM: roleM,
             published: published
         })
@@ -44,8 +43,8 @@ const updateApp = async (req: express.Request, res: express.Response) => {
             })
         const appId = req.params.id;
         const {name, datasources, views, roleM, published} = req.body;
-        if (typeof(name) != "string" || !Array.isArray(datasources) || !Array.isArray(views) || 
-            typeof(roleM) != "string" || typeof(published) != "boolean")
+        if (typeof(name) != "string" || name === "" || !Array.isArray(datasources) || !Array.isArray(views) || 
+            typeof(roleM) != "string" || roleM === "" || typeof(published) != "boolean")
             return res.status(400).json({
                 status: "Missing parameter"
             })
@@ -55,15 +54,22 @@ const updateApp = async (req: express.Request, res: express.Response) => {
                     status: "Datasources must be a list of string(datasources id)"
                 })
             }
-            const existingDS = await DataSource.findById(datasources[key]);
-            if (!existingDS) {
-                return res.status(400).json({
-                    status: "Fail to find Datasource " + datasources[key]
-                })
+            try {
+                const existingDS = await DataSource.findById(datasources[key]);
+                if (!existingDS) {
+                    return res.status(400).json({
+                        status: "Fail to find Datasource " + datasources[key]
+                    })
+                }
+                if (existingDS.owner != appId) {
+                    return res.status(400).json({
+                        status: "Missmatch app id " + appId + " and datasource owner " + existingDS.owner
+                    })
+                }
             }
-            if (existingDS.owner != appId) {
+            catch (e) {
                 return res.status(400).json({
-                    status: "Missmatch app id " + appId + " and datasource owner " + existingDS.owner
+                    status: "Fail to find Datasource id " + datasources[key]
                 })
             }
         }
