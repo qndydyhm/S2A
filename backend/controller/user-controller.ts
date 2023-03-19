@@ -1,6 +1,6 @@
 import express from 'express'
-import auth from '../../auth'
-import User from '../../models/user-model'
+import auth from '../auth'
+import User from '../models/user-model'
 import {
     google   // The top level object used to access services
 } from 'googleapis';
@@ -56,31 +56,22 @@ const logoutUser = async (req: express.Request, res: express.Response) => {
 
 const getLoggedIn = async (req: any, res: express.Response) => {
     try {
-        auth.verify(req, res, async function () {
-            console.log(req._id)
-            if (!req._id) {
-                return res.status(200).json({
-                    status: "OK",
-                    loggedIn: false
-                });
-            }
-            const loggedInUser: any = await User.findOne({ _id: req._id });
-            if (!loggedInUser) {
-                return res.status(200).json({
-                    status: "OK",
-                    loggedIn: false
-                });
-            }
+        const loggedInUser: any = await auth.getUser(req, res);
+        if (!loggedInUser) {
             return res.status(200).json({
                 status: "OK",
-                loggedIn: true,
-                user: {
-                    name: loggedInUser.name,
-                    email: loggedInUser.email,
-                    profile: loggedInUser.profile
-                }
+                loggedIn: false
             });
-        })
+        }
+        return res.status(200).json({
+            status: "OK",
+            loggedIn: true,
+            user: {
+                name: loggedInUser.name,
+                email: loggedInUser.email,
+                profile: loggedInUser.profile
+            }
+        });
     } catch (err) {
         console.error(err);
         res.status(500).send();
@@ -105,47 +96,46 @@ const googleCallback = async (req: express.Request, res: express.Response) => {
 
         // detect whether the user exists
         let existingUser = await User.findOne({ id: info.data.id });
-        if (existingUser) {
-            // if so, update and return
-            const savedUser: any = await User.findOneAndUpdate({ id: info.data.id }, {
-                name: info.data.name,
-                email: info.data.email,
-                profile: info.data.picture,
-                id: info.data.id,
-                rtoken: tokens.refresh_token || (existingUser as any).refresh_token,
-                atoken: tokens.access_token,
-                expire: tokens.expiry_date
-            }, {
-                new: true
-            });
-            console.info("Existing user login: ", savedUser)
-            const token = auth.signToken(savedUser);
-            await res.cookie("token", token, {
-                httpOnly: true,
-                secure: true,
-                sameSite: "none"
-            }).redirect('http://localhost');
+        const getToken = async () => {
+            if (existingUser) {
+                // if so, update and return
+                const savedUser: any = await User.findOneAndUpdate({ id: info.data.id }, {
+                    name: info.data.name,
+                    email: info.data.email,
+                    profile: info.data.picture,
+                    id: info.data.id,
+                    rtoken: tokens.refresh_token || (existingUser as any).refresh_token,
+                    atoken: tokens.access_token,
+                    expire: tokens.expiry_date
+                }, {
+                    new: true
+                });
+                console.info("Existing user login: ", savedUser)
+                return auth.signToken(savedUser._id);
+            }
+            else {
+                // else create a new user
+                const newUser = new User({
+                    name: info.data.name,
+                    email: info.data.email,
+                    profile: info.data.picture,
+                    id: info.data.id,
+                    rtoken: tokens.refresh_token,
+                    atoken: tokens.access_token,
+                    expire: tokens.expiry_date
+                });
+                const savedUser = await newUser.save();
+                console.info("New user login: ", savedUser)
+                return auth.signToken(savedUser._id);
+            }
         }
-        else {
-            // else create a new user
-            const newUser = new User({
-                name: info.data.name,
-                email: info.data.email,
-                profile: info.data.picture,
-                id: info.data.id,
-                rtoken: tokens.refresh_token,
-                atoken: tokens.access_token,
-                expire: tokens.expiry_date
-            });
-            const savedUser = await newUser.save();
-            console.info("New user login: ", savedUser)
-            const token = auth.signToken(savedUser);
-            await res.cookie("token", token, {
-                httpOnly: true,
-                secure: true,
-                sameSite: "none"
-            }).redirect('http://localhost');
-        }
+        const token = await getToken();
+        await res.cookie("token", token, {
+            httpOnly: true,
+            secure: true,
+            sameSite: "none"
+        }).redirect('/');
+        
     } catch (err) {
         console.error(err);
         res.status(500).send();
