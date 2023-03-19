@@ -18,14 +18,15 @@ api.get('/auth/google-callback', user.googleCallback)
 
 
 // app
-api.post('/api/app/', app.createApp)
+api.post('/api/app', app.createApp)
 api.post('/api/app/:id', app.updateApp)
 api.get('/api/app/:id', app.getApp)
+api.get('/api/app', app.getApps)
 api.delete('/api/app/:id', app.deleteApp)
 
 
 // data source
-api.post('/api/ds/', ds.createDS)
+api.post('/api/ds', ds.createDS)
 api.post('/api/ds/:id', ds.updateDS)
 api.get('/api/ds/:id', ds.getDS)
 api.delete('/api/ds/:id', ds.deleteDS)

@@ -113,9 +113,38 @@ const deleteApp = async (req: express.Request, res: express.Response) => {
     }
 }
 
+const getApps = async (req: express.Request, res: express.Response) => {
+    try {
+        const loggedInUser: any = await auth.getUser(req, res);
+        if (!loggedInUser)
+            return res.status(401).json({
+                status: "Fail to find User"
+            })
+        const apps = await App.find({ $or:[{creator: loggedInUser.id}, {published: true}]});
+        if (!apps)
+            return res.json({
+                status: "Apps not found"
+            })
+        let applist = []
+        for (let key in apps) {
+            let app = apps[key];
+            let pair = {
+                id: app._id,
+                name: app.name
+            };
+            applist.push(pair)
+        }
+        await res.send({status: "OK", apps: applist});
+    }
+    catch (e) {
+        console.log(e)
+    }
+}
+
 export default {
     createApp,
     updateApp,
     getApp,
+    getApps,
     deleteApp
 }
