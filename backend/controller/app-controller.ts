@@ -6,7 +6,7 @@ import DataSource from '../models/datasource-model'
 
 const createApp = async (req: express.Request, res: express.Response) => {
     try {
-        const loggedInUser: any = await auth.getUser(req, res);
+        const loggedInUser: any = await auth.getUser(req);
         if (!loggedInUser)
             return res.status(401).json({
                 status: "Fail to find User"
@@ -36,7 +36,7 @@ const createApp = async (req: express.Request, res: express.Response) => {
 
 const updateApp = async (req: express.Request, res: express.Response) => {
     try {
-        const loggedInUser: any = await auth.getUser(req, res);
+        const loggedInUser: any = await auth.getUser(req);
         if (!loggedInUser)
             return res.status(401).json({
                 status: "Fail to find User"
@@ -95,13 +95,13 @@ const updateApp = async (req: express.Request, res: express.Response) => {
 
 const getApp = async (req: express.Request, res: express.Response) => {
     try {
-        const loggedInUser: any = await auth.getUser(req, res);
+        const loggedInUser: any = await auth.getUser(req);
         if (!loggedInUser)
             return res.status(401).json({
                 status: "Fail to find User"
             })
         const appId = req.params.id;
-        if (!appId) 
+        if (typeof(appId) != "string") 
             return res.status(400).json({
                 status: "Missing parameter"
             })
@@ -119,13 +119,13 @@ const getApp = async (req: express.Request, res: express.Response) => {
 
 const deleteApp = async (req: express.Request, res: express.Response) => {
     try {
-        const loggedInUser: any = await auth.getUser(req, res);
+        const loggedInUser: any = await auth.getUser(req);
         if (!loggedInUser)
             return res.status(401).json({
                 status: "Fail to find User"
             })
         const appId = req.params.id;
-        if (!appId) 
+        if (typeof(appId) != "string") 
             return res.status(400).json({
                 status: "Missing parameter"
             })
@@ -143,13 +143,13 @@ const deleteApp = async (req: express.Request, res: express.Response) => {
 
 const getApps = async (req: express.Request, res: express.Response) => {
     try {
-        const loggedInUser: any = await auth.getUser(req, res);
+        const loggedInUser: any = await auth.getUser(req);
         if (!loggedInUser)
             return res.status(401).json({
                 status: "Fail to find User"
             })
         const apps = await App.find({ $or:[{creator: loggedInUser.id}, {published: true}]});
-        if (!apps)
+        if (!Array.isArray(apps))
             return res.json({
                 status: "Apps not found"
             })

@@ -5,7 +5,7 @@ import DataSource from '../models/datasource-model'
 
 const createDS = async (req: express.Request, res: express.Response) => {
     try {
-        const loggedInUser: any = await auth.getUser(req, res);
+        const loggedInUser: any = await auth.getUser(req);
         if (!loggedInUser)
             return res.status(401).json({
                 status: "Fail to find User"
@@ -34,7 +34,7 @@ const createDS = async (req: express.Request, res: express.Response) => {
 
 const updateDS = async (req: express.Request, res: express.Response) => {
     try {
-        const loggedInUser: any = await auth.getUser(req, res);
+        const loggedInUser: any = await auth.getUser(req);
         if (!loggedInUser)
             return res.status(401).json({
                 status: "Fail to find User"
@@ -66,7 +66,7 @@ const updateDS = async (req: express.Request, res: express.Response) => {
 
 const getDS = async (req: express.Request, res: express.Response) => {
     try {
-        const loggedInUser: any = await auth.getUser(req, res);
+        const loggedInUser: any = await auth.getUser(req);
         if (!loggedInUser)
             return res.status(401).json({
                 status: "Fail to find User"
@@ -90,7 +90,7 @@ const getDS = async (req: express.Request, res: express.Response) => {
 
 const deleteDS = async (req: express.Request, res: express.Response) => {
     try {
-        const loggedInUser: any = await auth.getUser(req, res);
+        const loggedInUser: any = await auth.getUser(req);
         if (!loggedInUser)
             return res.status(401).json({
                 status: "Fail to find User"

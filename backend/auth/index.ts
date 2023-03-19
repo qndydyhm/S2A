@@ -6,7 +6,7 @@ dotenv.config();
 
 
 
-const getUser = async (req: express.Request, res: express.Response) => {
+const getUser = async (req: express.Request) => {
     try {
         const token = req.cookies.token;
         if (token) {
