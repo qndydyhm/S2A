@@ -8,6 +8,7 @@ import { useContext, useState } from 'react';
 import FormControl from '@mui/material/FormControl';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Switch from '@mui/material/Switch';
+import NativeSelect from '@mui/material/NativeSelect';
 
 
 
@@ -128,12 +129,14 @@ export default function Data_Source_Detail_Session() {
                                             />
                                         </TableCell>
                                         <TableCell align="right">
-                                            {/* <input
+                                            <input
                                                 className='modal-textfield'
                                                 type="text"
-                                                defaultValue={column.label}
-                                            onChange={(e)=>handleUpdateColumn(e,columns.indexOf(column), "label")}
-                                            /> */}
+                                                defaultValue={column.initvalue}
+                                                onChange={(e) => handleUpdateColumn(e, columns.indexOf(column), "initvalue")}
+                                            />
+                                        </TableCell>
+                                        <TableCell align="right">
                                             <FormControl component="fieldset" variant="standard">
                                                 <FormControlLabel
                                                     control={
@@ -146,26 +149,23 @@ export default function Data_Source_Detail_Session() {
                                             <input
                                                 className='modal-textfield'
                                                 type="text"
-                                                defaultValue={column.initvalue}
-                                                onChange={(e) => handleUpdateColumn(e, columns.indexOf(column), "initvalue")}
-                                            />
-                                        </TableCell>
-                                        <TableCell align="right">
-                                            <input
-                                                className='modal-textfield'
-                                                type="text"
                                                 defaultValue={column.reference}
                                                 onChange={(e) => handleUpdateColumn(e, columns.indexOf(column), "reference")}
                                             />
                                         </TableCell>
                                         <TableCell align="right">
-                                            <input
-                                                className='modal-textfield'
-                                                type="text"
-                                                defaultValue={column.type}
-                                                id={column}
-                                                onChange={(e) => handleUpdateColumn(e, columns.indexOf(column), "type")}
-                                            />
+                                            <FormControl sx={{ m: 1, minWidth: 80 }}>
+                                                <NativeSelect
+                                                    onChange={(e) => handleUpdateColumn(e, columns.indexOf(column), "type")}
+                                                    autoWidth
+                                                    defaultValue = {column.type}
+                                                >
+                                                    <option  value={"Boolean"}>Boolean</option >
+                                                    <option  value={"Number"}>Number</option >
+                                                    <option  value={"Text"}>Text</option >
+                                                    <option  value={"URL"}>URL</option >
+                                                </NativeSelect>
+                                            </FormControl>
                                         </TableCell>
                                     </TableRow>
                                 ))

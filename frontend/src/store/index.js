@@ -257,7 +257,6 @@ function GlobalStoreContextProvider(props) {
     store.setCurrentSelectedDataSource = function (id) {
         async function asyncGetSelectedDataSource() {
             const response = await api.getDataSource(id);
-            console.log(response);
             if (response.status == 200) {
                 let ds = response.data.datasource;
                 storeReducer({
@@ -271,7 +270,7 @@ function GlobalStoreContextProvider(props) {
     }
     store.createNewColumn = function () {
         let value = store.currentSelectedDatasource;
-        value.columns.push({ name: "Untitled", label: false, reference: " ", type: "Text", initvalue: " " });
+        value.columns.push({ name: "Untitled", label: false, reference: " ", type: "Boolean", initvalue: " " });
         storeReducer({
             type: GlobalStoreActionType.UPDATE_DATA_SOURCE,
             payload: { data_source: value, pairs: store.idDataSourcePairs }
