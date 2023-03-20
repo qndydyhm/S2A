@@ -1,6 +1,6 @@
 import {
     Table, TableBody, TableCell, TableContainer,
-    TableHead, TableRow, Paper, Checkbox, Fab
+    TableHead, TableRow, Paper, Checkbox
 } from '@mui/material';
 import { Add, Edit } from '@mui/icons-material';
 import GlobalStoreContext from '../store';
@@ -15,7 +15,7 @@ export default function Data_Source_Detail_Session() {
     const [key, setKey] = useState(current_ds.key);
     const [sheet_index, setSheet_Index] = useState(current_ds.sheet_index);
     const [columns, set_columns] = useState(current_ds.columns);
-    
+
     function handleUpdateName(event) {
         setName(event.target.value);
     }
@@ -26,31 +26,31 @@ export default function Data_Source_Detail_Session() {
     function handleUpdateKey(event) {
         setKey(event.target.value);
     }
-    function handleUpdateSheetI(event){
+    function handleUpdateSheetI(event) {
         setSheet_Index(event.target.value);
     }
-    function handleSetSelectedColumnIndex(column){
+    function handleSetSelectedColumnIndex(column) {
         store.setCurrentSelectedColumnIndex(column);
     }
-    function handleEditSelectedColumn(){
-        if(store.currentSelectedColumn==null){
+    function handleEditSelectedColumn() {
+        if (store.currentSelectedColumn == null) {
             alert("Check Row you want to edit");
         }
-        else{
+        else {
             store.showModal("EDIT_COLUMN");
         }
     }
-    
-    function handleConfirmEditDataSource(){
-        store.editCurrentDataSource({id:store.currentDatasource.id,appId:store.currentDatasource.appId,name:name,url:url,key:key,sheet_index:sheet_index});
+
+    function handleConfirmEditDataSource() {
+        store.editCurrentDataSource({ id: store.currentDatasource.id, appId: store.currentDatasource.appId, name: name, url: url, key: key, sheet_index: sheet_index });
     }
 
-    function handleCreateNewColumn(){
+    function handleCreateNewColumn() {
         console.log("WAITING TO CREATE NEW COLUMN");
     }
 
     return (
-        <div>
+        <div style={{ width: '100%', fontSize: '15pt', backgroundColor: '#9f98a1' }}>
             <div id="dsname-prompt" className="prompt">Name:</div>
             <input
                 className='modal-textfield'
@@ -75,22 +75,10 @@ export default function Data_Source_Detail_Session() {
                 defaultValue={key}
                 onChange={handleUpdateKey} />
             <div>
-                <Fab
-                    color="inherit"
-                    aria-label="add"
-                    id="add-list-button"
-                    onClick={handleCreateNewColumn}
-                >
-                    <Add />
-                </Fab>
-                <Fab
-                    color="inherit"
-                    aria-label="add"
-                    id="add-list-button"
-                    onClick={handleEditSelectedColumn(store.currentSelectedColumnIndex)}
-                >
-                    <Edit />
-                </Fab>
+                <div>
+                    <Edit onClick={handleEditSelectedColumn} />
+                    <Add onClick={handleCreateNewColumn}/>
+                </div>
                 <TableContainer component={Paper}>
                     <Table sx={{ minWidth: 650 }} aria-label="simple table">
                         <TableHead>

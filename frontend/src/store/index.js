@@ -54,7 +54,7 @@ function GlobalStoreContextProvider(props) {
         idDataSourcePairs: [],//[{id,dataSource.name}]
         currentApp: null, //{id,name,creator,roleM,publish}if currentApp ! = null, then currently developer is in the editing page,
         currentSelectedDatasource: null,//{id,name,url,sheet_index,key}
-        currentSelectedColumnIndex: null,
+        currentSelectedColumnIndex: -1,
         currentModal: currentModal.NONE,
         //view
         viewPairs: [],//[{id,name}....]
@@ -153,7 +153,10 @@ function GlobalStoreContextProvider(props) {
             }
             case GlobalStoreActionType.SET_CURRENT_SELECTED_DATA_SOURCE: {
                 return setStore({
-                    currentSelectedDatasource: payload.pairs
+                    currentSelectedDatasource: payload.pairs,
+                    currentApp:store.currentApp,
+                    idDataSourcePairs:store.idDataSourcePairs,
+                    currentSideBar:store.currentSideBar
                 });
             }
             default:
@@ -255,10 +258,10 @@ function GlobalStoreContextProvider(props) {
 
     store.setCurrentSelectedDataSource = function (id) {
         async function asyncGetSelectedDataSource() {
-            const response = await api.getIdAppPairs();
-            //await api.getDataSource(id)
-            if (response.data.success) {
-                let ds = response.data.data_source;
+            const response = await api.getDataSource(id);
+            console.log(response);
+            if (response.status == 200) {
+                let ds = response.data.datasource;
                 storeReducer({
                     type: GlobalStoreActionType.SET_CURRENT_SELECTED_DATA_SOURCE,
                     payload: { pairs: ds }
