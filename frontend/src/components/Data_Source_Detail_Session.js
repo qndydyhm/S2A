@@ -46,7 +46,7 @@ export default function Data_Source_Detail_Session() {
     }
 
     function handleCreateNewColumn() {
-        console.log("WAITING TO CREATE NEW COLUMN");
+        store.createNewColumn();
     }
 
     return (

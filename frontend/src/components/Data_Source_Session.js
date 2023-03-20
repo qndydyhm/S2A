@@ -16,9 +16,9 @@ export default function Data_Source_Session() {
             {
                 store.idDataSourcePairs.map((pair) => (
                     <Data_Source_Card
-                        key={pair.id}
+                        key={pair._id}
                         name={pair.name}
-                        id = {pair.id}
+                        id = {pair._id}
                     />
                 ))
             }

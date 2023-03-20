@@ -99,15 +99,9 @@ function GlobalStoreContextProvider(props) {
             }
             case GlobalStoreActionType.UPDATE_DATA_SOURCE: {
                 return setStore({
-                    currentSelectedDatasource: {
-                        id: store.currentDatasource.id,
-                        name: payload.data_source.name,
-                        url: payload.data_source.url,
-                        key: payload.data_source.key,
-                        sheet_index: payload.data_source.sheet_index,
-                        columns: payload.data_source.columns
-                    },
-                    currentModal: currentModal.NONE
+                    currentSelectedDatasource: payload.data_source,
+                    currentModal: currentModal.NONE,
+                    idDataSourcePairs:payload.pairs
 
                 });
             }
@@ -247,7 +241,7 @@ function GlobalStoreContextProvider(props) {
         let pairs =[];
         let datasources = store.currentApp.datasources;
         for(let i = 0;i<datasources.length;i++){
-            pairs.push({_id:datasources[i]._id,name:datasources[i].name});
+            pairs.push({_id:datasources[i].id,name:datasources[i].name});
         }
         storeReducer({
             type: GlobalStoreActionType.LOAD_DATA_SOURCE_LIST,
@@ -273,15 +267,13 @@ function GlobalStoreContextProvider(props) {
     }
     store.createNewColumn = function () {
         async function asyncCreateNewColumn() {
-            const response = await api.getIdAppPairs();
             let value = store.currentSelectedDatasource;
             value.columns.push("", "", "", "", "");
-            //await api.updateDataSource(value);
+            const response = await api.updateDataSource(value._id,value);
             if (response.data.success) {
-
                 storeReducer({
                     type: GlobalStoreActionType.UPDATE_DATA_SOURCE,
-                    payload: { data_source: value }
+                    payload: { data_source: value, pairs:store.idDataSourcePairs }
                 });
             }
         }
@@ -289,6 +281,7 @@ function GlobalStoreContextProvider(props) {
     }
     store.createNewDataSource = function () {
         async function asyncCreateNewDataSource() {
+            console.log(store.currentApp._id);
             const response = await api.createNewDataSource({name:"Untitle",URL:" ",sheetindex:1,key:" ",columns:[],owner:store.currentApp._id});
             if (response.status==200) {
                 let value = store.idDataSourcePairs;
@@ -327,7 +320,7 @@ function GlobalStoreContextProvider(props) {
         if (response.data.success) {
             storeReducer({
                 type: GlobalStoreActionType.UPDATE_DATA_SOURCE,
-                payload: { appSource: store.currentDatasource }
+                payload: { data_source: store.currentDatasource,pairs:store.idDataSourcePairs }
             })
         }
     }
@@ -338,6 +331,7 @@ function GlobalStoreContextProvider(props) {
             const response = await api.getApp(id);
             if (response.status == 200) {
                 let app = response.data.app;
+                console.log(app);
                 storeReducer({
                     type: GlobalStoreActionType.OPEN_APP,
                     payload: { app: app }
@@ -350,12 +344,12 @@ function GlobalStoreContextProvider(props) {
         asyncLoadCurrentApp();
     }
 
-    store.changeSideBarSection = function (section) {
-        storeReducer({
-            type: GlobalStoreActionType.CHANGE_SIDEBAR_SECTION,
-            payload: { section: section }
-        })
-    }
+    // store.changeSideBarSection = function (section) {
+    //     storeReducer({
+    //         type: GlobalStoreActionType.CHANGE_SIDEBAR_SECTION,
+    //         payload: { section: section }
+    //     })
+    // }
 
 
 
