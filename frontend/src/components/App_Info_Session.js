@@ -28,7 +28,7 @@ export default function App_Info_Session() {
         setPublished(!published);
     }
     function handleConfirmEditApp(event){
-        store.editCurrentApp({id:store.currentApp.id,name:name,roleM:roleM,published:published});
+        store.editCurrentApp({id:store.currentApp.id,name:name,roleM:roleM,published:published,views:store.currentApp.views,datasources:store.currentApp.datasources});
 
     }
 
@@ -46,6 +46,7 @@ export default function App_Info_Session() {
                 type="text"
                 defaultValue={roleM}
                 onChange={handleUpdateRoleM} />
+            <div>
             <FormControl component="fieldset" variant="standard">
                 <FormLabel component="legend">Publish?</FormLabel>
                 <FormControlLabel
@@ -54,6 +55,7 @@ export default function App_Info_Session() {
                     }
                 />
             </FormControl>
+            </div>
             <input 
                         type="button" 
                         id="edi-app-confirm-button" 

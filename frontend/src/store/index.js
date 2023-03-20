@@ -100,10 +100,10 @@ function GlobalStoreContextProvider(props) {
                     currentApp: {
                         id: store.currentApp.id,
                         name: payload.app.name,
-                        creator: payload.app.creator,
                         roleM: payload.app.roleM,
-                        publish: payload.app.publish
+                        published: payload.app.published
                     },
+                    currentSideBar:CurrentSideBar.APP_INFO_SECTION,
                 });
             }
             case GlobalStoreActionType.UPDATE_DATA_SOURCE: {
@@ -222,13 +222,11 @@ function GlobalStoreContextProvider(props) {
         async function asyncEditCurrentApp() {
             const response = await api.updateApp(store.currentApp.id, app);
             if (response.status == 200) {
+                console.log("APP UPDATE ALREADY");
                 storeReducer({
                     type: GlobalStoreActionType.UPDATE_APP,
                     payload: { app: app }
                 })
-                //Update the IdApppairs since app is edited
-                store.loadIdAppPairs();
-
             }
             else {
                 console.log("API FAIL TO UPDATE CURRENT APP");
