@@ -1,54 +1,73 @@
 import {
     Table, TableBody, TableCell, TableContainer,
-    TableHead, TableRow, Paper, Checkbox
+    TableHead, TableRow, Paper
 } from '@mui/material';
-import { Add, Edit } from '@mui/icons-material';
+import { Add } from '@mui/icons-material';
 import GlobalStoreContext from '../store';
 import { useContext, useState } from 'react';
 
 
+
 export default function Data_Source_Detail_Session() {
+    //IN THEORY, I WILL CHANGE THE COLUMN BY setColumn() like AppCard,but due to some wired bug from react, the setState function can't work properly on the array
+    //IN REACT DOCUMENT, IT MENTIONS THAT SOMETIMES setState can't perform immidieately, so I save to global state as well as the rest of value to the currenSelectedDatasource, and sned result to backend when user click save
     const { store } = useContext(GlobalStoreContext);
     const current_ds = store.currentSelectedDatasource;
-    const [name, setName] = useState(current_ds.name);
-    const [url, setURL] = useState(current_ds.URL);
-    const [key, setKey] = useState(current_ds.key);
-    const [sheetindex, setSheetindex] = useState(current_ds.sheetindex);
-    const [columns, set_columns] = useState(current_ds.columns);
+    const [name] = useState(current_ds.name);
+    const [url] = useState(current_ds.URL);
+    const [key] = useState(current_ds.key);
+    const [sheetindex] = useState(current_ds.sheetindex);
+    const [columns] = useState(current_ds.columns);
 
+
+    
     function handleUpdateName(event) {
-        setName(event.target.value);
+        store.currentSelectedDatasource.name = event.target.value;
+        store.updateDataSourceLocally(store.currentSelectedDatasource);
     }
     function handleUpdateURL(event) {
-        setURL(event.target.value);
+        store.currentSelectedDatasource.URL = event.target.value;
+        store.updateDataSourceLocally(store.currentSelectedDatasource);
     }
 
     function handleUpdateKey(event) {
-        setKey(event.target.value);
+        store.currentSelectedDatasource.key = event.target.value;
+        store.updateDataSourceLocally(store.currentSelectedDatasource);
     }
     function handleUpdateSheetI(event) {
-        setSheetindex(event.target.value);
-    }
-    function handleSetSelectedColumnIndex(column) {
-        store.setCurrentSelectedColumnIndex(column);
-    }
-    function handleEditSelectedColumn() {
-        if (store.currentSelectedColumn == null) {
-            alert("Check Row you want to edit");
-        }
-        else {
-            store.showModal("EDIT_COLUMN");
-        }
+        store.currentSelectedDatasource.sheetindex = event.target.value;
+        store.updateDataSourceLocally(store.currentSelectedDatasource);
     }
 
     function handleConfirmEditDataSource() {
-        store.editCurrentDataSource({ _id: store.currentSelectedDatasource._id, owner: store.currentSelectedDatasource.owner, name: name, URL: url, key: key, sheetindex: sheetindex,columns:store.currentSelectedDatasource.columns });
+        store.confirmEditDataSource();
         //{ name: "Untitle", URL: " ", sheetindex: 1, key: " ", columns: [], owner: store.currentApp._id }
+    }
+    function handleUpdateColumn(event,index,tag) {
+        event.stopPropagation();
+        console.log(event.target);
+        if (tag == "name") {
+            columns[index].name = event.target.value;
+        }
+        else if (tag == "label") {
+            columns[index].label = event.target.value;
+        }
+        else if (tag == "initvalue") {
+            columns[index].initvalue = event.target.value;
+        }
+        else if (tag == "reference") {
+            columns[index].reference = event.target.value;
+        }
+        else if (tag == "type") {
+            columns[index].type=event.target.value;
+        }
+        store.updateColumn(columns);
     }
 
     function handleCreateNewColumn() {
         store.createNewColumn();
     }
+
 
     return (
         <div style={{ width: '100%', fontSize: '15pt', backgroundColor: '#9f98a1' }}>
@@ -77,42 +96,69 @@ export default function Data_Source_Detail_Session() {
                 onChange={handleUpdateKey} />
             <div>
                 <div>
-                    <Edit onClick={handleEditSelectedColumn} />
-                    <Add onClick={handleCreateNewColumn}/>
+                    <Add onClick={handleCreateNewColumn} />
                 </div>
                 <TableContainer component={Paper}>
-                    <Table sx={{ minWidth: 650 }} aria-label="simple table">
+                    <Table sx={{ minWidth: 750 }} aria-label="simple table">
                         <TableHead>
                             <TableRow>
-                                <TableCell>Check</TableCell>
-                                <TableCell align="right">name</TableCell>
-                                <TableCell align="right">Initial Value</TableCell>
-                                <TableCell align="right">Label</TableCell>
-                                <TableCell align="right">Reference</TableCell>
-                                <TableCell align="right">Type</TableCell>
+                                <TableCell >name</TableCell>
+                                <TableCell>Initial Value</TableCell>
+                                <TableCell>Label</TableCell>
+                                <TableCell>Reference</TableCell>
+                                <TableCell>Type</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {columns.map((column) => (
-                                <TableRow
-                                    key={column.name}
-                                    sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                                >
-                                    <TableCell component="th" scope="row">
-                                        <Checkbox
-                                            edge="start"
-                                            checked={store.currentSelectedColumnIndex == store.currentSelectedDatasource.columns.indexOf(column)}
-                                            disableRipple
-                                            onClick={handleSetSelectedColumnIndex(store.currentSelectedDatasource.columns.indexOf(column))}
-                                        />
-                                    </TableCell>
-                                    <TableCell align="right">{column.name}</TableCell>
-                                    <TableCell align="right">{column.initValue}</TableCell>
-                                    <TableCell align="right">{column.label}</TableCell>
-                                    <TableCell align="right">{column.reference}</TableCell>
-                                    <TableCell align="right">{column.type}</TableCell>
-                                </TableRow>
-                            ))}
+                            {
+                                columns.map((column) => (
+                                    <TableRow
+                                        key={columns.indexOf(column)}
+                                        sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                                    >
+                                        <TableCell >
+                                            <input
+                                                className='modal-textfield'
+                                                type="text"
+                                                defaultValue={column.name}
+                                            onChange={(e)=>handleUpdateColumn(e,columns.indexOf(column), "name")} 
+                                            />
+                                        </TableCell>
+                                        <TableCell align="right">
+                                            <input
+                                                className='modal-textfield'
+                                                type="text"
+                                                defaultValue={column.label}
+                                            onChange={(e)=>handleUpdateColumn(e,columns.indexOf(column), "label")}
+                                            /></TableCell>
+                                        <TableCell align="right">
+                                            <input
+                                                className='modal-textfield'
+                                                type="text"
+                                                defaultValue={column.initvalue}
+                                            onChange={(e)=>handleUpdateColumn(e,columns.indexOf(column), "initvalue")}
+                                            />
+                                        </TableCell>
+                                        <TableCell align="right">
+                                            <input
+                                                className='modal-textfield'
+                                                type="text"
+                                                defaultValue={column.reference}
+                                            onChange={(e)=>handleUpdateColumn(e,columns.indexOf(column), "reference")} 
+                                            />
+                                        </TableCell>
+                                        <TableCell align="right">
+                                            <input
+                                                className='modal-textfield'
+                                                type="text"
+                                                defaultValue={column.type}
+                                                id={column}
+                                            onChange={(e)=>handleUpdateColumn(e,columns.indexOf(column),"type")} 
+                                            />
+                                        </TableCell>
+                                    </TableRow>
+                                ))
+                            }
                         </TableBody>
                     </Table>
                 </TableContainer>

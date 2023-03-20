@@ -103,16 +103,16 @@ function GlobalStoreContextProvider(props) {
                     currentSelectedDatasource: payload.data_source,
                     currentModal: currentModal.NONE,
                     idDataSourcePairs: payload.pairs,
-                    currentSideBar:store.currentSideBar,
-                    currentApp:store.currentApp
+                    currentSideBar: store.currentSideBar,
+                    currentApp: store.currentApp
 
                 });
             }
             case GlobalStoreActionType.LOAD_VIEW_LIST: {
                 return setStore({
                     viewPairs: payload.pairs,
-                    currentApp:store.currentApp,
-                    currentSideBar:CurrentSideBar.VIEW_SECTION
+                    currentApp: store.currentApp,
+                    currentSideBar: CurrentSideBar.VIEW_SECTION
                 });
             }
             case GlobalStoreActionType.OPEN_APP: {
@@ -289,13 +289,28 @@ function GlobalStoreContextProvider(props) {
     }
     store.createNewColumn = function () {
         let value = store.currentSelectedDatasource;
-        value.columns.push({name:"Untitled",label:false,reference:" ",type:" ",initValue:" "});
+        value.columns.push({ name: "Untitled", label: false, reference: " ", type: "Text", initvalue: " " });
         storeReducer({
             type: GlobalStoreActionType.UPDATE_DATA_SOURCE,
             payload: { data_source: value, pairs: store.idDataSourcePairs }
         });
     }
 
+    store.updateColumn = function (columns) {
+        let value = store.currentSelectedDatasource;
+        value.columns = columns;
+        console.log(value.columns);
+        storeReducer({
+            type: GlobalStoreActionType.UPDATE_DATA_SOURCE,
+            payload: { data_source: value, pairs: store.idDataSourcePairs }
+        });
+    }
+    store.updateDataSourceLocally = function (datasource) {
+        storeReducer({
+            type: GlobalStoreActionType.UPDATE_DATA_SOURCE,
+            payload: { data_source: datasource, pairs: store.idDataSourcePairs }
+        });
+    }
     store.createNewDataSource = function () {
         async function asyncCreateNewDataSource() {
             console.log(store.currentApp._id);
@@ -310,6 +325,20 @@ function GlobalStoreContextProvider(props) {
             }
         }
         asyncCreateNewDataSource();
+    }
+    store.confirmEditDataSource = function () {
+        async function asyncEditDataSource() {
+            console.log(store.currentApp._id);
+            const response = await api.updateDataSource(store.currentSelectedDatasource._id,store.currentSelectedDatasource);
+            if (response.status == 200) {
+                storeReducer({
+                    type: GlobalStoreActionType.UPDATE_DATA_SOURCE,
+                    payload: {data_source: store.currentSelectedDatasource, pairs: store.idDataSourcePairs }
+                });
+            }
+        }
+        asyncEditDataSource();
+
     }
     store.setCurrentSelectedColumnIndex = function (index) {
         storeReducer({
@@ -329,26 +358,12 @@ function GlobalStoreContextProvider(props) {
             type: GlobalStoreActionType.HIDE_MODAL
         })
     }
-
-    store.updateColumn = async function (column) {
-        let v = store.currentSelectedDatasource.columns.splice(store.currentSelectedColumnIndex, 1, column);
-        const response = await api.getIdAppPairs();
-        //await api.updateDataSource(v);
-        if (response.data.success) {
-            storeReducer({
-                type: GlobalStoreActionType.UPDATE_DATA_SOURCE,
-                payload: { data_source: store.currentDatasource, pairs: store.idDataSourcePairs }
-            })
-        }
-    }
-
     //set the currentApp ==id, and also load the currentApp's i
     store.setCurrentApp = function (id) {
         async function asyncLoadCurrentApp() {
             const response = await api.getApp(id);
             if (response.status == 200) {
                 let app = response.data.app;
-                console.log(app);
                 storeReducer({
                     type: GlobalStoreActionType.OPEN_APP,
                     payload: { app: app }
@@ -361,16 +376,18 @@ function GlobalStoreContextProvider(props) {
         asyncLoadCurrentApp();
     }
 
+
+
     //Views
     store.createNewView = function () {
         async function asyncCreateNewView() {
-            const response = await api.createNewView({name:"Untitle",table:" ",columns:[],viewtype:"table",allowedactions:0,roles:[],owner:store.currentApp._id});
-            if(response.status==200) {
+            const response = await api.createNewView({ name: "Untitle", table: " ", columns: [], viewtype: "table", allowedactions: 0, roles: [], owner: store.currentApp._id });
+            if (response.status == 200) {
                 let value = store.viewPairs;
-                value.push({ id: response.data.id, name:"Untitled"})
+                value.push({ id: response.data.id, name: "Untitled" })
                 storeReducer({
                     type: GlobalStoreActionType.LOAD_VIEW_LIST,
-                    payload: {pairs: value}
+                    payload: { pairs: value }
                 });
             }
         }
@@ -379,8 +396,8 @@ function GlobalStoreContextProvider(props) {
     store.loadViewPair = function () {
         let pairs = [];
         let views = store.currentApp.views;
-        for(let i = 0; i<views.length; i++){
-            pairs.push({_id:views[i].id, name:views[i].name});
+        for (let i = 0; i < views.length; i++) {
+            pairs.push({ _id: views[i].id, name: views[i].name });
         }
         storeReducer({
             type: GlobalStoreActionType.LOAD_VIEW_LIST,
@@ -389,13 +406,13 @@ function GlobalStoreContextProvider(props) {
     }
 
     store.setCurrentSelectedView = function (id) {
-        async function asyncGetSelectedView(){
+        async function asyncGetSelectedView() {
             const response = await api.getView(id);
             if (response.status = 200) {
                 let v = response.data.view;
                 storeReducer({
                     type: GlobalStoreActionType.SET_CURRENT_SELECTED_VIEW,
-                    payload: {v: v}
+                    payload: { v: v }
                 });
             }
         }
@@ -410,11 +427,11 @@ function GlobalStoreContextProvider(props) {
                 console.log("VIEW UPDATED ALREADY");
                 storeReducer({
                     type: GlobalStoreActionType.UPDATE_VIEW,
-                    payload: {view: view}
+                    payload: { view: view }
                 })
             }
-            else{
-                 console.log("API FAIL TO UPDATE CURRENT VIEW");
+            else {
+                console.log("API FAIL TO UPDATE CURRENT VIEW");
             }
         }
         asyncEditCurrentView();
