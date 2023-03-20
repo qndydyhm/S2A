@@ -111,7 +111,7 @@ const getApp = async (req: express.Request, res: express.Response) => {
                 datasources.push({ id: datasource._id, name: datasource.name })
             }
 
-            for (let key in existingApp.datasources) {
+            for (let key in existingApp.views) {
                 const view = await DataSource.findOne({ _id: existingApp.views[key] })
                 if (!view)
                     return res.status(400).json({
