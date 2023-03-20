@@ -18,6 +18,9 @@ export default function View_Detail_Session(props){
     const [table, setTable] = useState(current_view.table);
     const [tableName, setTableName] = useState(selectedTable.name);
     const [columns, setColumns] = useState(current_view.columns);
+    const [columnsText, setColumnsText] = useState(current_view.columns);
+    const [editableColumns, setEditableColumns] = useState(current_view.editablecolumns);
+    const [editableColumnsText, setEditableColumnsText] = useState(current_view.editablecolumns);
 
     function findObjectById(array, id) {
         for (var i = 0; i < array.length; i++) {
@@ -46,11 +49,24 @@ export default function View_Detail_Session(props){
         setTable(event.target.value.id);
         setTableName(event.target.value.name);
     }
+    function handleUpdateColumnsText(event) {
+        setColumnsText(event.target.value);
+    }
     function handleUpdateColumns(event) {
-        let c = event.target.value.substr(event.target.value.length-1);
-        if (c>='0' && c<='9'){
-            let array = JSON.parse("["+event.target.value+"]");
-            setColumns(array);
+        if (event.code=="Enter"){
+            let text = columnsText.replace(' ','').split(',');
+            setColumns(text);
+        }
+    }
+    function handleUpdateEditableColumnsText(event) {
+        setEditableColumnsText(event.target.value);
+        console.log(editableColumnsText)
+    }
+    function handleUpdateEditableColumns(event) {
+        if (event.code=="Enter"){
+            console.log(editableColumnsText)
+            let text = editableColumnsText.replace(' ','').split(',');
+            setEditableColumns(text);
         }
     }
     function handleConfirmEditView() {
@@ -66,11 +82,15 @@ export default function View_Detail_Session(props){
                             allowedactions:allacts,
                             roles:[],
                             owner:current_view.owner}
+        if (editableColumns!=null){
+            updated_view.editablecolumns = editableColumns;
+        }
         console.log("confirm", current_view, updated_view)
         store.editCurrentView(id, updated_view);
         store.loadViewPair();
     }
     //TODO: disalbe "add record" in detailed view, diable "edit record" in table view
+    //TODO: check if editable columns belong to columns
     return(
         <div style={{ width: '100%', fontSize: '15pt', backgroundColor: '#9f98a1' }}>
             <div id="dsname-prompt" className="prompt">Name:</div>
@@ -128,7 +148,16 @@ export default function View_Detail_Session(props){
                 <input
                 className='modal-textfield'
                 defaultValue={columns}
-                onKeyDown={handleUpdateColumns} />
+                onKeyDown={handleUpdateColumns}
+                onChange={handleUpdateColumnsText} />
+            </div>
+            <div id="editable-columns-select">
+                Editable Columns (Optional, Seperated by ","):
+                <input
+                className='modal-textfield'
+                defaultValue={editableColumns}
+                onKeyDown={handleUpdateEditableColumns}
+                onChange={handleUpdateEditableColumnsText} />
             </div>
 
             <input
