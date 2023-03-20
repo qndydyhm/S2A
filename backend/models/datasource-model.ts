@@ -6,7 +6,7 @@ export type DataSource = {
     URL: string;
     sheetindex: number;
     key: string;
-    columns: [{name: string, initvalue: string, label: boolean, reference: string, type: string}];
+    columns: {name: string, initvalue: string, label: boolean, reference: string, type: string}[];
     owner: string;
     //   organization: Types.ObjectId;
 }

@@ -1,6 +1,7 @@
 import express from 'express'
 import auth from '../auth'
 import View from '../models/view-model'
+import App from '../models/app-model'
 
 
 const createView = async (req: express.Request, res: express.Response) => {
@@ -21,7 +22,11 @@ const createView = async (req: express.Request, res: express.Response) => {
             return res.status(400).json({
                 status: "Missing parameter"
             })
-        // TODO check owner, table, columns, roles is valid
+        const existingApp = await App.findOne({ _id: owner });
+        if (!existingApp)
+            return res.status(400).json({
+                status: "Fail to find app " + owner
+            })
         // create and save datasource
         if (viewtype !== "table" && viewtype !== "detail")
             return res.status(400).json({
@@ -77,6 +82,8 @@ const createView = async (req: express.Request, res: express.Response) => {
             }
         }
         const savedView = await newView.save();
+        existingApp.views.push(savedView._id.toString())
+        existingApp.save()
         console.info("New View created: ", savedView)
         await res.send({ status: "OK", id: savedView._id });
     }
@@ -217,9 +224,21 @@ const deleteView = async (req: express.Request, res: express.Response) => {
         // TODO remove this, only remove when app change/delete
         const existingView = await View.findOneAndDelete({ _id: viewId });
         if (!existingView)
-            return res.status(401).json({
+            return res.status(400).json({
                 status: "Fail to find view " + viewId
             })
+            try {
+                const owner = await App.findById(existingView.owner)
+                if (!owner)
+                    return res.status(400).json({
+                        status: "Fail to owner " + existingView.owner
+                    })
+                owner.views = owner.views.filter((a) => { a != viewId })
+                owner.save()
+            }
+            catch (e) {
+                console.log(e)
+            }
         await res.send({ status: "OK", view: existingView });
     }
     catch (e) {

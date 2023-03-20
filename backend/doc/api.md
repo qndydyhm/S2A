@@ -64,8 +64,6 @@ POST /api/app/:id
 request:
 {
     name: string, 
-    datasources: [string], 
-    views: [string], 
     roleM: string, 
     published: boolean
 }
@@ -194,7 +192,7 @@ response:
 }
 ```
 
-- Delete data source **deprecated soon**
+- Delete data source
 ```
 DELETE /api/ds/:id
 request:
@@ -278,7 +276,7 @@ response:
 }
 ```
 
-- Delete view (**deprecated soon**)
+- Delete view
 ```
 DELETE /api/view/:id
 request:

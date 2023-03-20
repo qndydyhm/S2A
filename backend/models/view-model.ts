@@ -4,14 +4,14 @@ import { Schema, Types, model } from 'mongoose';
 export type View = {
     name: string;
     table: string;
-    columns: [string];
+    columns: string[];
     viewtype: string;
     allowedactions: number;
-    roles: [string];
+    roles: string[];
     filter?: string;
     userfilter?: string;
     editfilter?: string;
-    editablecolumns?: [string],
+    editablecolumns?: string[],
     owner: string
     //   organization: Types.ObjectId;
 }

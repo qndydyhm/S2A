@@ -4,8 +4,8 @@ import { Schema, Types, model } from 'mongoose';
 export type App = {
     name: string;
     creator: string;
-    datasources: [string];
-    views: [string];
+    datasources: string[];
+    views: string[];
     roleM: string;
     published: boolean;
     //   organization: Types.ObjectId;

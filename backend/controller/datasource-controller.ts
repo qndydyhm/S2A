@@ -1,6 +1,7 @@
 import express from 'express'
 import auth from '../auth'
 import DataSource from '../models/datasource-model'
+import App from '../models/app-model'
 
 
 const createDS = async (req: express.Request, res: express.Response) => {
@@ -14,13 +15,17 @@ const createDS = async (req: express.Request, res: express.Response) => {
             })
         // check parameters
         const { name, URL, sheetindex, key, columns, owner } = req.body;
-        if (typeof (name) != "string" || name === "" || typeof (URL) != "string" || URL === "" || 
-            typeof (sheetindex) != "number" || typeof (key) != "string" || key === "" || 
+        if (typeof (name) != "string" || name === "" || typeof (URL) != "string" || URL === "" ||
+            typeof (sheetindex) != "number" || typeof (key) != "string" || key === "" ||
             !Array.isArray(columns) || typeof (owner) != "string" || owner === "")
             return res.status(400).json({
                 status: "Missing parameter"
             })
-        // TODO: check owner
+        const existingApp = await App.findOne({ _id: owner });
+        if (!existingApp)
+            return res.status(400).json({
+                status: "Fail to find app " + owner
+            })
         // check columns
         let newColumn = []
         let hasLabel: boolean = false
@@ -58,6 +63,8 @@ const createDS = async (req: express.Request, res: express.Response) => {
             owner: owner
         })
         const savedDS = await newDS.save();
+        existingApp.datasources.push(savedDS._id.toString());
+        existingApp.save();
         console.info("New Datasource created: ", savedDS)
         await res.send({ status: "OK", id: savedDS._id });
     }
@@ -78,7 +85,7 @@ const updateDS = async (req: express.Request, res: express.Response) => {
         // check parameters
         const dsId = req.params.id;
         const { name, URL, sheetindex, key, columns } = req.body;
-        if (!dsId || typeof (name) != "string" || name === "" || typeof (URL) != "string" || URL === "" || 
+        if (!dsId || typeof (name) != "string" || name === "" || typeof (URL) != "string" || URL === "" ||
             typeof (sheetindex) != "number" || typeof (key) != "string" || key === "" || !Array.isArray(columns))
             return res.status(400).json({
                 status: "Missing parameter"
@@ -182,9 +189,21 @@ const deleteDS = async (req: express.Request, res: express.Response) => {
         // TODO remove this, only remove when app change/delete
         const existingDS = await DataSource.findOneAndDelete({ _id: dsId });
         if (!existingDS)
-            return res.status(401).json({
+            return res.status(400).json({
                 status: "Fail to find DataSource " + dsId
             })
+        try {
+            const owner = await App.findById(existingDS.owner)
+            if (!owner)
+                return res.status(400).json({
+                    status: "Fail to owner " + existingDS.owner
+                })
+            owner.datasources = owner.datasources.filter((a) => { a != dsId })
+            owner.save()
+        }
+        catch (e) {
+            console.log(e)
+        }
         await res.send({ status: "OK", datasource: existingDS });
     }
     catch (e) {
