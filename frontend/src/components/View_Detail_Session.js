@@ -16,8 +16,8 @@ export default function View_Detail_Session(props){
     const [allowEdit, setAllowEdit] = useState(current_view.allowedactions%4>=2);
     const [allowDelete, setAllowDelete] = useState(current_view.allowedactions%2==1);
     const [table, setTable] = useState(current_view.table);
-    console.log(selectedTable)
     const [tableName, setTableName] = useState(selectedTable.name);
+    const [columns, setColumns] = useState(current_view.columns);
 
     function findObjectById(array, id) {
         for (var i = 0; i < array.length; i++) {
@@ -46,6 +46,13 @@ export default function View_Detail_Session(props){
         setTable(event.target.value.id);
         setTableName(event.target.value.name);
     }
+    function handleUpdateColumns(event) {
+        let c = event.target.value.substr(event.target.value.length-1);
+        if (c>='0' && c<='9'){
+            let array = JSON.parse("["+event.target.value+"]");
+            setColumns(array);
+        }
+    }
     function handleConfirmEditView() {
         let allacts=0;
         if (allowAdd){allacts+=4}
@@ -54,7 +61,7 @@ export default function View_Detail_Session(props){
         let updated_view = {_id: id,
                             name: name,
                             table: table,
-                            columns:[],
+                            columns:columns,
                             viewtype:type,
                             allowedactions:allacts,
                             roles:[],
@@ -115,7 +122,13 @@ export default function View_Detail_Session(props){
                             })
                         }
                 </Select>
-
+            </div>
+            <div id="columns-select">
+                Columns (Seperated by ","):
+                <input
+                className='modal-textfield'
+                defaultValue={columns}
+                onKeyDown={handleUpdateColumns} />
             </div>
 
             <input
