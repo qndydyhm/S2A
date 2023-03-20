@@ -7,6 +7,7 @@
   },
   "dependencies": {
     "@googleapis/oauth2": "^1.0.0",
+    "@googleapis/sheets": "^4.0.2",
     "@types/cookie-parser": "^1.4.3",
     "@types/jsonwebtoken": "^9.0.1",
     "cookie-parser": "^1.4.6",

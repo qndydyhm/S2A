@@ -1,8 +1,10 @@
 import { auth, oauth2 } from '@googleapis/oauth2'
+import { sheets } from '@googleapis/sheets';
+import sheetParser from './sheet-parser';
 
-import dotenv from 'dotenv'
-dotenv.config();
+const APIKEY = process.env.API_KEY
 
+const sheet = sheets("v4");
 
 const oauth2Client = new auth.OAuth2(
     process.env.CLIENT_ID,
@@ -42,11 +44,10 @@ const getAuthUrl = (): string => authorizationUrl;
 /**
  * Get token from code
  * @param code parameter from callback query
- * @returns {
+ * @returns
  *      refresh_token,  // This field is only present if the access_type parameter was set to offline in the authentication request. For details, see Refresh tokens.
  *      access_token,   // A token that can be sent to a Google API.
  *      expiry_date     // The time in ms at which this token is thought to expire.
- * }
  */
 const getToken = async (code: string) => await (await oauth2Client.getToken(code)).tokens;
 
@@ -69,10 +70,61 @@ const getUserInfo = async (tokens: any) => {
     return (await Oauth2.userinfo.get()).data
 }
 
+const getClient = (refresh_token?: string, access_token?: string, expiry_date?: number) => {
+    let client: any = APIKEY
+    if (refresh_token || access_token || expiry_date) {
+        client = new auth.OAuth2(
+            process.env.CLIENT_ID,
+            process.env.CLIENT_SECRET,
+            process.env.PROTOCOL + "://" + process.env.DOMAIN_NAME + "/auth/google-callback"
+        );
+        client.setCredentials({
+            refresh_token: refresh_token,
+            access_token: access_token,
+            expiry_date: expiry_date
+        });
+    }
+    return client;
+}
 
+const getSheetName = async (URL: string, refresh_token?: string, access_token?: string, expiry_date?: number) => {
+    let client = getClient(refresh_token, access_token, expiry_date);
+    const sheetInfo = sheetParser.sheetUrlParser(URL)
+    if (!sheetInfo)
+        throw "Fail to parse URL"
+    const sheetProp = await sheet.spreadsheets.get({
+        auth: client,
+        spreadsheetId: sheetInfo.spreadsheetId
+    })
+    let sheetName = ""
+    for (let key in sheetProp.data.sheets) {
+        if (sheetProp.data.sheets[key as any].properties?.sheetId === sheetInfo.sheetId) {
+            sheetName = sheetProp.data.sheets[key as any].properties?.title || "";
+            break;
+        }
+    }
+    if (!sheetName) {
+        throw "Fail to find sheet with sheetId " + sheetInfo.sheetId
+    }
+    return sheetName;
+}
 
+const getSheet = async (URL: string, refresh_token?: string, access_token?: string, expiry_date?: number) => {
+    let client: any = getClient(refresh_token, access_token, expiry_date);
+    const sheetInfo = sheetParser.sheetUrlParser(URL)
+    if (!sheetInfo)
+        throw "Fail to parse URL"
+    const sheetName = await getSheetName(URL, refresh_token, access_token, expiry_date);
+    const sheetData = await sheet.spreadsheets.values.get({
+        auth: client,
+        spreadsheetId: sheetInfo.spreadsheetId,
+        range: sheetName
+    })
+    return sheetData.data.values
+}
 export default {
     getAuthUrl,
     getToken,
-    getUserInfo
+    getUserInfo,
+    getSheet
 }
