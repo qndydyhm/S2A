@@ -2,16 +2,29 @@ import { CheckBox } from "@mui/icons-material";
 import GlobalStoreContext from "../store"
 import { useContext, useState } from "react"
 import { all } from "axios";
+import { InputLabel, MenuItem, Select } from "@mui/material";
 
 export default function View_Detail_Session(props){
     const { store } = useContext(GlobalStoreContext);
     const current_view = store.currentSelectedView;
+    const idDataSourcePairs = store.currentApp.datasources;
+    var selectedTable = findObjectById(idDataSourcePairs, current_view.table)
     const {id} = props;
     const [name, setName] = useState(current_view.name);
     const [type, setType] = useState(current_view.viewtype);
     const [allowAdd, setAllowAdd] = useState(current_view.allowedactions>=4);
     const [allowEdit, setAllowEdit] = useState(current_view.allowedactions%4>=2);
     const [allowDelete, setAllowDelete] = useState(current_view.allowedactions%2==1);
+    const [table, setTable] = useState(current_view.table);
+    console.log(selectedTable)
+    const [tableName, setTableName] = useState(selectedTable.name);
+
+    function findObjectById(array, id) {
+        for (var i = 0; i < array.length; i++) {
+            if (array[i]['id'] === id) {return array[i];}
+        }
+        return null;
+    }
 
     function handleUpdateName(event) {
         setName(event.target.value);
@@ -28,6 +41,11 @@ export default function View_Detail_Session(props){
     function handleToggleAllowDelete() {
         setAllowDelete(!allowDelete);
     }
+    function handleChangeTable (event) {
+        console.log(event.target.value)
+        setTable(event.target.value.id);
+        setTableName(event.target.value.name);
+    }
     function handleConfirmEditView() {
         let allacts=0;
         if (allowAdd){allacts+=4}
@@ -35,7 +53,7 @@ export default function View_Detail_Session(props){
         if (allowDelete) {allacts+=1}
         let updated_view = {_id: id,
                             name: name,
-                            table:" ",
+                            table: table,
                             columns:[],
                             viewtype:type,
                             allowedactions:allacts,
@@ -83,6 +101,21 @@ export default function View_Detail_Session(props){
                 onChange={handleToggleAllowDelete}
                 />
                 Allow Delete
+            </div>
+            <div id="table-select">
+                Select Table: {tableName}
+                <Select
+                    id="tabel-select-menu"
+                    value={''}
+                    onChange={handleChangeTable}
+                    >
+                        {
+                            idDataSourcePairs.map((dataSource) =>{
+                                return <MenuItem value={dataSource} name={dataSource.name} key={dataSource.id}>{dataSource.name}</MenuItem>
+                            })
+                        }
+                </Select>
+
             </div>
 
             <input
