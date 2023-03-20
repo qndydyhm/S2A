@@ -4,6 +4,7 @@ import App from '../models/app-model'
 import DataSource from '../models/datasource-model'
 import View from '../models/view-model'
 import User from '../models/user-model'
+import GlobalDevelopers from '../tools/global-developer'
 
 
 const createApp = async (req: express.Request, res: express.Response) => {
@@ -13,6 +14,10 @@ const createApp = async (req: express.Request, res: express.Response) => {
         if (!loggedInUser)
             return res.status(401).json({
                 status: "Fail to find User"
+            })
+        if (!GlobalDevelopers.isInGlobalDevelopers(loggedInUser.email))
+            return res.status(401).json({
+                status: "Must be in the global developer list to create App"
             })
         // check parameters
         const { name, roleM, published } = req.body;
