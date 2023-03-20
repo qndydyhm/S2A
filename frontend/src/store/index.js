@@ -128,7 +128,7 @@ function GlobalStoreContextProvider(props) {
             }
             case GlobalStoreActionType.OPEN_APP: {
                 return setStore({
-                    app: payload.app,
+                    currentApp: payload.app,
                     currentSideBar: CurrentSideBar.APP_INFO_SECTION,
 
                 });
@@ -184,7 +184,7 @@ function GlobalStoreContextProvider(props) {
     store.loadIdAppPairs = function () {
         async function asyncLoadIdAppPairs() {
             const response = await api.getIdAppPairs();
-            if (response.data.success) {
+            if (response.status==200) {
                 let pairs = response.data.idAppPairs;
                 storeReducer({
                     type: GlobalStoreActionType.LOAD_APP_LIST,
@@ -200,12 +200,11 @@ function GlobalStoreContextProvider(props) {
     //create default App and Datasource with all values null
     store.createDefaultApp = function () {
         async function asyncCreateDefaultApp() {
-            let app = null;
-            const response = await api.getIdAppPairs();
-            // await api.createApp(null,null,null,null, []);
-            if (response.data.success) {
-                //create default datasource based on the app_id.
-                app = response.data.app;
+            let app = {name:" ",datasources:[],views:[],roleM:" ",published:false};
+            const response = await api.createApp(app);
+            if (response.status==200) {
+                //create default datasource based on the app_id.{name:" ",datasources:[],views:[],roleM:" ",published:false}
+                app.id = response.data.id;
                 storeReducer({
                     type: GlobalStoreActionType.OPEN_APP,
                     payload: { app: app }
@@ -221,9 +220,8 @@ function GlobalStoreContextProvider(props) {
     //argument app has the format {name,creator,roleM, publish}
     store.editCurrentApp = function (app) {
         async function asyncEditCurrentApp() {
-            const response = await api.getIdAppPairs();
-            // await api.updateApp(store.currentApp.id, app);
-            if (response.data.success) {
+            const response = await api.updateApp(store.currentApp.id, app);
+            if (response.status == 200) {
                 storeReducer({
                     type: GlobalStoreActionType.UPDATE_APP,
                     payload: { app: app }
@@ -335,9 +333,8 @@ function GlobalStoreContextProvider(props) {
     //set the currentApp ==id, and also load the currentApp's i
     store.setCurrentApp = function (id) {
         async function asyncLoadCurrentApp() {
-            const response = await api.getIdAppPairs();
-            // await api.getAppById(id);
-            if (response.data.success) {
+            const response = await api.getApp(id);
+            if (response.status==200) {
                 let app = response.data.app;
                 storeReducer({
                     type: GlobalStoreActionType.OPEN_APP,

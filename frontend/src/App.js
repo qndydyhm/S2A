@@ -17,7 +17,6 @@ function App() {
     try{
       const getLoggedIn = async () => {
         const response = await axios.get(`/auth/loggedIn`);
-      console.log(response);
       if(response.data.loggedIn){
         setConnecting(false);
       }

@@ -13,17 +13,12 @@ export default function App_Info_Session() {
     const { store } = useContext(GlobalStoreContext);
     const current_app = store.currentApp;
     const [name, setName] = useState(current_app.name);
-    const [creator, setCreator] = useState(current_app.creator);
     const [roleM, setRoleM] = useState(current_app.roleM);
     const [published, setPublished] = useState(current_app.published);
 
 
     function handleUpdateName(event) {
         setName(event.target.value);
-    }
-
-    function handleUpdateCreator(event) {
-        setCreator(event.target.value);
     }
 
     function handleUpdateRoleM(event) {
@@ -33,7 +28,7 @@ export default function App_Info_Session() {
         setPublished(!published);
     }
     function handleConfirmEditApp(event){
-        store.editCurrentApp({id:store.currentApp.id,name:name,creator:creator,roleM:roleM,published:published});
+        store.editCurrentApp({id:store.currentApp.id,name:name,roleM:roleM,published:published});
 
     }
 
@@ -44,18 +39,12 @@ export default function App_Info_Session() {
                 className='modal-textfield'
                 defaultValue={name}
                 onChange={handleUpdateName} />
-            <div id="Creator-prompt" className="prompt">Creator:</div>
-            <input
-                className='modal-textfield'
-                type="text"
-                defaultValue={creator}
-                onChange={handleUpdateCreator} />
             <div id="roleM-prompt" className="prompt">role Membership:</div>
             {/* There are problem, it is a list with group of member, the implementation should looks like music playlist */}
             <input
                 className='modal-textfield'
                 type="text"
-                defaultValue={creator}
+                defaultValue={roleM}
                 onChange={handleUpdateRoleM} />
             <FormControl component="fieldset" variant="standard">
                 <FormLabel component="legend">Publish?</FormLabel>
