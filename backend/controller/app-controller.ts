@@ -91,9 +91,9 @@ const updateApp = async (req: express.Request, res: express.Response) => {
         existingApp.views = views as [string]
         existingApp.roleM = roleM
         existingApp.published = published
+        existingApp.save()
 
-
-        await res.send({status: "OK", app: existingApp});
+        await res.send({status: "OK"});
     }
     catch (e) {
         console.log(e)

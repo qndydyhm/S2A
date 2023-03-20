@@ -11,16 +11,43 @@ const createDS = async (req: express.Request, res: express.Response) => {
                 status: "Fail to find User"
             })
         const {name, URL, sheetindex, key, columns, owner} = req.body;
-        if (!name || !URL || !sheetindex || !key || !columns || !owner) 
+        if (typeof(name) != "string"  || typeof(URL) != "string" || typeof(sheetindex) != "number" || 
+            typeof(key) != "string" || !Array.isArray(columns) || typeof(owner) != "string") 
             return res.status(400).json({
                 status: "Missing parameter"
             })
+        let newColumn = []
+        let hasLabel: boolean = false
+        for (let key in columns) {
+            const column = columns[key]
+            if (typeof(column) != "object" || typeof(column.name) != "string" || typeof(column.initvalue) != "string" || 
+                typeof(column.label) != "boolean" || typeof(column.reference) != "string" || 
+                (column.type !== "Boolean" && column.type !== "Number" && column.type !== "Text" && column.type != "URL")) {
+                    return res.status(400).json({
+                        status: "Wrong column " + JSON.stringify(column)
+                    })
+                }
+            newColumn.push({
+                name: column.name,
+                initvalue: column.initvalue,
+                label: column.label,
+                reference: column.reference,
+                type: column.type
+            })
+            if (column.label) {
+                if (hasLabel)
+                    return res.status(400).json({
+                        status: "At most one column lable is true"
+                    })
+                hasLabel = true
+            }
+        }
         const newDS = new DataSource({
             name: name,
             URL: URL,
             sheetindex: sheetindex,
             key: key,
-            columns: columns,
+            columns: newColumn,
             owner: owner
         })
         const savedDS = await newDS.save();
@@ -40,24 +67,56 @@ const updateDS = async (req: express.Request, res: express.Response) => {
                 status: "Fail to find User"
             })
         const dsId = req.params.id;
-        const {name, URL, sheetindex, key, columns, owner} = req.body;
-        if (!name || !URL || !sheetindex || !key || !columns || !owner) 
+        const {name, URL, sheetindex, key, columns} = req.body;
+        if (typeof(name) != "string"  || typeof(URL) != "string" || typeof(sheetindex) != "number" || 
+            typeof(key) != "string" || !Array.isArray(columns)) 
             return res.status(400).json({
                 status: "Missing parameter"
             })
-        const existingDS = await DataSource.findOneAndUpdate({_id: dsId},{
-            name: name,
-            URL: URL,
-            sheetindex: sheetindex,
-            key: key,
-            columns: columns,
-            owner: owner
-        }, { new: true });
+        let newColumn = []
+        let hasLabel: boolean = false
+        for (let key in columns) {
+            const column = columns[key]
+            if (typeof(column) != "object" || typeof(column.name) != "string" || typeof(column.initvalue) != "string" || 
+                typeof(column.label) != "boolean" || typeof(column.reference) != "string" || 
+                (column.type !== "Boolean" && column.type !== "Number" && column.type !== "Text" && column.type != "URL")) {
+                    return res.status(400).json({
+                        status: "Wrong column " + JSON.stringify(column)
+                    })
+                }
+            newColumn.push({
+                name: column.name,
+                initvalue: column.initvalue,
+                label: column.label,
+                reference: column.reference,
+                type: column.type
+            })
+            if (column.label) {
+                if (hasLabel)
+                    return res.status(400).json({
+                        status: "At most one column lable is true"
+                    })
+                hasLabel = true
+            }
+        }
+        const existingDS = await DataSource.findOne({_id: dsId});
         if (!existingDS)
             return res.status(401).json({
                 status: "Fail to find Datasource " + dsId
             })
-        await res.send({status: "OK", datasource: existingDS});
+        existingDS.name = name
+        existingDS.URL = URL
+        existingDS.sheetindex = sheetindex
+        existingDS.key = key
+        existingDS.columns = newColumn as [{
+            name: string,
+            initvalue: string,
+            label: boolean,
+            reference: string,
+            type: string
+        }]
+        await existingDS.save()
+        await res.send({status: "OK"});
     }
     catch (e) {
         console.log(e)
