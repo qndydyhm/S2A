@@ -15,8 +15,8 @@ export const GlobalStoreActionType = {
     SET_CURRENT_SELECTED_DATA_SOURCE: "SET_CURRENT_SELECTED_DATA_SOURCE",
     //detail of data source
     SET_CURRENT_SELECTED_COLUMN: "SET_CURRENT_SELECTED_COLUMN",
-    //Return to the Login Page
-    DEFAULT_LOGIN_SCREEN: "DEFAULT_LOGIN_SCREEN",
+    //Return to the main page
+    GO_TO_MAIN_SCREEN: "GO_TO_MAIN_SCREEN",
     //load different section menu
     CHANGE_SIDEBAR_SECTION: "CHANGE_SIDEBAR_SECTION",
     //Modal
@@ -74,15 +74,11 @@ function GlobalStoreContextProvider(props) {
                     currentApp: null,
                 });
             }
-            case GlobalStoreActionType.DEFAULT_LOGIN_SCREEN: {
+            case GlobalStoreActionType.GO_TO_MAIN_SCREEN: {
                 return setStore({
                     currentModal: currentModal.NONE,
-                    idAppPairs: [],
-                    viewPairs: [],
-                    currentApp: null,
-                    currentAppSheetId: null,
-                    currentSelectedViewId: null,
-
+                    idAppPairs: payload.pairs,
+                    currentApp:null
                 });
             }
             case GlobalStoreActionType.LOAD_APP_LIST: {
@@ -168,10 +164,22 @@ function GlobalStoreContextProvider(props) {
     }
     //RETURN USER TO THE MAIN SCREEN OF THE APP
     store.returnToMainScreen = function () {
-        storeReducer({
-            type: GlobalStoreActionType.DEFAULT_LOGIN_SCREEN,
-            payload: null
-        })
+        async function asyncLoadIdAppPairs() {
+            const response = await api.getIdAppPairs();
+            if (response.status==200) {
+                let pairs = response.data.apps;
+                storeReducer({
+                    type: GlobalStoreActionType.GO_TO_MAIN_SCREEN,
+                    payload: { pairs: pairs }
+                });
+            }
+            else {
+                console.log("API FAILED TO GET THE APP PAIR");
+            }
+        }
+        asyncLoadIdAppPairs();
+        
+
     }
     //RESTORE EVERY STORE VALUE TO DEFAULT
     store.setStoreToDefault = function () {
