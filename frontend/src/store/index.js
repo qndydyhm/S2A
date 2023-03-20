@@ -420,7 +420,6 @@ function GlobalStoreContextProvider(props) {
     }
 
     store.editCurrentView = function (id, view) {
-        console.log(id, view)
         async function asyncEditCurrentView() {
             const response = await api.updateView(id, view);
             if (response.status == 200) {

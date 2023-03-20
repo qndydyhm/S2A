@@ -1,45 +1,11 @@
 import express from 'express'
 import auth from '../auth'
 import User from '../models/user-model'
-import {
-    google   // The top level object used to access services
-} from 'googleapis';
+import googleWrapper from '../tools/google-wrapper'
 
-import dotenv from 'dotenv'
-dotenv.config();
-
-
-const oauth2Client = new google.auth.OAuth2(
-    process.env.CLIENT_ID,
-    process.env.CLIENT_SECRET,
-    process.env.PROTOCOL + "://" + process.env.DOMAIN_NAME + "/auth/google-callback"
-);
-
-const scopes = [
-    "email",
-    "profile",
-    "openid",
-    "https://www.googleapis.com/auth/drive",
-    "https://www.googleapis.com/auth/spreadsheets",
-    "https://www.googleapis.com/auth/drive.file",
-    "https://www.googleapis.com/auth/drive.readonly",
-    "https://www.googleapis.com/auth/spreadsheets.readonly",
-    "https://www.googleapis.com/auth/userinfo.email",
-    "https://www.googleapis.com/auth/userinfo.profile",
-];
-
-const authorizationUrl = oauth2Client.generateAuthUrl({
-    // 'online' (default) or 'offline' (gets refresh_token)
-    access_type: 'offline',
-    /** Pass in the scopes array defined above.
-      * Alternatively, if only one scope is needed, you can pass a scope URL as a string */
-    scope: scopes,
-    // Enable incremental authorization. Recommended as a best practice.
-    // include_granted_scopes: true
-});
 
 const loginUser = async (req: express.Request, res: express.Response) => {
-    return res.redirect(authorizationUrl);
+    return res.redirect(googleWrapper.getAuthUrl());
 }
 
 const logoutUser = async (req: express.Request, res: express.Response) => {
@@ -85,41 +51,49 @@ const googleCallback = async (req: express.Request, res: express.Response) => {
         if (!code) return res.status(400).send({
             status: "missing token"
         })
-        const { tokens } = await oauth2Client.getToken(code);
-        oauth2Client.setCredentials(tokens);
-        const oauth2 = google.oauth2({
-            auth: oauth2Client,
-            version: 'v2'
-        });
+        const tokens = await googleWrapper.getToken(code);
+        if (!tokens.access_token) {
+            return res.status(400).send({
+                status: "Fail to get access token"
+            })
+        }
+
         // get user info
-        const info = await oauth2.userinfo.get();
+        const info = await googleWrapper.getUserInfo(tokens);
+        if (!info || !info.name || !info.email || !info.picture || !info.id) {
+            return res.status(400).send({
+                status: "Fail to access user info"
+            })
+        }
 
         // detect whether the user exists
-        let existingUser = await User.findOne({ id: info.data.id });
+        let existingUser = await User.findOne({ id: info.id });
+        if (!tokens.refresh_token && !existingUser) {
+            return res.status(400).send({
+                status: "Fail to get refresh token and cannot find user from database"
+            })
+        }
         const getToken = async () => {
             if (existingUser) {
                 // if so, update and return
-                const savedUser: any = await User.findOneAndUpdate({ id: info.data.id }, {
-                    name: info.data.name,
-                    email: info.data.email,
-                    profile: info.data.picture,
-                    id: info.data.id,
-                    rtoken: tokens.refresh_token || (existingUser as any).refresh_token,
-                    atoken: tokens.access_token,
-                    expire: tokens.expiry_date
-                }, {
-                    new: true
-                });
-                console.info("Existing user login: ", savedUser)
-                return auth.signToken(savedUser._id);
+                existingUser.name = info.name as string;
+                existingUser.email = info.email as string;
+                existingUser.profile = info.picture as string;
+                existingUser.id = info.id;
+                existingUser.rtoken = tokens.refresh_token || existingUser.rtoken;
+                existingUser.atoken = tokens.access_token as string;
+                existingUser.expire = tokens.expiry_date as number;
+                await existingUser.save()
+                console.info("Existing user login: ", existingUser)
+                return auth.signToken(existingUser._id);
             }
             else {
                 // else create a new user
                 const newUser = new User({
-                    name: info.data.name,
-                    email: info.data.email,
-                    profile: info.data.picture,
-                    id: info.data.id,
+                    name: info.name,
+                    email: info.email,
+                    profile: info.picture,
+                    id: info.id,
                     rtoken: tokens.refresh_token,
                     atoken: tokens.access_token,
                     expire: tokens.expiry_date
@@ -129,8 +103,8 @@ const googleCallback = async (req: express.Request, res: express.Response) => {
                 return auth.signToken(savedUser._id);
             }
         }
-        const token = await getToken();
-        await res.cookie("token", token, {
+        const cookie = await getToken();
+        await res.cookie("token", cookie, {
             httpOnly: true,
             secure: true,
             sameSite: "none"
