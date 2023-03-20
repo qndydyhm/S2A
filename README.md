@@ -1,13 +1,19 @@
 # S2A
 
-Team vme50
+## Team name
+vme50
 
+## Requirement
+1. [nodejs](https://nodejs.org/en) 16+
+2. [npm](https://www.npmjs.com/) 8+
+
+## How to Run
 1. [Backend](./backend)
 
 2. [Frontend](./frontend)
 
 3. Reverse proxy  
-set up a reverse proxy, such as nginx/traefik  
+set up a reverse proxy, such as [nginx](https://nginx.org/en/)/[traefik](https://traefik.io/)  
 here is a sample nginx config  
 
 ```
