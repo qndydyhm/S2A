@@ -113,8 +113,9 @@ function GlobalStoreContextProvider(props) {
             }
             case GlobalStoreActionType.LOAD_VIEW_LIST: {
                 return setStore({
-                    viewPairs: payload.view,
-
+                    viewPairs: payload.pairs,
+                    currentApp:store.currentApp,
+                    currentSideBar:CurrentSideBar.VIEW_SECTION
                 });
             }
             case GlobalStoreActionType.OPEN_APP: {
@@ -253,6 +254,28 @@ function GlobalStoreContextProvider(props) {
 
     }
 
+    store.loadViewPair = function () {
+        let pairs = [];
+        let views = store.currentApp.views;
+        console.log(store.currentApp)
+        for(let i = 0; i<views.length; i++){
+            pairs.push({_id:views[i]._id, name:views[i].name});
+        }
+        storeReducer({
+            type: GlobalStoreActionType.LOAD_VIEW_LIST,
+            payload: { pairs: pairs }
+        })
+    }
+
+    // store.setCurrentSelectedView = function (id) {
+    //     async function asyncGetSelectedView() {
+    //         const response = await api.getView(id);
+    //         if (response.data.success) {
+    //             let v = response.data.view;
+    //         }
+    //     }
+    // }
+
     store.setCurrentSelectedDataSource = function (id) {
         async function asyncGetSelectedDataSource() {
             const response = await api.getIdAppPairs();
@@ -283,6 +306,21 @@ function GlobalStoreContextProvider(props) {
             }
         }
         asyncCreateNewColumn();
+    }
+
+    store.createNewView = function () {
+        async function asyncCreateNewView() {
+            const response = await api.createNewView({name:"Untitle",table:" ",columns:[],viewtype:"table",allowedactions:0,roles:[],owner:store.currentApp._id});
+            if(response.status==200) {
+                let value = store.viewPairs;
+                value.push({ id: response.data.id, name:"Untitled"})
+                storeReducer({
+                    type: GlobalStoreActionType.LOAD_VIEW_LIST,
+                    payload: {pairs: value}
+                });
+            }
+        }
+        asyncCreateNewView();
     }
     store.createNewDataSource = function () {
         async function asyncCreateNewDataSource() {

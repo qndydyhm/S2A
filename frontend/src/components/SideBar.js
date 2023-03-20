@@ -13,7 +13,7 @@ export default function Siderbar() {
         store.loadIdDatasourcePair();
     }
     function handleClickViews(){
-        //REST OF VIEWS RELATED FUNCTION ARE WAITING TO BE IMPLEMENTED
+        store.loadViewPair();
     }
     function handleClickDisplay(){
         //REST OF VIEWS RELATED FUNCTION ARE WAITING TO BE IMPLEMENTED

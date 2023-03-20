@@ -20,12 +20,25 @@ const createNewDataSource = (ds)=>api.post(`/api/ds`,ds);
 // api.get('/api/ds/:id', ds.getDS)
 // api.delete('/api/ds/:id', ds.deleteDS)
 
+//view
+
+const createNewView = (v) =>api.post(`/api/view`,v);
+const getView = (id) =>api.get(`/api/view/${id}`);
+
+// api.post('/api/view', view.createView)
+// api.post('/api/view/:id', view.updateView)
+// api.get('/api/view/:id', view.getView)
+// api.delete('/api/view/:id', view.deleteView)
+
+
 const apis = {
     getIdAppPairs,
     createApp,
     updateApp,
     getApp,
-    createNewDataSource
+    createNewDataSource,
+    createNewView,
+    getView
 }
 
 export default apis
