@@ -32,4 +32,4 @@ npm start
 ```
 
 # Reference
-[API](./doc/api.md)
+[APIs](./doc/api.md)

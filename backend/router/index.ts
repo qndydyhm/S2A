@@ -32,7 +32,7 @@ api.post('/api/ds/:id', ds.updateDS)
 api.get('/api/ds/:id', ds.getDS)
 api.delete('/api/ds/:id', ds.deleteDS)
 
-// data source
+// view
 api.post('/api/view', view.createView)
 api.post('/api/view/:id', view.updateView)
 api.get('/api/view/:id', view.getView)
