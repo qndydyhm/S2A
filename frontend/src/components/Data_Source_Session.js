@@ -16,8 +16,9 @@ export default function Data_Source_Session() {
             {
                 store.idDataSourcePairs.map((pair) => (
                     <Data_Source_Card
-                        key={pair. _id}
-                        idDataSourcePair={pair}
+                        key={pair.id}
+                        name={pair.name}
+                        id = {pair.id}
                     />
                 ))
             }
@@ -32,7 +33,6 @@ export default function Data_Source_Session() {
             >
                 <Add />
             </Fab>
-            <div>DATA SOURCE SESSION!!</div>
             {datasourceCard}
         </div>);
 }

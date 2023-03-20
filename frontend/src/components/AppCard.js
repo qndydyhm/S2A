@@ -13,10 +13,8 @@ function AppCard(props) {
 
 
     function handleLoadList(event, id) {
-        console.log("handleLoadApp for " + id);
         store.setCurrentApp(id);
         //VIEW
-        store.changeSideBarSection("APP_INFO_SECTION");
     }
 
     let cardElement = 
