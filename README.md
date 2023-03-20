@@ -1,5 +1,7 @@
 # S2A
 
+Team vme50
+
 1. [Backend](./backend)
 
 2. [Frontend](./frontend)
