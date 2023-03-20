@@ -125,6 +125,7 @@ const getApp = async (req: express.Request, res: express.Response) => {
         }
         await res.send({
             status: "OK", app: {
+                _id: existingApp._id,
                 name: existingApp.name,
                 creator: existingApp.creator,
                 datasources: datasources,
