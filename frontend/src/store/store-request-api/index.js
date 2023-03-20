@@ -14,8 +14,7 @@ const getApp = (id) =>api.get(`/api/app/${id}`);
 
 //data source
 
-const createNewDataSource = (ds)=>(`/api/ds`,ds);
-
+const createNewDataSource = (ds)=>api.post(`/api/ds`,ds);
 // api.post('/api/ds', ds.createDS)
 // api.post('/api/ds/:id', ds.updateDS)
 // api.get('/api/ds/:id', ds.getDS)
@@ -25,7 +24,8 @@ const apis = {
     getIdAppPairs,
     createApp,
     updateApp,
-    getApp
+    getApp,
+    createNewDataSource
 }
 
 export default apis

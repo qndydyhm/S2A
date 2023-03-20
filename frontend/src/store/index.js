@@ -147,7 +147,6 @@ function GlobalStoreContextProvider(props) {
                 return setStore({
                     idDataSourcePairs: payload.pairs,
                     currentApp:store.currentApp,
-                    idDataSourcePairs:store.idDataSourcePairs,
                     currentSideBar:CurrentSideBar.DATA_SOURCE_SECTION
                     
                 });
@@ -247,7 +246,6 @@ function GlobalStoreContextProvider(props) {
         for(let i = 0;i<datasources.length;i++){
             pairs.push({_id:datasources[i]._id,name:datasources[i].name});
         }
-        console.log("here the pair is "+pairs);
         storeReducer({
             type: GlobalStoreActionType.LOAD_DATA_SOURCE_LIST,
             payload: { pairs: pairs }
@@ -288,8 +286,8 @@ function GlobalStoreContextProvider(props) {
     }
     store.createNewDataSource = function () {
         async function asyncCreateNewDataSource() {
-            const response = await api.createNewDataSource({name:"Untitle",URL:" ",sheetindex:" ",key:" ",columns:[],owner:store.currentApp.id});
-            if (response.data.success) {
+            const response = await api.createNewDataSource({name:"Untitle",URL:" ",sheetindex:1,key:" ",columns:[],owner:store.currentApp._id});
+            if (response.status==200) {
                 let value = store.idDataSourcePairs;
                 value.push({ id: response.data.id, name:"Untitle"})
                 storeReducer({
