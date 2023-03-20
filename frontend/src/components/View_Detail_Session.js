@@ -21,6 +21,8 @@ export default function View_Detail_Session(props){
     const [columnsText, setColumnsText] = useState(current_view.columns);
     const [editableColumns, setEditableColumns] = useState(current_view.editablecolumns);
     const [editableColumnsText, setEditableColumnsText] = useState(current_view.editablecolumns);
+    const [roles, setRoles] = useState(current_view.roles);
+    const [rolesText, setRolesText] = useState(current_view.roles);
 
     function findObjectById(array, id) {
         for (var i = 0; i < array.length; i++) {
@@ -60,13 +62,20 @@ export default function View_Detail_Session(props){
     }
     function handleUpdateEditableColumnsText(event) {
         setEditableColumnsText(event.target.value);
-        console.log(editableColumnsText)
     }
     function handleUpdateEditableColumns(event) {
         if (event.code=="Enter"){
-            console.log(editableColumnsText)
             let text = editableColumnsText.replace(' ','').split(',');
             setEditableColumns(text);
+        }
+    }
+    function handleUpdateRolesText(event) {
+        setRolesText(event.target.value);
+    }
+    function handleUpdateRoles(event) {
+        if (event.code=="Enter"){
+            let text = rolesText.replace(' ','').split(',');
+            setRoles(text);
         }
     }
     function handleConfirmEditView() {
@@ -77,20 +86,21 @@ export default function View_Detail_Session(props){
         let updated_view = {_id: id,
                             name: name,
                             table: table,
-                            columns:columns,
-                            viewtype:type,
-                            allowedactions:allacts,
-                            roles:[],
-                            owner:current_view.owner}
+                            columns: columns,
+                            viewtype: type,
+                            allowedactions: allacts,
+                            roles: roles,
+                            owner: current_view.owner}
         if (editableColumns!=null){
             updated_view.editablecolumns = editableColumns;
         }
-        console.log("confirm", current_view, updated_view)
+        console.log("view changes from: ", current_view, "to: ",updated_view)
         store.editCurrentView(id, updated_view);
         store.loadViewPair();
     }
-    //TODO: disalbe "add record" in detailed view, diable "edit record" in table view
+    //TODO: disalbe "allow add" in detailed view, diable "allow edit", "editable columns" in table view
     //TODO: check if editable columns belong to columns
+    //TODO: check if roles are in roles list
     return(
         <div style={{ width: '100%', fontSize: '15pt', backgroundColor: '#9f98a1' }}>
             <div id="dsname-prompt" className="prompt">Name:</div>
@@ -158,6 +168,14 @@ export default function View_Detail_Session(props){
                 defaultValue={editableColumns}
                 onKeyDown={handleUpdateEditableColumns}
                 onChange={handleUpdateEditableColumnsText} />
+            </div>
+            <div id="roles-select">
+                Roles (Seperated by ","):
+                <input
+                className='modal-textfield'
+                defaultValue={roles}
+                onKeyDown={handleUpdateRoles}
+                onChange={handleUpdateRolesText} />
             </div>
 
             <input
