@@ -7,19 +7,15 @@ export default function Siderbar() {
     const { store } = useContext(GlobalStoreContext);
 
     function handleClickApp_Info(){
-        store.setCurrentApp(store.currentApp.id);
-        store.changeSideBarSection("APP_INFO_SECTION");
+        store.setCurrentApp(store.currentApp._id);
     }
     function handleClickData_Source(){
         store.loadIdDatasourcePair();
-        store.changeSideBarSection("DATA_SOURCE_SECTION");
     }
     function handleClickViews(){
-        store.changeSideBarSection("VIEW_SECTION");
         //REST OF VIEWS RELATED FUNCTION ARE WAITING TO BE IMPLEMENTED
     }
     function handleClickDisplay(){
-        store.changeSideBarSection("PREVIEW_SECTION");
         //REST OF VIEWS RELATED FUNCTION ARE WAITING TO BE IMPLEMENTED
     }
 

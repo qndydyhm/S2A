@@ -20,7 +20,7 @@ export default function Data_Source_Card(props){
         sx={{ marginTop: '15px', display: 'flex', p: 1 }}
         style={{ width: '100%', fontSize: '25pt', backgroundColor: '#9f98f0' }}
         onClick={(event) => {
-            handleLoadCardDetail(dataSourcePair.id)
+            handleLoadCardDetail(dataSourcePair._id)
         }}
     >
         <Box sx={{ p: 1, flexGrow: 1 }}>

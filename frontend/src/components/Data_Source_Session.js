@@ -11,17 +11,17 @@ export default function Data_Source_Session() {
         store.createNewDataSource();
     }
 
-    let datasourceCard =
+    let datasourceCard = store.idDataSourcePairs!=null?
         <List sx={{ width: '50%', left: '5%', bgcolor: 'background.paper' }}>
             {
-                store.loadIdDatasourcePair.map((pair) => (
+                store.idDataSourcePairs.map((pair) => (
                     <Data_Source_Card
-                        key={pair.id}
+                        key={pair. _id}
                         idDataSourcePair={pair}
                     />
                 ))
             }
-        </List>;
+        </List>:<div></div>;
     return (
         <div>
             <Fab
@@ -32,6 +32,7 @@ export default function Data_Source_Session() {
             >
                 <Add />
             </Fab>
+            <div>DATA SOURCE SESSION!!</div>
             {datasourceCard}
         </div>);
 }

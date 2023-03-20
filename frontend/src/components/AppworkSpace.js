@@ -6,10 +6,11 @@ import Data_Source_Session from './Data_Source_Session';
 import Display from './Display';
 import Siderbar from './SideBar';
 
+
 export default function AppworkSpace() {
     const { store } = useContext(GlobalStoreContext);
     //the following attached are the result of choosen siderbar
-    let res=store.currentSideBar=="None"?<div></div>:store.currentSideBar=="APP_INFO_SECTION"?<App_Info_Session/>:store.currentSideBar=="VIEW_SECTION"?<View_Session/>:store.currentSideBar=="DATA_SOURCE_SECTION"?<Data_Source_Section/>:<Display/>;
+    let res=store.currentSideBar=="None"?<div></div>:store.currentSideBar=="APP_INFO_SECTION"?<App_Info_Session/>:store.currentSideBar=="VIEW_SECTION"?<View_Session/>:store.currentSideBar=="DATA_SOURCE_SECTION"?<Data_Source_Session/>:<Display/>;
 
     return(
         <div id="session-body">
