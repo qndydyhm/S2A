@@ -3,6 +3,7 @@ import auth from '../auth'
 import App from '../models/app-model'
 import DataSource from '../models/datasource-model'
 import View from '../models/view-model'
+import User from '../models/user-model'
 
 
 const createApp = async (req: express.Request, res: express.Response) => {
@@ -14,9 +15,9 @@ const createApp = async (req: express.Request, res: express.Response) => {
                 status: "Fail to find User"
             })
         // check parameters
-        const {name, roleM, published} = req.body;
-        if (typeof(name) != "string" || name === "" || 
-            typeof(roleM) != "string" || roleM === "" || typeof(published) != "boolean")
+        const { name, roleM, published } = req.body;
+        if (typeof (name) != "string" || name === "" ||
+            typeof (roleM) != "string" || roleM === "" || typeof (published) != "boolean")
             return res.status(400).json({
                 status: "Missing or wrong parameter"
             })
@@ -31,7 +32,7 @@ const createApp = async (req: express.Request, res: express.Response) => {
         })
         const savedApp = await newApp.save();
         console.info("New App created: ", savedApp)
-        await res.send({status: "OK", id: savedApp._id});
+        await res.send({ status: "OK", id: savedApp._id });
     }
     catch (e) {
         console.log(e)
@@ -48,13 +49,13 @@ const updateApp = async (req: express.Request, res: express.Response) => {
             })
         // check parameters
         const appId = req.params.id;
-        const {name, roleM, published} = req.body;
-        if (typeof(name) != "string" || name === "" || typeof(roleM) != "string" || roleM === "" || typeof(published) != "boolean")
+        const { name, roleM, published } = req.body;
+        if (typeof (name) != "string" || name === "" || typeof (roleM) != "string" || roleM === "" || typeof (published) != "boolean")
             return res.status(400).json({
                 status: "Missing parameter"
             })
         // find app, update, and save
-        const existingApp = await App.findOne({_id: appId});
+        const existingApp = await App.findOne({ _id: appId });
         if (!existingApp)
             return res.status(401).json({
                 status: "Fail to find App " + appId
@@ -63,7 +64,7 @@ const updateApp = async (req: express.Request, res: express.Response) => {
         existingApp.roleM = roleM
         existingApp.published = published
         existingApp.save()
-        await res.send({status: "OK"});
+        await res.send({ status: "OK" });
     }
     catch (e) {
         console.log(e)
@@ -80,18 +81,58 @@ const getApp = async (req: express.Request, res: express.Response) => {
             })
         // check parameters
         const appId = req.params.id;
-        if (typeof(appId) != "string") 
+        if (typeof (appId) != "string")
             return res.status(400).json({
                 status: "Missing parameter"
             })
         // find App and return
         // TODO: check end user
-        const existingApp = await App.findOne({_id: appId});
+        const existingApp = await App.findOne({ _id: appId });
         if (!existingApp)
-            return res.status(401).json({
+            return res.status(400).json({
                 status: "Fail to find App " + appId
             })
-        await res.send({status: "OK", app: existingApp});
+        const datasources = [], views = []
+        try {
+            const creator = await User.findOne({ id: existingApp.creator })
+            if (!creator) {
+                return res.status(400).json({
+                    status: "Fail to find Creator " + existingApp.creator
+                })
+            }
+            existingApp.creator = creator.name
+
+            for (let key in existingApp.datasources) {
+                const datasource = await DataSource.findOne({ _id: existingApp.datasources[key] })
+                if (!datasource)
+                    return res.status(400).json({
+                        status: "Fail to find data source " + existingApp.datasources[key]
+                    })
+                datasources.push({ id: datasource._id, name: datasource.name })
+            }
+
+            for (let key in existingApp.datasources) {
+                const view = await DataSource.findOne({ _id: existingApp.views[key] })
+                if (!view)
+                    return res.status(400).json({
+                        status: "Fail to find view " + existingApp.views[key]
+                    })
+                views.push({ id: view._id, name: view.name })
+            }
+        }
+        catch (e) {
+            console.log(e)
+        }
+        await res.send({
+            status: "OK", app: {
+                name: existingApp.name,
+                creator: existingApp.creator,
+                datasources: datasources,
+                views: views,
+                roleM: existingApp.roleM,
+                published: existingApp.published
+            }
+        });
     }
     catch (e) {
         console.log(e)
@@ -108,12 +149,12 @@ const deleteApp = async (req: express.Request, res: express.Response) => {
             })
         // check parameters
         const appId = req.params.id;
-        if (typeof(appId) != "string") 
+        if (typeof (appId) != "string")
             return res.status(400).json({
                 status: "Missing parameter"
             })
         // find app and delete
-        const existingApp = await App.findOneAndDelete({_id: appId});
+        const existingApp = await App.findOneAndDelete({ _id: appId });
         if (!existingApp)
             return res.status(401).json({
                 status: "Fail to find App " + appId
@@ -121,7 +162,7 @@ const deleteApp = async (req: express.Request, res: express.Response) => {
         // Delete datasources and views
         for (let key in existingApp.datasources) {
             try {
-                DataSource.findOneAndDelete({_id: existingApp.datasources[key]})
+                DataSource.findOneAndDelete({ _id: existingApp.datasources[key] })
             }
             catch (e) {
                 console.error(e)
@@ -129,13 +170,13 @@ const deleteApp = async (req: express.Request, res: express.Response) => {
         }
         for (let key in existingApp.views) {
             try {
-                View.findOneAndDelete({_id: existingApp.views[key]})
+                View.findOneAndDelete({ _id: existingApp.views[key] })
             }
             catch (e) {
                 console.error(e)
             }
         }
-        await res.send({status: "OK", app: existingApp});
+        await res.send({ status: "OK", app: existingApp });
     }
     catch (e) {
         console.log(e)
@@ -152,7 +193,7 @@ const getApps = async (req: express.Request, res: express.Response) => {
             })
         // find apps and return
         // TODO: check end user
-        const apps = await App.find({ $or:[{creator: loggedInUser.id}, {published: true}]});
+        const apps = await App.find({ $or: [{ creator: loggedInUser.id }, { published: true }] });
         if (!Array.isArray(apps))
             return res.json({
                 status: "Apps not found"
@@ -166,7 +207,7 @@ const getApps = async (req: express.Request, res: express.Response) => {
             };
             applist.push(pair)
         }
-        await res.send({status: "OK", apps: applist});
+        await res.send({ status: "OK", apps: applist });
     }
     catch (e) {
         console.log(e)

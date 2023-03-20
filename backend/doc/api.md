@@ -85,8 +85,14 @@ response:
     app: {
         _id
         name, 
-        datasources, 
-        views, 
+        datasources: [{
+            id,
+            name
+        }], 
+        views: [{
+            id,
+            name
+        }], 
         roleM, 
         published
     }
