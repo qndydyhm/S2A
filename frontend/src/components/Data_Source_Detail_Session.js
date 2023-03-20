@@ -13,7 +13,7 @@ export default function Data_Source_Detail_Session() {
     const [name, setName] = useState(current_ds.name);
     const [url, setURL] = useState(current_ds.URL);
     const [key, setKey] = useState(current_ds.key);
-    const [sheet_index, setSheet_Index] = useState(current_ds.sheet_index);
+    const [sheetindex, setSheetindex] = useState(current_ds.sheetindex);
     const [columns, set_columns] = useState(current_ds.columns);
 
     function handleUpdateName(event) {
@@ -27,7 +27,7 @@ export default function Data_Source_Detail_Session() {
         setKey(event.target.value);
     }
     function handleUpdateSheetI(event) {
-        setSheet_Index(event.target.value);
+        setSheetindex(event.target.value);
     }
     function handleSetSelectedColumnIndex(column) {
         store.setCurrentSelectedColumnIndex(column);
@@ -42,7 +42,8 @@ export default function Data_Source_Detail_Session() {
     }
 
     function handleConfirmEditDataSource() {
-        store.editCurrentDataSource({ id: store.currentDatasource.id, appId: store.currentDatasource.appId, name: name, url: url, key: key, sheet_index: sheet_index });
+        store.editCurrentDataSource({ _id: store.currentSelectedDatasource._id, owner: store.currentSelectedDatasource.owner, name: name, URL: url, key: key, sheetindex: sheetindex,columns:store.currentSelectedDatasource.columns });
+        //{ name: "Untitle", URL: " ", sheetindex: 1, key: " ", columns: [], owner: store.currentApp._id }
     }
 
     function handleCreateNewColumn() {
@@ -66,7 +67,7 @@ export default function Data_Source_Detail_Session() {
             <input
                 className='modal-textfield'
                 type="text"
-                defaultValue={sheet_index}
+                defaultValue={sheetindex}
                 onChange={handleUpdateSheetI} />
             <div id="key-prompt" className="prompt">Key:</div>
             <input
@@ -100,13 +101,13 @@ export default function Data_Source_Detail_Session() {
                                     <TableCell component="th" scope="row">
                                         <Checkbox
                                             edge="start"
-                                            checked={store.currentSelectedColumnIndex == store.currentDatasource.indexOf(column)}
+                                            checked={store.currentSelectedColumnIndex == store.currentSelectedDatasource.columns.indexOf(column)}
                                             disableRipple
-                                            onClick={handleSetSelectedColumnIndex(store.currentDatasource.columns.indexOf(column))}
+                                            onClick={handleSetSelectedColumnIndex(store.currentSelectedDatasource.columns.indexOf(column))}
                                         />
                                     </TableCell>
                                     <TableCell align="right">{column.name}</TableCell>
-                                    <TableCell align="right">{column.initial_value}</TableCell>
+                                    <TableCell align="right">{column.initValue}</TableCell>
                                     <TableCell align="right">{column.label}</TableCell>
                                     <TableCell align="right">{column.reference}</TableCell>
                                     <TableCell align="right">{column.type}</TableCell>

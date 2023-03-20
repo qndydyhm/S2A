@@ -82,8 +82,8 @@ function GlobalStoreContextProvider(props) {
             case GlobalStoreActionType.LOAD_APP_LIST: {
                 return setStore({
                     idAppPairs: payload.pairs,
-                    currentApp:store.currentApp,
-                    idDataSourcePairs:store.idDataSourcePairs
+                    currentApp: store.currentApp,
+                    idDataSourcePairs: store.idDataSourcePairs
                 });
             }
             case GlobalStoreActionType.UPDATE_APP: {
@@ -101,7 +101,9 @@ function GlobalStoreContextProvider(props) {
                 return setStore({
                     currentSelectedDatasource: payload.data_source,
                     currentModal: currentModal.NONE,
-                    idDataSourcePairs:payload.pairs
+                    idDataSourcePairs: payload.pairs,
+                    currentSideBar:store.currentSideBar,
+                    currentApp:store.currentApp
 
                 });
             }
@@ -140,17 +142,17 @@ function GlobalStoreContextProvider(props) {
             case GlobalStoreActionType.LOAD_DATA_SOURCE_LIST: {
                 return setStore({
                     idDataSourcePairs: payload.pairs,
-                    currentApp:store.currentApp,
-                    currentSideBar:CurrentSideBar.DATA_SOURCE_SECTION
-                    
+                    currentApp: store.currentApp,
+                    currentSideBar: CurrentSideBar.DATA_SOURCE_SECTION
+
                 });
             }
             case GlobalStoreActionType.SET_CURRENT_SELECTED_DATA_SOURCE: {
                 return setStore({
                     currentSelectedDatasource: payload.pairs,
-                    currentApp:store.currentApp,
-                    idDataSourcePairs:store.idDataSourcePairs,
-                    currentSideBar:store.currentSideBar
+                    currentApp: store.currentApp,
+                    idDataSourcePairs: store.idDataSourcePairs,
+                    currentSideBar: store.currentSideBar
                 });
             }
             default:
@@ -238,10 +240,10 @@ function GlobalStoreContextProvider(props) {
         asyncEditCurrentApp();
     }
     store.loadIdDatasourcePair = function () {
-        let pairs =[];
+        let pairs = [];
         let datasources = store.currentApp.datasources;
-        for(let i = 0;i<datasources.length;i++){
-            pairs.push({_id:datasources[i].id,name:datasources[i].name});
+        for (let i = 0; i < datasources.length; i++) {
+            pairs.push({ _id: datasources[i].id, name: datasources[i].name });
         }
         storeReducer({
             type: GlobalStoreActionType.LOAD_DATA_SOURCE_LIST,
@@ -266,26 +268,20 @@ function GlobalStoreContextProvider(props) {
         asyncGetSelectedDataSource();
     }
     store.createNewColumn = function () {
-        async function asyncCreateNewColumn() {
-            let value = store.currentSelectedDatasource;
-            value.columns.push("", "", "", "", "");
-            const response = await api.updateDataSource(value._id,value);
-            if (response.data.success) {
-                storeReducer({
-                    type: GlobalStoreActionType.UPDATE_DATA_SOURCE,
-                    payload: { data_source: value, pairs:store.idDataSourcePairs }
-                });
-            }
-        }
-        asyncCreateNewColumn();
+        let value = store.currentSelectedDatasource;
+        value.columns.push({name:"Untitled",label:false,reference:" ",type:" ",initValue:" "});
+        storeReducer({
+            type: GlobalStoreActionType.UPDATE_DATA_SOURCE,
+            payload: { data_source: value, pairs: store.idDataSourcePairs }
+        });
     }
     store.createNewDataSource = function () {
         async function asyncCreateNewDataSource() {
             console.log(store.currentApp._id);
-            const response = await api.createNewDataSource({name:"Untitle",URL:" ",sheetindex:1,key:" ",columns:[],owner:store.currentApp._id});
-            if (response.status==200) {
+            const response = await api.createNewDataSource({ name: "Untitle", URL: " ", sheetindex: 1, key: " ", columns: [], owner: store.currentApp._id });
+            if (response.status == 200) {
                 let value = store.idDataSourcePairs;
-                value.push({ id: response.data.id, name:"Untitle"})
+                value.push({ id: response.data.id, name: "Untitle" })
                 storeReducer({
                     type: GlobalStoreActionType.LOAD_DATA_SOURCE_LIST,
                     payload: { pairs: value }
@@ -320,7 +316,7 @@ function GlobalStoreContextProvider(props) {
         if (response.data.success) {
             storeReducer({
                 type: GlobalStoreActionType.UPDATE_DATA_SOURCE,
-                payload: { data_source: store.currentDatasource,pairs:store.idDataSourcePairs }
+                payload: { data_source: store.currentDatasource, pairs: store.idDataSourcePairs }
             })
         }
     }
