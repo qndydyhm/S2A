@@ -19,7 +19,7 @@ const HomeScreen = () => {
         store.createDefaultApp();
     }
     //load each app
-    let appCard =
+    let appCard = store.idAppPairs ==null? <div></div>:
         <List sx={{ width: '50%', left: '5%', bgcolor: 'background.paper' }}>
             {
                 store.idAppPairs.map((pair) => (
