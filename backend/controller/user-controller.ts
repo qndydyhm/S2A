@@ -135,7 +135,7 @@ const googleCallback = async (req: express.Request, res: express.Response) => {
             secure: true,
             sameSite: "none"
         }).redirect('/');
-        
+
     } catch (err) {
         console.error(err);
         res.status(500).send();

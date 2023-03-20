@@ -5,28 +5,32 @@ import DataSource from '../models/datasource-model'
 
 const createDS = async (req: express.Request, res: express.Response) => {
     try {
+        // get user info
+        // TODO: check user is developer
         const loggedInUser: any = await auth.getUser(req);
         if (!loggedInUser)
             return res.status(401).json({
                 status: "Fail to find User"
             })
-        const {name, URL, sheetindex, key, columns, owner} = req.body;
-        if (typeof(name) != "string"  || typeof(URL) != "string" || typeof(sheetindex) != "number" || 
-            typeof(key) != "string" || !Array.isArray(columns) || typeof(owner) != "string") 
+        // check parameters
+        const { name, URL, sheetindex, key, columns, owner } = req.body;
+        if (typeof (name) != "string" || typeof (URL) != "string" || typeof (sheetindex) != "number" ||
+            typeof (key) != "string" || !Array.isArray(columns) || typeof (owner) != "string")
             return res.status(400).json({
                 status: "Missing parameter"
             })
+        // check columns
         let newColumn = []
         let hasLabel: boolean = false
         for (let key in columns) {
             const column = columns[key]
-            if (typeof(column) != "object" || typeof(column.name) != "string" || typeof(column.initvalue) != "string" || 
-                typeof(column.label) != "boolean" || typeof(column.reference) != "string" || 
+            if (typeof (column) != "object" || typeof (column.name) != "string" || typeof (column.initvalue) != "string" ||
+                typeof (column.label) != "boolean" || typeof (column.reference) != "string" ||
                 (column.type !== "Boolean" && column.type !== "Number" && column.type !== "Text" && column.type != "URL")) {
-                    return res.status(400).json({
-                        status: "Wrong column " + JSON.stringify(column)
-                    })
-                }
+                return res.status(400).json({
+                    status: "Wrong column " + JSON.stringify(column)
+                })
+            }
             newColumn.push({
                 name: column.name,
                 initvalue: column.initvalue,
@@ -42,6 +46,7 @@ const createDS = async (req: express.Request, res: express.Response) => {
                 hasLabel = true
             }
         }
+        // create and save datasource
         const newDS = new DataSource({
             name: name,
             URL: URL,
@@ -52,7 +57,7 @@ const createDS = async (req: express.Request, res: express.Response) => {
         })
         const savedDS = await newDS.save();
         console.info("New Datasource created: ", savedDS)
-        await res.send({status: "OK", id: savedDS._id});
+        await res.send({ status: "OK", id: savedDS._id });
     }
     catch (e) {
         console.log(e)
@@ -61,29 +66,33 @@ const createDS = async (req: express.Request, res: express.Response) => {
 
 const updateDS = async (req: express.Request, res: express.Response) => {
     try {
+        // get user info
+        // TODO: check user is developer
         const loggedInUser: any = await auth.getUser(req);
         if (!loggedInUser)
             return res.status(401).json({
                 status: "Fail to find User"
             })
+        // check parameters
         const dsId = req.params.id;
-        const {name, URL, sheetindex, key, columns} = req.body;
-        if (typeof(name) != "string"  || typeof(URL) != "string" || typeof(sheetindex) != "number" || 
-            typeof(key) != "string" || !Array.isArray(columns)) 
+        const { name, URL, sheetindex, key, columns } = req.body;
+        if (typeof (name) != "string" || typeof (URL) != "string" || typeof (sheetindex) != "number" ||
+            typeof (key) != "string" || !Array.isArray(columns))
             return res.status(400).json({
                 status: "Missing parameter"
             })
+        // check columns
         let newColumn = []
         let hasLabel: boolean = false
         for (let key in columns) {
             const column = columns[key]
-            if (typeof(column) != "object" || typeof(column.name) != "string" || typeof(column.initvalue) != "string" || 
-                typeof(column.label) != "boolean" || typeof(column.reference) != "string" || 
+            if (typeof (column) != "object" || typeof (column.name) != "string" || typeof (column.initvalue) != "string" ||
+                typeof (column.label) != "boolean" || typeof (column.reference) != "string" ||
                 (column.type !== "Boolean" && column.type !== "Number" && column.type !== "Text" && column.type != "URL")) {
-                    return res.status(400).json({
-                        status: "Wrong column " + JSON.stringify(column)
-                    })
-                }
+                return res.status(400).json({
+                    status: "Wrong column " + JSON.stringify(column)
+                })
+            }
             newColumn.push({
                 name: column.name,
                 initvalue: column.initvalue,
@@ -99,7 +108,8 @@ const updateDS = async (req: express.Request, res: express.Response) => {
                 hasLabel = true
             }
         }
-        const existingDS = await DataSource.findOne({_id: dsId});
+        // find and update datasource
+        const existingDS = await DataSource.findOne({ _id: dsId });
         if (!existingDS)
             return res.status(401).json({
                 status: "Fail to find Datasource " + dsId
@@ -116,7 +126,7 @@ const updateDS = async (req: express.Request, res: express.Response) => {
             type: string
         }]
         await existingDS.save()
-        await res.send({status: "OK"});
+        await res.send({ status: "OK" });
     }
     catch (e) {
         console.log(e)
@@ -125,22 +135,26 @@ const updateDS = async (req: express.Request, res: express.Response) => {
 
 const getDS = async (req: express.Request, res: express.Response) => {
     try {
+        // get user info
+        // TODO: check user is end user
         const loggedInUser: any = await auth.getUser(req);
         if (!loggedInUser)
             return res.status(401).json({
                 status: "Fail to find User"
             })
+        // check parameters
         const dsId = req.params.id;
-        if (!dsId) 
+        if (!dsId)
             return res.status(400).json({
                 status: "Missing parameter"
             })
-        const existingDS = await DataSource.findOne({_id: dsId});
+        // find and return datasource
+        const existingDS = await DataSource.findOne({ _id: dsId });
         if (!existingDS)
             return res.status(401).json({
                 status: "Fail to find DataSource " + dsId
             })
-        await res.send({status: "OK", datasource: existingDS});
+        await res.send({ status: "OK", datasource: existingDS });
     }
     catch (e) {
         console.log(e)
@@ -149,22 +163,27 @@ const getDS = async (req: express.Request, res: express.Response) => {
 
 const deleteDS = async (req: express.Request, res: express.Response) => {
     try {
+        // get user info
+        // TODO: check user is developer
         const loggedInUser: any = await auth.getUser(req);
         if (!loggedInUser)
             return res.status(401).json({
                 status: "Fail to find User"
             })
+        // check parameters
         const dsId = req.params.id;
-        if (!dsId) 
+        if (!dsId)
             return res.status(400).json({
                 status: "Missing parameter"
             })
-        const existingDS = await DataSource.findOneAndDelete({_id: dsId});
+        // find and delete datasource
+        // TODO remove this, only remove when app change/delete
+        const existingDS = await DataSource.findOneAndDelete({ _id: dsId });
         if (!existingDS)
             return res.status(401).json({
                 status: "Fail to find DataSource " + dsId
             })
-        await res.send({status: "OK", datasource: existingDS});
+        await res.send({ status: "OK", datasource: existingDS });
     }
     catch (e) {
         console.log(e)
