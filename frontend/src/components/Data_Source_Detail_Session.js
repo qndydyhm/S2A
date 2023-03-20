@@ -5,6 +5,10 @@ import {
 import { Add } from '@mui/icons-material';
 import GlobalStoreContext from '../store';
 import { useContext, useState } from 'react';
+import FormControl from '@mui/material/FormControl';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Switch from '@mui/material/Switch';
+
 
 
 
@@ -20,7 +24,7 @@ export default function Data_Source_Detail_Session() {
     const [columns] = useState(current_ds.columns);
 
 
-    
+
     function handleUpdateName(event) {
         store.currentSelectedDatasource.name = event.target.value;
         store.updateDataSourceLocally(store.currentSelectedDatasource);
@@ -43,14 +47,13 @@ export default function Data_Source_Detail_Session() {
         store.confirmEditDataSource();
         //{ name: "Untitle", URL: " ", sheetindex: 1, key: " ", columns: [], owner: store.currentApp._id }
     }
-    function handleUpdateColumn(event,index,tag) {
+    function handleUpdateColumn(event, index, tag) {
         event.stopPropagation();
-        console.log(event.target);
         if (tag == "name") {
             columns[index].name = event.target.value;
         }
         else if (tag == "label") {
-            columns[index].label = event.target.value;
+            columns[index].label = !columns[index].label;
         }
         else if (tag == "initvalue") {
             columns[index].initvalue = event.target.value;
@@ -59,7 +62,7 @@ export default function Data_Source_Detail_Session() {
             columns[index].reference = event.target.value;
         }
         else if (tag == "type") {
-            columns[index].type=event.target.value;
+            columns[index].type = event.target.value;
         }
         store.updateColumn(columns);
     }
@@ -121,22 +124,30 @@ export default function Data_Source_Detail_Session() {
                                                 className='modal-textfield'
                                                 type="text"
                                                 defaultValue={column.name}
-                                            onChange={(e)=>handleUpdateColumn(e,columns.indexOf(column), "name")} 
+                                                onChange={(e) => handleUpdateColumn(e, columns.indexOf(column), "name")}
                                             />
+                                        </TableCell>
+                                        <TableCell align="right">
+                                            {/* <input
+                                                className='modal-textfield'
+                                                type="text"
+                                                defaultValue={column.label}
+                                            onChange={(e)=>handleUpdateColumn(e,columns.indexOf(column), "label")}
+                                            /> */}
+                                            <FormControl component="fieldset" variant="standard">
+                                                <FormControlLabel
+                                                    control={
+                                                        <Switch checked={column.label} onChange={(e) => handleUpdateColumn(e, columns.indexOf(column), "label")} />
+                                                    }
+                                                />
+                                            </FormControl>
                                         </TableCell>
                                         <TableCell align="right">
                                             <input
                                                 className='modal-textfield'
                                                 type="text"
-                                                defaultValue={column.label}
-                                            onChange={(e)=>handleUpdateColumn(e,columns.indexOf(column), "label")}
-                                            /></TableCell>
-                                        <TableCell align="right">
-                                            <input
-                                                className='modal-textfield'
-                                                type="text"
                                                 defaultValue={column.initvalue}
-                                            onChange={(e)=>handleUpdateColumn(e,columns.indexOf(column), "initvalue")}
+                                                onChange={(e) => handleUpdateColumn(e, columns.indexOf(column), "initvalue")}
                                             />
                                         </TableCell>
                                         <TableCell align="right">
@@ -144,7 +155,7 @@ export default function Data_Source_Detail_Session() {
                                                 className='modal-textfield'
                                                 type="text"
                                                 defaultValue={column.reference}
-                                            onChange={(e)=>handleUpdateColumn(e,columns.indexOf(column), "reference")} 
+                                                onChange={(e) => handleUpdateColumn(e, columns.indexOf(column), "reference")}
                                             />
                                         </TableCell>
                                         <TableCell align="right">
@@ -153,7 +164,7 @@ export default function Data_Source_Detail_Session() {
                                                 type="text"
                                                 defaultValue={column.type}
                                                 id={column}
-                                            onChange={(e)=>handleUpdateColumn(e,columns.indexOf(column),"type")} 
+                                                onChange={(e) => handleUpdateColumn(e, columns.indexOf(column), "type")}
                                             />
                                         </TableCell>
                                     </TableRow>

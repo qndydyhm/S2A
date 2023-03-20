@@ -42,10 +42,6 @@ const CurrentSideBar = {
     PREVIEW_SECTION: "PREVIEW_SECTION",
 }
 
-const currentModal = {
-    NONE: "NONE",
-    EDIT_COLUMN: "EDIT_COLUMN",
-}
 
 export const GlobalStoreContext = createContext({});
 function GlobalStoreContextProvider(props) {
@@ -56,7 +52,6 @@ function GlobalStoreContextProvider(props) {
         currentApp: null, //{id,name,creator,roleM,publish}if currentApp ! = null, then currently developer is in the editing page,
         currentSelectedDatasource: null,//{id,name,url,sheet_index,key}
         currentSelectedColumnIndex: -1,
-        currentModal: currentModal.NONE,
         //view
         viewPairs: [],//[{id,name}....]
         currentSelectedViewId: null,//the id of selected view,
@@ -75,7 +70,6 @@ function GlobalStoreContextProvider(props) {
             }
             case GlobalStoreActionType.GO_TO_MAIN_SCREEN: {
                 return setStore({
-                    currentModal: currentModal.NONE,
                     idAppPairs: payload.pairs,
                     currentApp: null
                 });
@@ -101,7 +95,6 @@ function GlobalStoreContextProvider(props) {
             case GlobalStoreActionType.UPDATE_DATA_SOURCE: {
                 return setStore({
                     currentSelectedDatasource: payload.data_source,
-                    currentModal: currentModal.NONE,
                     idDataSourcePairs: payload.pairs,
                     currentSideBar: store.currentSideBar,
                     currentApp: store.currentApp
@@ -130,17 +123,6 @@ function GlobalStoreContextProvider(props) {
                 });
             }
 
-            case GlobalStoreActionType.SHOW_MODAL: {
-                return setStore({
-                    modal: payload.modal
-                });
-            }
-            case GlobalStoreActionType.HIDE_MODAL: {
-                return setStore({
-                    currentSelectedColumnIndex: null,
-                    currentModal: currentModal.NONE
-                });
-            }
             case GlobalStoreActionType.LOAD_DATA_SOURCE_LIST: {
                 return setStore({
                     idDataSourcePairs: payload.pairs,
@@ -346,18 +328,6 @@ function GlobalStoreContextProvider(props) {
             payload: { index: index }
         });
     }
-    store.showModal = function (modal) {
-        storeReducer({
-            type: GlobalStoreActionType.SHOW_MODAL,
-            payload: { modal: modal }
-        });
-    }
-
-    store.hideModal = function () {
-        storeReducer({
-            type: GlobalStoreActionType.HIDE_MODAL
-        })
-    }
     //set the currentApp ==id, and also load the currentApp's i
     store.setCurrentApp = function (id) {
         async function asyncLoadCurrentApp() {
@@ -375,7 +345,6 @@ function GlobalStoreContextProvider(props) {
         }
         asyncLoadCurrentApp();
     }
-
 
 
     //Views
@@ -435,16 +404,6 @@ function GlobalStoreContextProvider(props) {
         }
         asyncEditCurrentView();
     }
-
-    // store.changeSideBarSection = function (section) {
-    //     storeReducer({
-    //         type: GlobalStoreActionType.CHANGE_SIDEBAR_SECTION,
-    //         payload: { section: section }
-    //     })
-    // }
-
-
-
 
     return (
         <GlobalStoreContext.Provider value={{
