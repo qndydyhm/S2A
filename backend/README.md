@@ -30,3 +30,6 @@ npm i
 ```
 npm start
 ```
+
+# Reference
+[API](./doc/api.md)
