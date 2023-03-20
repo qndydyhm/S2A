@@ -14,11 +14,13 @@ const createDS = async (req: express.Request, res: express.Response) => {
             })
         // check parameters
         const { name, URL, sheetindex, key, columns, owner } = req.body;
-        if (typeof (name) != "string" || typeof (URL) != "string" || typeof (sheetindex) != "number" ||
-            typeof (key) != "string" || !Array.isArray(columns) || typeof (owner) != "string")
+        if (typeof (name) != "string" || name === "" || typeof (URL) != "string" || URL === "" || 
+            typeof (sheetindex) != "number" || typeof (key) != "string" || key === "" || 
+            !Array.isArray(columns) || typeof (owner) != "string" || owner === "")
             return res.status(400).json({
                 status: "Missing parameter"
             })
+        // TODO: check owner
         // check columns
         let newColumn = []
         let hasLabel: boolean = false
@@ -76,8 +78,8 @@ const updateDS = async (req: express.Request, res: express.Response) => {
         // check parameters
         const dsId = req.params.id;
         const { name, URL, sheetindex, key, columns } = req.body;
-        if (typeof (name) != "string" || typeof (URL) != "string" || typeof (sheetindex) != "number" ||
-            typeof (key) != "string" || !Array.isArray(columns))
+        if (!dsId || typeof (name) != "string" || name === "" || typeof (URL) != "string" || URL === "" || 
+            typeof (sheetindex) != "number" || typeof (key) != "string" || key === "" || !Array.isArray(columns))
             return res.status(400).json({
                 status: "Missing parameter"
             })
