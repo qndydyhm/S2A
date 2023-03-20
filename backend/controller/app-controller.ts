@@ -112,7 +112,7 @@ const getApp = async (req: express.Request, res: express.Response) => {
             }
 
             for (let key in existingApp.views) {
-                const view = await DataSource.findOne({ _id: existingApp.views[key] })
+                const view = await View.findOne({ _id: existingApp.views[key] })
                 if (!view)
                     return res.status(400).json({
                         status: "Fail to find view " + existingApp.views[key]
