@@ -127,13 +127,7 @@ const updateDS = async (req: express.Request, res: express.Response) => {
         existingDS.URL = URL
         existingDS.sheetindex = sheetindex
         existingDS.key = key
-        existingDS.columns = newColumn as [{
-            name: string,
-            initvalue: string,
-            label: boolean,
-            reference: string,
-            type: string
-        }]
+        existingDS.columns = newColumn
         await existingDS.save()
         await res.send({ status: "OK" });
     }
