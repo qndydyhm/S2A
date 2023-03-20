@@ -298,7 +298,7 @@ function GlobalStoreContextProvider(props) {
             const response = await api.createNewDataSource({ name: "Untitle", URL: " ", sheetindex: 1, key: " ", columns: [], owner: store.currentApp._id });
             if (response.status == 200) {
                 let value = store.idDataSourcePairs;
-                value.push({ id: response.data.id, name: "Untitle" })
+                value.push({ _id: response.data.id, name: "Untitle" })
                 storeReducer({
                     type: GlobalStoreActionType.LOAD_DATA_SOURCE_LIST,
                     payload: { pairs: value }
@@ -308,17 +308,22 @@ function GlobalStoreContextProvider(props) {
         asyncCreateNewDataSource();
     }
     store.confirmEditDataSource = function () {
-        async function asyncEditDataSource() {
-            console.log(store.currentApp._id);
-            const response = await api.updateDataSource(store.currentSelectedDatasource._id,store.currentSelectedDatasource);
-            if (response.status == 200) {
-                storeReducer({
-                    type: GlobalStoreActionType.UPDATE_DATA_SOURCE,
-                    payload: {data_source: store.currentSelectedDatasource, pairs: store.idDataSourcePairs }
-                });
+            async function asyncEditDataSource() {
+                const response = await api.updateDataSource(store.currentSelectedDatasource._id, store.currentSelectedDatasource);
+                if (response.status == 200) {
+                    for (let i = 0; i < store.idDataSourcePairs.length; i++) {
+                        if (store.idDataSourcePairs[i]._id == store.currentSelectedDatasource._id) {
+                            store.idDataSourcePairs[i].name = store.currentSelectedDatasource.name;
+                            break;
+                        }
+                    }
+                    storeReducer({
+                        type: GlobalStoreActionType.UPDATE_DATA_SOURCE,
+                        payload: { data_source: store.currentSelectedDatasource, pairs: store.idDataSourcePairs }
+                    });
+                }
             }
-        }
-        asyncEditDataSource();
+            asyncEditDataSource();
 
     }
     store.setCurrentSelectedColumnIndex = function (index) {

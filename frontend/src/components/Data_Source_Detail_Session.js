@@ -40,11 +40,21 @@ export default function Data_Source_Detail_Session() {
         store.updateDataSourceLocally(store.currentSelectedDatasource);
     }
     function handleUpdateSheetI(event) {
-        store.currentSelectedDatasource.sheetindex = event.target.value;
+        if (/^\d+$/.test(event.target.value)) {
+            store.currentSelectedDatasource.sheetindex = parseInt(event.target.value);
+        }
+        else {
+            alert("Sheet index has to be integer only");
+            store.currentSelectedDatasource.sheetindex = event.target.value;
+        }
         store.updateDataSourceLocally(store.currentSelectedDatasource);
     }
 
     function handleConfirmEditDataSource() {
+        if (!(/^\d+$/.test(store.currentSelectedDatasource.sheetindex))) {
+            alert("sheetindex should be digit only");
+            return;
+        }
         store.confirmEditDataSource();
         //{ name: "Untitle", URL: " ", sheetindex: 1, key: " ", columns: [], owner: store.currentApp._id }
     }
@@ -158,12 +168,12 @@ export default function Data_Source_Detail_Session() {
                                                 <NativeSelect
                                                     onChange={(e) => handleUpdateColumn(e, columns.indexOf(column), "type")}
                                                     autoWidth
-                                                    defaultValue = {column.type}
+                                                    defaultValue={column.type}
                                                 >
-                                                    <option  value={"Boolean"}>Boolean</option >
-                                                    <option  value={"Number"}>Number</option >
-                                                    <option  value={"Text"}>Text</option >
-                                                    <option  value={"URL"}>URL</option >
+                                                    <option value={"Boolean"}>Boolean</option >
+                                                    <option value={"Number"}>Number</option >
+                                                    <option value={"Text"}>Text</option >
+                                                    <option value={"URL"}>URL</option >
                                                 </NativeSelect>
                                             </FormControl>
                                         </TableCell>
