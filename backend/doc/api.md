@@ -131,7 +131,7 @@ request:
 { 
     name: string, 
     URL: string, 
-    sheetindex: string, 
+    sheetindex: number, 
     key: string, 
     columns: [{
         name: string, 
@@ -157,7 +157,7 @@ request:
 { 
     name: string, 
     URL: string, 
-    sheetindex: string, 
+    sheetindex: number, 
     key: string, 
     columns: [{
         name: string, 
