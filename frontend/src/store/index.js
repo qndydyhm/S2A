@@ -51,7 +51,7 @@ const currentModal = {
 export const GlobalStoreContext = createContext({});
 function GlobalStoreContextProvider(props) {
     const [store, setStore] = useState({
-        currentSideBar: CurrentSideBar.NONE,
+        currentSideBar: CurrentSideBar.NONE,//{_id,name,published}
         idAppPairs: [],//[{id,title}....]
         idDataSourcePairs: [],//[{id,dataSource.name}]
         currentApp: null, //{id,name,creator,roleM,publish}if currentApp ! = null, then currently developer is in the editing page,
@@ -185,7 +185,7 @@ function GlobalStoreContextProvider(props) {
         async function asyncLoadIdAppPairs() {
             const response = await api.getIdAppPairs();
             if (response.status==200) {
-                let pairs = response.data.idAppPairs;
+                let pairs = response.data.apps;
                 storeReducer({
                     type: GlobalStoreActionType.LOAD_APP_LIST,
                     payload: { pairs: pairs }
@@ -200,11 +200,11 @@ function GlobalStoreContextProvider(props) {
     //create default App and Datasource with all values null
     store.createDefaultApp = function () {
         async function asyncCreateDefaultApp() {
-            let app = {name:" ",datasources:[],views:[],roleM:" ",published:false};
+            let app = {name:"Untitle",datasources:[],views:[],roleM:" ",published:false};
             const response = await api.createApp(app);
             if (response.status==200) {
                 //create default datasource based on the app_id.{name:" ",datasources:[],views:[],roleM:" ",published:false}
-                app.id = response.data.id;
+                app._id = response.data.id;
                 storeReducer({
                     type: GlobalStoreActionType.OPEN_APP,
                     payload: { app: app }
@@ -220,7 +220,7 @@ function GlobalStoreContextProvider(props) {
     //argument app has the format {name,creator,roleM, publish}
     store.editCurrentApp = function (app) {
         async function asyncEditCurrentApp() {
-            const response = await api.updateApp(store.currentApp.id, app);
+            const response = await api.updateApp(store.currentApp._id, app);
             if (response.status == 200) {
                 console.log("APP UPDATE ALREADY");
                 storeReducer({
