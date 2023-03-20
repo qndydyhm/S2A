@@ -1,6 +1,6 @@
 # API
 
-## User login
+## User
 - login
 ```
 GET /auth/login
@@ -133,7 +133,13 @@ request:
     URL: string, 
     sheetindex: string, 
     key: string, 
-    columns: [string], 
+    columns: [{
+        name: string, 
+        initvalue: string, 
+        label: boolean, 
+        reference: string, 
+        type: string
+    }], 
     owner: string // owned app id
 }
 response:
@@ -153,7 +159,13 @@ request:
     URL: string, 
     sheetindex: string, 
     key: string, 
-    columns: [string]
+    columns: [{
+        name: string, 
+        initvalue: string, 
+        label: boolean, 
+        reference: string, 
+        type: string
+    }]
 }
 response:
 {
