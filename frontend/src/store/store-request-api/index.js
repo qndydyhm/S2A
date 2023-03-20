@@ -4,18 +4,22 @@ axios.defaults.withCredentials = true;
 const api = axios.create({
     baseURL: 'http://localhost',
 })
+
+//app
 const getIdAppPairs = () =>api.get(`/api/app`);
 const createApp=(app)=>api.post(`/api/app`,app);
 const updateApp=(id,app) => api.post(`/api/app/${id}`,app);
 const getApp = (id) =>api.get(`/api/app/${id}`);
 
 
+//data source
 
-// api.post('/api/app', app.createApp)
-// api.post('/api/app/:id', app.updateApp)
-// api.get('/api/app/:id', app.getApp)
-// api.get('/api/app', app.getApps)
-// api.delete('/api/app/:id', app.deleteApp)
+const createNewDataSource = (ds)=>(`/api/ds`,ds);
+
+// api.post('/api/ds', ds.createDS)
+// api.post('/api/ds/:id', ds.updateDS)
+// api.get('/api/ds/:id', ds.getDS)
+// api.delete('/api/ds/:id', ds.deleteDS)
 
 const apis = {
     getIdAppPairs,

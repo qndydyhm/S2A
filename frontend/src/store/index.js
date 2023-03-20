@@ -17,8 +17,6 @@ export const GlobalStoreActionType = {
     SET_CURRENT_SELECTED_COLUMN: "SET_CURRENT_SELECTED_COLUMN",
     //Return to the main page
     GO_TO_MAIN_SCREEN: "GO_TO_MAIN_SCREEN",
-    //load different section menu
-    CHANGE_SIDEBAR_SECTION: "CHANGE_SIDEBAR_SECTION",
     //Modal
     SHOW_MODAL: "SHOW_MODAL",
     HIDE_MODAL: "HIDE_MODAL",
@@ -78,17 +76,14 @@ function GlobalStoreContextProvider(props) {
                 return setStore({
                     currentModal: currentModal.NONE,
                     idAppPairs: payload.pairs,
-                    currentApp:null
+                    currentApp: null
                 });
             }
             case GlobalStoreActionType.LOAD_APP_LIST: {
                 return setStore({
                     idAppPairs: payload.pairs,
-                });
-            }
-            case GlobalStoreActionType.CHANGE_SIDEBAR_SECTION: {
-                return setStore({
-                    currentSideBar: payload.section,
+                    currentApp:store.currentApp,
+                    idDataSourcePairs:store.idDataSourcePairs
                 });
             }
             case GlobalStoreActionType.UPDATE_APP: {
@@ -99,7 +94,7 @@ function GlobalStoreContextProvider(props) {
                         roleM: payload.app.roleM,
                         published: payload.app.published
                     },
-                    currentSideBar:CurrentSideBar.APP_INFO_SECTION,
+                    currentSideBar: CurrentSideBar.APP_INFO_SECTION,
                 });
             }
             case GlobalStoreActionType.UPDATE_DATA_SOURCE: {
@@ -150,7 +145,11 @@ function GlobalStoreContextProvider(props) {
             }
             case GlobalStoreActionType.LOAD_DATA_SOURCE_LIST: {
                 return setStore({
-                    idDataSourcePairs: payload.pairs
+                    idDataSourcePairs: payload.pairs,
+                    currentApp:store.currentApp,
+                    idDataSourcePairs:store.idDataSourcePairs,
+                    currentSideBar:CurrentSideBar.DATA_SOURCE_SECTION
+                    
                 });
             }
             case GlobalStoreActionType.SET_CURRENT_SELECTED_DATA_SOURCE: {
@@ -166,7 +165,7 @@ function GlobalStoreContextProvider(props) {
     store.returnToMainScreen = function () {
         async function asyncLoadIdAppPairs() {
             const response = await api.getIdAppPairs();
-            if (response.status==200) {
+            if (response.status == 200) {
                 let pairs = response.data.apps;
                 storeReducer({
                     type: GlobalStoreActionType.GO_TO_MAIN_SCREEN,
@@ -178,7 +177,7 @@ function GlobalStoreContextProvider(props) {
             }
         }
         asyncLoadIdAppPairs();
-        
+
 
     }
     //RESTORE EVERY STORE VALUE TO DEFAULT
@@ -192,7 +191,7 @@ function GlobalStoreContextProvider(props) {
     store.loadIdAppPairs = function () {
         async function asyncLoadIdAppPairs() {
             const response = await api.getIdAppPairs();
-            if (response.status==200) {
+            if (response.status == 200) {
                 let pairs = response.data.apps;
                 storeReducer({
                     type: GlobalStoreActionType.LOAD_APP_LIST,
@@ -208,9 +207,9 @@ function GlobalStoreContextProvider(props) {
     //create default App and Datasource with all values null
     store.createDefaultApp = function () {
         async function asyncCreateDefaultApp() {
-            let app = {name:"Untitle",datasources:[],views:[],roleM:" ",published:false};
+            let app = { name: "Untitle", datasources: [], views: [], roleM: " ", published: false };
             const response = await api.createApp(app);
-            if (response.status==200) {
+            if (response.status == 200) {
                 //create default datasource based on the app_id.{name:" ",datasources:[],views:[],roleM:" ",published:false}
                 app._id = response.data.id;
                 storeReducer({
@@ -243,20 +242,17 @@ function GlobalStoreContextProvider(props) {
         asyncEditCurrentApp();
     }
     store.loadIdDatasourcePair = function () {
-        async function asyncLoadIdDataSourcePairs() {
-            const response = await api.getIdDatsourcePairs();
-            if (response.data.success) {
-                let pairs = response.data.idAppPairs;
-                storeReducer({
-                    type: GlobalStoreActionType.LOAD_DATA_SOURCE_LIST,
-                    payload: { pairs: pairs }
-                });
-            }
-            else {
-                console.log("API FAILED TO GET THE DATA SOURCE PAIR");
-            }
+        let pairs =[];
+        let datasources = store.currentApp.datasources;
+        for(let i = 0;i<datasources.length;i++){
+            pairs.push({_id:datasources[i]._id,name:datasources[i].name});
         }
-        asyncLoadIdDataSourcePairs();
+        console.log("here the pair is "+pairs);
+        storeReducer({
+            type: GlobalStoreActionType.LOAD_DATA_SOURCE_LIST,
+            payload: { pairs: pairs }
+        });
+
     }
 
     store.setCurrentSelectedDataSource = function (id) {
@@ -292,14 +288,13 @@ function GlobalStoreContextProvider(props) {
     }
     store.createNewDataSource = function () {
         async function asyncCreateNewDataSource() {
-            const response = await api.getIdAppPairs();
-            //await api.createNewDataSource();
+            const response = await api.createNewDataSource({name:"Untitle",URL:" ",sheetindex:" ",key:" ",columns:[],owner:store.currentApp.id});
             if (response.data.success) {
                 let value = store.idDataSourcePairs;
-                value.push({id:response.data.data_source.id,name:response.data.data_source.name})
+                value.push({ id: response.data.id, name:"Untitle"})
                 storeReducer({
                     type: GlobalStoreActionType.LOAD_DATA_SOURCE_LIST,
-                    payload: { pairs:value }
+                    payload: { pairs: value }
                 });
             }
         }
@@ -340,7 +335,7 @@ function GlobalStoreContextProvider(props) {
     store.setCurrentApp = function (id) {
         async function asyncLoadCurrentApp() {
             const response = await api.getApp(id);
-            if (response.status==200) {
+            if (response.status == 200) {
                 let app = response.data.app;
                 storeReducer({
                     type: GlobalStoreActionType.OPEN_APP,
