@@ -26,7 +26,7 @@ const updateDataSource =(id,datasource) =>api.post(`/api/ds/${id}`,datasource);
 
 const createNewView = (v) =>api.post(`/api/view`,v);
 const getView = (id) =>api.get(`/api/view/${id}`);
-
+const updateView = (id, v) => api.post(`/api/view/${id}`,v);
 // api.post('/api/view', view.createView)
 // api.post('/api/view/:id', view.updateView)
 // api.get('/api/view/:id', view.getView)
@@ -42,7 +42,8 @@ const apis = {
     createNewView,
     getView,
     getDataSource,
-    updateDataSource
+    updateDataSource,
+    updateView
 }
 
 export default apis

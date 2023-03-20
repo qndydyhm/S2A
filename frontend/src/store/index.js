@@ -25,6 +25,7 @@ export const GlobalStoreActionType = {
     LOAD_VIEW_LIST: "LOAD_VIEW_LIST",
     CREATE_VIEW: "CREATE_VIEW",
     UPDATE_VIEW: "UPDATE_VIEW",
+    SET_CURRENT_SELECTED_VIEW: "SET_CURRENT_SELECTED_VIEW",
 
 }
 
@@ -156,6 +157,24 @@ function GlobalStoreContextProvider(props) {
                     currentSideBar: store.currentSideBar
                 });
             }
+            case GlobalStoreActionType.SET_CURRENT_SELECTED_VIEW: {
+                return setStore({
+                    currentSelectedView: payload.v,
+                    currentApp: store.currentApp,
+                    idDataSourcePairs: store.idDataSourcePairs,
+                    currentSideBar: store.currentSideBar,
+                    viewPairs: store.viewPairs
+                });
+            }
+            case GlobalStoreActionType.UPDATE_VIEW: {
+                return setStore({
+                    currentSelectedView: payload.view,
+                    currentApp: store.currentApp,
+                    idDataSourcePairs: store.idDataSourcePairs,
+                    currentSideBar: store.currentSideBar,
+                    viewPairs: store.viewPairs
+                })
+            }
             default:
                 return store;
         }
@@ -253,28 +272,6 @@ function GlobalStoreContextProvider(props) {
 
     }
 
-    store.loadViewPair = function () {
-        let pairs = [];
-        let views = store.currentApp.views;
-        console.log(store.currentApp)
-        for(let i = 0; i<views.length; i++){
-            pairs.push({_id:views[i]._id, name:views[i].name});
-        }
-        storeReducer({
-            type: GlobalStoreActionType.LOAD_VIEW_LIST,
-            payload: { pairs: pairs }
-        })
-    }
-
-    // store.setCurrentSelectedView = function (id) {
-    //     async function asyncGetSelectedView() {
-    //         const response = await api.getView(id);
-    //         if (response.data.success) {
-    //             let v = response.data.view;
-    //         }
-    //     }
-    // }
-
     store.setCurrentSelectedDataSource = function (id) {
         async function asyncGetSelectedDataSource() {
             const response = await api.getDataSource(id);
@@ -299,20 +296,6 @@ function GlobalStoreContextProvider(props) {
         });
     }
 
-    store.createNewView = function () {
-        async function asyncCreateNewView() {
-            const response = await api.createNewView({name:"Untitle",table:" ",columns:[],viewtype:"table",allowedactions:0,roles:[],owner:store.currentApp._id});
-            if(response.status==200) {
-                let value = store.viewPairs;
-                value.push({ id: response.data.id, name:"Untitled"})
-                storeReducer({
-                    type: GlobalStoreActionType.LOAD_VIEW_LIST,
-                    payload: {pairs: value}
-                });
-            }
-        }
-        asyncCreateNewView();
-    }
     store.createNewDataSource = function () {
         async function asyncCreateNewDataSource() {
             console.log(store.currentApp._id);
@@ -376,6 +359,65 @@ function GlobalStoreContextProvider(props) {
             }
         }
         asyncLoadCurrentApp();
+    }
+
+    //Views
+    store.createNewView = function () {
+        async function asyncCreateNewView() {
+            const response = await api.createNewView({name:"Untitle",table:" ",columns:[],viewtype:"table",allowedactions:0,roles:[],owner:store.currentApp._id});
+            if(response.status==200) {
+                let value = store.viewPairs;
+                value.push({ id: response.data.id, name:"Untitled"})
+                storeReducer({
+                    type: GlobalStoreActionType.LOAD_VIEW_LIST,
+                    payload: {pairs: value}
+                });
+            }
+        }
+        asyncCreateNewView();
+    }
+    store.loadViewPair = function () {
+        let pairs = [];
+        let views = store.currentApp.views;
+        for(let i = 0; i<views.length; i++){
+            pairs.push({_id:views[i].id, name:views[i].name});
+        }
+        storeReducer({
+            type: GlobalStoreActionType.LOAD_VIEW_LIST,
+            payload: { pairs: pairs }
+        })
+    }
+
+    store.setCurrentSelectedView = function (id) {
+        async function asyncGetSelectedView(){
+            const response = await api.getView(id);
+            if (response.status = 200) {
+                let v = response.data.view;
+                storeReducer({
+                    type: GlobalStoreActionType.SET_CURRENT_SELECTED_VIEW,
+                    payload: {v: v}
+                });
+            }
+        }
+        asyncGetSelectedView();
+    }
+
+    store.editCurrentView = function (id, view) {
+        console.log(id, view)
+        async function asyncEditCurrentView() {
+            const response = await api.updateView(id, view);
+            if (response.status == 200) {
+                console.log("VIEW UPDATED ALREADY");
+                storeReducer({
+                    type: GlobalStoreActionType.UPDATE_VIEW,
+                    payload: {view: view}
+                })
+            }
+            else{
+                 console.log("API FAIL TO UPDATE CURRENT VIEW");
+            }
+        }
+        asyncEditCurrentView();
     }
 
     // store.changeSideBarSection = function (section) {
