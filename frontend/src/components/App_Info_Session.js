@@ -28,7 +28,7 @@ export default function App_Info_Session() {
         setPublished(!published);
     }
     function handleConfirmEditApp(event){
-        store.editCurrentApp({id:store.currentApp.id,name:name,roleM:roleM,published:published,views:store.currentApp.views,datasources:store.currentApp.datasources});
+        store.editCurrentApp({_id:store.currentApp.id,name:name,roleM:roleM,published:published,views:store.currentApp.views,datasources:store.currentApp.datasources});
 
     }
 

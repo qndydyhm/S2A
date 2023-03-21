@@ -1,3 +1,4 @@
+import { Alert } from '@mui/material';
 import { createContext, useContext, useState } from 'react'
 import AuthContext from '../auth';
 import api from './store-request-api';
@@ -218,7 +219,7 @@ function GlobalStoreContextProvider(props) {
     //create default App and Datasource with all values null
     store.createDefaultApp = function () {
         async function asyncCreateDefaultApp() {
-            let app = { name: "Untitle", datasources: [], views: [], roleM: " ", published: false };
+            let app = { name: "Untitle", datasources: [], views: [], roleM: "https://docs.google.com/spreadsheets/d/19XvlQOUIHjHCckc5dpP1GzdFEjZL4O3bIKS-XrSN8n8/edit#gid=0", published: false };
             const response = await api.createApp(app);
             if (response.status == 200) {
                 //create default datasource based on the app_id.{name:" ",datasources:[],views:[],roleM:" ",published:false}
@@ -229,7 +230,7 @@ function GlobalStoreContextProvider(props) {
                 })
             }
             else {
-                console.log("API FAILED TO CREATE APP");
+                Alert(response.data.status);
             }
         }
         asyncCreateDefaultApp();
@@ -262,16 +263,20 @@ function GlobalStoreContextProvider(props) {
     //argument app has the format {name,creator,roleM, publish}
     store.editCurrentApp = function (app) {
         async function asyncEditCurrentApp() {
-            const response = await api.updateApp(store.currentApp._id, app);
-            if (response.status == 200) {
-                console.log("APP UPDATE ALREADY");
-                storeReducer({
-                    type: GlobalStoreActionType.UPDATE_APP,
-                    payload: { app: app }
-                })
+            try {
+                const response = await api.updateApp(store.currentApp._id, app);
+                if (response.status == 200) {
+                    storeReducer({
+                        type: GlobalStoreActionType.UPDATE_APP,
+                        payload: { app: app }
+                    })
+                }
+                else {
+                    console.log("API FAIL TO UPDATE CURRENT APP");
+                }
             }
-            else {
-                console.log("API FAIL TO UPDATE CURRENT APP");
+            catch (error) {
+                alert(error.response.data.status);
             }
         }
         asyncEditCurrentApp();
@@ -288,13 +293,13 @@ function GlobalStoreContextProvider(props) {
         });
 
     }
-    store.deleteDataSource = function(id){
-        async function deleteDataSource(){
+    store.deleteDataSource = function (id) {
+        async function deleteDataSource() {
             const response = await api.deleteDataSource(id);
-            if(response.status===200){
-                for(let i = 0;i<store.idDataSourcePairs.length;i++){
-                    if(store.idDataSourcePairs[i]._id==id){
-                        store.idDataSourcePairs.splice(i,1);
+            if (response.status === 200) {
+                for (let i = 0; i < store.idDataSourcePairs.length; i++) {
+                    if (store.idDataSourcePairs[i]._id == id) {
+                        store.idDataSourcePairs.splice(i, 1);
                         break;
                     }
                 }
@@ -302,9 +307,9 @@ function GlobalStoreContextProvider(props) {
                     type: GlobalStoreActionType.LOAD_DATA_SOURCE_LIST,
                     payload: { pairs: store.idDataSourcePairs }
                 });
-                
+
             }
-            else{
+            else {
                 console.log("UNABLE TO DELETE DATA SOURCE");
             }
         }
@@ -352,7 +357,7 @@ function GlobalStoreContextProvider(props) {
     store.createNewDataSource = function () {
         async function asyncCreateNewDataSource() {
             console.log(store.currentApp._id);
-            const response = await api.createNewDataSource({ name: "Untitle", URL: " ", sheetindex: 1, key: " ", columns: [], owner: store.currentApp._id });
+            const response = await api.createNewDataSource({ name: "Untitle", URL: "https://docs.google.com/spreadsheets/d/1yCajMCD1cYrDAl-Fki3sMunpDoVtX7n0U7pCXivjm_Y/edit#gid=0", sheetindex: 1, key: " ", columns: [], owner: store.currentApp._id });
             if (response.status == 200) {
                 let value = store.idDataSourcePairs;
                 value.push({ _id: response.data.id, name: "Untitle" })
@@ -366,18 +371,24 @@ function GlobalStoreContextProvider(props) {
     }
     store.confirmEditDataSource = function () {
         async function asyncEditDataSource() {
-            const response = await api.updateDataSource(store.currentSelectedDatasource._id, store.currentSelectedDatasource);
-            if (response.status == 200) {
-                for (let i = 0; i < store.idDataSourcePairs.length; i++) {
-                    if (store.idDataSourcePairs[i]._id == store.currentSelectedDatasource._id) {
-                        store.idDataSourcePairs[i].name = store.currentSelectedDatasource.name;
-                        break;
+            try{
+                const response = await api.updateDataSource(store.currentSelectedDatasource._id, store.currentSelectedDatasource);
+                if (response.status == 200) {
+                    for (let i = 0; i < store.idDataSourcePairs.length; i++) {
+                        if (store.idDataSourcePairs[i]._id == store.currentSelectedDatasource._id) {
+                            store.idDataSourcePairs[i].name = store.currentSelectedDatasource.name;
+                            break;
+                        }
                     }
-                }
-                storeReducer({
-                    type: GlobalStoreActionType.UPDATE_DATA_SOURCE,
-                    payload: { data_source: store.currentSelectedDatasource, pairs: store.idDataSourcePairs }
-                });
+                    storeReducer({
+                        type: GlobalStoreActionType.UPDATE_DATA_SOURCE,
+                        payload: { data_source: store.currentSelectedDatasource, pairs: store.idDataSourcePairs }
+                    });
+
+            }
+            }
+            catch(error){
+                alert(error.response.data.status);
             }
         }
         asyncEditDataSource();
@@ -435,14 +446,14 @@ function GlobalStoreContextProvider(props) {
         })
     }
 
-    store.setCurrentSelectedView = function (id) {    
+    store.setCurrentSelectedView = function (id) {
         async function asyncGetSelectedView() {
             const response = await api.getView(id);
             if (response.status = 200) {
                 let v = response.data.view;
                 storeReducer({
                     type: GlobalStoreActionType.SET_CURRENT_SELECTED_VIEW,
-                    payload: { v:v }
+                    payload: { v: v }
                 });
             }
         }
@@ -451,11 +462,11 @@ function GlobalStoreContextProvider(props) {
     store.setTableForView = function (id) {
         async function asyncSetTableForView() {
             const response = await api.getDataSource(id);
-            if(response.status = 200) {
+            if (response.status = 200) {
                 let t = response.data.datasource;
                 storeReducer({
                     type: GlobalStoreActionType.SET_TABLE_FOR_VIEW,
-                    payload: { t:t }
+                    payload: { t: t }
                 });
             }
         }
@@ -477,22 +488,22 @@ function GlobalStoreContextProvider(props) {
         }
         asyncEditCurrentView();
     }
-    store.deleteView = function(id){
-        async function asyncDeleteView(){
+    store.deleteView = function (id) {
+        async function asyncDeleteView() {
             const response = await api.deleteView(id);
-            if(response.status=200){
-                for(let i =0; i<store.viewPairs.length;i++){
-                    if(store.viewPairs[i]._id==id){
-                        store.viewPairs.splice(i,1);
+            if (response.status = 200) {
+                for (let i = 0; i < store.viewPairs.length; i++) {
+                    if (store.viewPairs[i]._id == id) {
+                        store.viewPairs.splice(i, 1);
                         break;
                     }
                 }
                 storeReducer({
                     type: GlobalStoreActionType.LOAD_VIEW_LIST,
-                    payload: {pairs: store.viewPairs}
+                    payload: { pairs: store.viewPairs }
                 });
             }
-            else{
+            else {
                 console.log("UNABLE TO DELETE VIEW");
             }
         }
