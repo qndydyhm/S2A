@@ -14,7 +14,9 @@ import { InputLabel, MenuItem, Select } from "@mui/material";
     const idDataSourcePairs = store.currentApp.datasources;
     const fullTable = store.currentTableForView;
     const {id} = props;
-    if (!store.currentTableForView){store.setTableForView(store.currentSelectedView.table);}
+    if (!store.currentTableForView && store.currentSelectedView.table!==" "){
+        store.setTableForView(store.currentSelectedView.table);
+    }
     const [name, setName] = useState(current_view.name);
     const [type, setType] = useState(current_view.viewtype);
     const [allowAdd, setAllowAdd] = useState(current_view.allowedactions>=4);
