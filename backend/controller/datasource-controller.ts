@@ -193,7 +193,7 @@ const getDS = async (req: express.Request, res: express.Response) => {
         // find and return datasource
         const existingDS = await DataSource.findOne({ _id: dsId });
         if (!existingDS)
-            return res.status(401).json({
+            return res.status(400).json({
                 status: "Fail to find DataSource " + dsId
             })
         await res.send({ status: "OK", datasource: existingDS });

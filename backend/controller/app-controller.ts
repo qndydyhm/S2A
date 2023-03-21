@@ -156,7 +156,8 @@ const getApp = async (req: express.Request, res: express.Response) => {
             console.log(e)
         }
         await res.send({
-            status: "OK", app: {
+            status: "OK", 
+            app: {
                 _id: existingApp._id,
                 name: existingApp.name,
                 creator: existingApp.creator,
@@ -221,14 +222,14 @@ const getApps = async (req: express.Request, res: express.Response) => {
         // get user info
         const loggedInUser: any = await auth.getUser(req);
         if (!loggedInUser)
-            return res.status(401).json({
+            return res.status(400).json({
                 status: "Fail to find User"
             })
         // find apps and return
         // TODO: check end user
         const apps = await App.find({ $or: [{ creator: loggedInUser.id }, { published: true }] });
         if (!Array.isArray(apps))
-            return res.json({
+            return res.status(400).json({
                 status: "Apps not found"
             })
         let applist = []

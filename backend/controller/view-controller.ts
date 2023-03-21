@@ -195,7 +195,7 @@ const getView = async (req: express.Request, res: express.Response) => {
         // find and return view
         const existingView = await View.findOne({ _id: viewId });
         if (!existingView)
-            return res.status(401).json({
+            return res.status(400).json({
                 status: "Fail to find View " + viewId
             })
         await res.send({ status: "OK", view: existingView });
