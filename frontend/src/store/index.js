@@ -477,6 +477,27 @@ function GlobalStoreContextProvider(props) {
         }
         asyncEditCurrentView();
     }
+    store.deleteView = function(id){
+        async function asyncDeleteView(){
+            const response = await api.deleteView(id);
+            if(response.status=200){
+                for(let i =0; i<store.viewPairs.length;i++){
+                    if(store.viewPairs[i]._id==id){
+                        store.viewPairs.splice(i,1);
+                        break;
+                    }
+                }
+                storeReducer({
+                    type: GlobalStoreActionType.LOAD_VIEW_LIST,
+                    payload: {pairs: store.viewPairs}
+                });
+            }
+            else{
+                console.log("UNABLE TO DELETE VIEW");
+            }
+        }
+        asyncDeleteView();
+    }
 
     return (
         <GlobalStoreContext.Provider value={{

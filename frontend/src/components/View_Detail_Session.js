@@ -22,7 +22,7 @@ export default function View_Detail_Session(props){
     const [editableColumnsText, setEditableColumnsText] = useState(current_view.editablecolumns);
     const [roles, setRoles] = useState(current_view.roles);
     const [rolesText, setRolesText] = useState(current_view.roles);
-    
+
     var selectedTable = findObjectById(idDataSourcePairs, "id" ,current_view.table)
     if (fullTable){
         var selectedFilter = findObjectById(fullTable.columns, "_id" ,current_view.filter);
