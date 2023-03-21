@@ -34,8 +34,7 @@ function AppCard(props) {
             <Box sx={{ p: 1, flexGrow: 1 }}>
                 {idAppPairs.name}
             </Box>
-            <IconButton onClick={handleDeleteApp} aria-label='delete' style={{float:'right'}}
-            >
+            <IconButton onClick={handleDeleteApp} aria-label='delete' style={{float:'right'}}>
                 <DeleteIcon style={{ fontSize: '48pt'}} />
             </IconButton>
         </ListItem>
