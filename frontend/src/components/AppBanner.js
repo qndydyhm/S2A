@@ -1,4 +1,4 @@
-import { useEffect,useContext,useState } from "react";
+import {useContext,useState } from "react";
 import AuthContext from '../auth';
 import { IconButton, Toolbar, Typography, Avatar, Box, AppBar ,Menu,MenuItem} from '@mui/material/';
 import Star from '@mui/icons-material/Star';
@@ -45,6 +45,7 @@ export default function AppBanner() {
         store.returnToMainScreen();
     }
     function handleLogout() {
+        auth.logout();
         axios.get("/auth/logout").then(()=>{window.open("/auth/login","_self")});
     }
     return (

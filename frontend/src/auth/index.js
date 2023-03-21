@@ -5,6 +5,7 @@ import api from './auth-request-api'
 const AuthContext = createContext();
 export const AuthActionType = {
     GET_LOGIN_USER: "GET_LOGIN_USER",
+    LOGOUT:"LOGOUT",
 }
 function AuthContextProvider(props) {
     const [auth, setAuth] = useState({
@@ -29,6 +30,15 @@ function AuthContextProvider(props) {
         }
         getLogIn();
     },[]);
+
+    auth.logout=function(){
+        authReducer({
+            type:AuthActionType.LOGOUT,
+        });
+    }
+
+
+
     const authReducer = (action) => {
         const { type, payload } = action;
         switch (type) {
@@ -38,6 +48,14 @@ function AuthContextProvider(props) {
                     email: payload.email,
                     profile:payload.profile,
                     isGlobalDeveloper:payload.isGlobalDeveloper
+                })
+            }
+            case AuthActionType.LOGOUT:{
+                return setAuth({
+                    user: null,
+                    email: null,
+                    profile:null,
+                    isGlobalDeveloper:false
                 })
             }
             default:
