@@ -4,7 +4,11 @@ import { useContext, useState } from "react"
 import { all } from "axios";
 import { InputLabel, MenuItem, Select } from "@mui/material";
 
-export default function View_Detail_Session(props){
+    //TODO: MINOR BUG: Now showing selected filter
+    //TODO: check if editable columns belong to columns
+    //TODO: check if roles are in roles list
+
+    export default function View_Detail_Session(props){
     const { store } = useContext(GlobalStoreContext);
     const current_view = store.currentSelectedView;
     const idDataSourcePairs = store.currentApp.datasources;
@@ -40,7 +44,7 @@ export default function View_Detail_Session(props){
     var filters = <div></div>
     var tableViewFilters = <div></div>
     var detailViewFilters = <div></div>
-    if (current_view.table!==" " && fullTable){
+    if (table!==" " && fullTable){
         if(type==="table"){
             tableViewFilters = 
             <div id="table-view-filters">
@@ -120,7 +124,6 @@ export default function View_Detail_Session(props){
         if(document.getElementById("allow-add-checkbox")){document.getElementById("allow-add-checkbox").removeAttribute("disabled");}
         if(document.getElementById("allow-edit-checkbox")){document.getElementById("allow-edit-checkbox").setAttribute("disabled",true);}
     }
-    console.log(document.getElementById("allow-add-checkbox"))
     function findObjectById(array, v ,id) {
         for (var i = 0; i < array.length; i++) {
             if (array[i][v] === id) {return array[i];}
@@ -175,6 +178,7 @@ export default function View_Detail_Session(props){
     function handleChangeTable (event) {
         setTable(event.target.value.id);
         setTableName(event.target.value.name);
+        store.setTableForView(event.target.value.id);
     }
     function handleChangeFilter (event) {
         if(!event.target.value){
@@ -224,9 +228,7 @@ export default function View_Detail_Session(props){
         store.editCurrentView(id, updated_view);
         store.loadViewPair();
     }
-    //TODO: disalbe "allow add" in detailed view, diable "allow edit" in table view
-    //TODO: check if editable columns belong to columns
-    //TODO: check if roles are in roles list
+
     return(
         <div style={{ width: '100%', fontSize: '15pt', backgroundColor: '#9f98a1' }}>
             <div id="dsname-prompt" className="prompt">Name: 
