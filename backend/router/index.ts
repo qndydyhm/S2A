@@ -16,6 +16,7 @@ api.get('/auth/login', user.loginUser)
 api.get('/auth/logout', user.logoutUser)
 api.get('/auth/loggedIn', user.getLoggedIn)
 api.get('/auth/google-callback', user.googleCallback)
+api.get('/auth/globaldeveloper', user.isGlobalDeveloper)
 
 
 // app
