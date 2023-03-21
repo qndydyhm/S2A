@@ -108,6 +108,7 @@ export default function Data_Source_Detail_Session() {
             <input
                 className='modal-textfield'
                 type="text"
+                style={{width:'500pt'}}
                 defaultValue={url}
                 onChange={handleUpdateURL} />
             <div id="sheetI-prompt" className="prompt">Sheet Index:</div>

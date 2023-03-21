@@ -24,44 +24,45 @@ export default function App_Info_Session() {
     function handleUpdateRoleM(event) {
         setRoleM(event.target.value);
     }
-    function handleUpdatePublish(event){
+    function handleUpdatePublish(event) {
         setPublished(!published);
     }
-    function handleConfirmEditApp(event){
-        store.editCurrentApp({_id:store.currentApp._id,name:name,roleM:roleM,published:published,views:store.currentApp.views,datasources:store.currentApp.datasources});
+    function handleConfirmEditApp(event) {
+        store.editCurrentApp({ _id: store.currentApp._id, name: name, roleM: roleM, published: published, views: store.currentApp.views, datasources: store.currentApp.datasources });
 
     }
 
     return (
         <div>
-            <div>Creator:{current_app.creator}</div>
-            <div id="name-prompt" className="prompt">Name:</div>
+            <div>Creator: {current_app.creator}</div>
+            <div id="name-prompt" className="prompt">Name: </div>
             <input
                 className='modal-textfield'
                 defaultValue={name}
                 onChange={handleUpdateName} />
-            <div id="roleM-prompt" className="prompt">role Membership:</div>
+            <div id="roleM-prompt" className="prompt">Role Membership:</div>
             {/* There are problem, it is a list with group of member, the implementation should looks like music playlist */}
             <input
                 className='modal-textfield'
                 type="text"
                 defaultValue={roleM}
+                style={{width:'500pt'}}
                 onChange={handleUpdateRoleM} />
             <div>
-            <FormControl component="fieldset" variant="standard">
-                <FormLabel component="legend">Publish?</FormLabel>
-                <FormControlLabel
-                    control={
-                        <Switch checked={published} onChange={handleUpdatePublish} />
-                    }
-                />
-            </FormControl>
+                <div>Published:</div>
+                <FormControl component="fieldset" variant="standard">
+                    <FormControlLabel
+                        control={
+                            <Switch checked={published} onChange={handleUpdatePublish} />
+                        }
+                    />
+                </FormControl>
             </div>
-            <input 
-                        type="button" 
-                        id="edi-app-confirm-button" 
-                        value='Save' 
-                        onClick={handleConfirmEditApp} />
+            <input
+                type="button"
+                id="edi-app-confirm-button"
+                value='Save'
+                onClick={handleConfirmEditApp} />
         </div>
     )
 }
