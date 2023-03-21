@@ -221,24 +221,24 @@ const deleteView = async (req: express.Request, res: express.Response) => {
                 status: "Missing parameter"
             })
         // find and delete view
-        // TODO remove this, only remove when app change/delete
         const existingView = await View.findOneAndDelete({ _id: viewId });
         if (!existingView)
             return res.status(400).json({
                 status: "Fail to find view " + viewId
             })
-            try {
-                const owner = await App.findById(existingView.owner)
-                if (!owner)
-                    return res.status(400).json({
-                        status: "Fail to owner " + existingView.owner
-                    })
-                owner.views = owner.views.filter((a) => { a != viewId })
-                owner.save()
-            }
-            catch (e) {
-                console.log(e)
-            }
+        // find its owner and drop view
+        try {
+            const owner = await App.findById(existingView.owner)
+            if (!owner)
+                return res.status(400).json({
+                    status: "Fail to owner " + existingView.owner
+                })
+            owner.views = owner.views.filter((a) => { a != viewId })
+            owner.save()
+        }
+        catch (e) {
+            console.log(e)
+        }
         await res.send({ status: "OK", view: existingView });
     }
     catch (e) {
