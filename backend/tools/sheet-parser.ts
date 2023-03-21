@@ -13,6 +13,7 @@ const getValuesByColumn = (sheet: any[][], column: string, type?: string): any[]
     if (!sheet || sheet.length === 0)
         throw "Empty sheet"
     let index = undefined;
+    // TODO: find whether the column is unique
     for (let i = 0; i < sheet[0].length; ++ i) {
         if (sheet[0][i] === column){
             index = i
@@ -23,7 +24,7 @@ const getValuesByColumn = (sheet: any[][], column: string, type?: string): any[]
         throw "Fail to find column " + column + " in sheet " + sheet
     const res = []
     for (let i = 1; i < sheet.length; ++ i) {
-        res.push(sheet[i].length > index ? sheet[i][index] : "")
+        res.push(sheet[i].length > index ? sheet[i][index] : undefined)
     }
     return res;
 }
