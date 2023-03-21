@@ -1,9 +1,7 @@
 import axios from "axios"; 
 // import {App, Datasource} from '../../DataType/dataType'
 axios.defaults.withCredentials = true;
-const api = axios.create({
-    baseURL: 'http://localhost',
-})
+const api = axios.create()
 
 //app
 const getIdAppPairs = () =>api.get(`/api/app`);
