@@ -277,6 +277,28 @@ function GlobalStoreContextProvider(props) {
         });
 
     }
+    store.deleteDataSource = function(id){
+        async function deleteDataSource(){
+            const response = await api.deleteDataSource(id);
+            if(response.status===200){
+                for(let i = 0;i<store.idDataSourcePairs.length;i++){
+                    if(store.idDataSourcePairs[i]._id==id){
+                        store.idDataSourcePairs.splice(i,1);
+                        break;
+                    }
+                }
+                storeReducer({
+                    type: GlobalStoreActionType.LOAD_DATA_SOURCE_LIST,
+                    payload: { pairs: store.idDataSourcePairs }
+                });
+                
+            }
+            else{
+                console.log("UNABLE TO DELETE DATA SOURCE");
+            }
+        }
+        deleteDataSource();
+    }
 
     store.setCurrentSelectedDataSource = function (id) {
         async function asyncGetSelectedDataSource() {

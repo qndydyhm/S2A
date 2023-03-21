@@ -18,6 +18,7 @@ const deleteApp=(id)=>api.delete(`/api/app/${id}`);
 const createNewDataSource = (ds)=>api.post(`/api/ds`,ds);
 const getDataSource =(id)=>api.get(`api/ds/${id}`);
 const updateDataSource =(id,datasource) =>api.post(`/api/ds/${id}`,datasource);
+const deleteDataSource=(id)=>api.delete(`/api/ds/${id}`);
 // api.post('/api/ds', ds.createDS)
 // api.post('/api/ds/:id', ds.updateDS)
 // api.get('/api/ds/:id', ds.getDS)
@@ -41,6 +42,7 @@ const apis = {
     getApp,
     deleteApp,
     createNewDataSource,
+    deleteDataSource,
     createNewView,
     getView,
     getDataSource,
