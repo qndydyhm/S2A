@@ -3,8 +3,6 @@ import View_Detail_Session from './View_Detail_Session';
 import { useContext, useState } from 'react';
 import {ListItem,Box} from '@mui/material';
 
-
-
 export default function View_Card(props){
     const {name,id} = props;
     const { store } = useContext(GlobalStoreContext);
@@ -20,7 +18,7 @@ export default function View_Card(props){
             sx={{ marginTop: '15px', display: 'flex', p: 1 }}
             style={{ width: '100%', fontSize: '25pt', backgroundColor: '#9f98f0' }}
             onClick={(event) => {
-                handleLoadCardDetail()
+                    handleLoadCardDetail()
             }}
         >
             <Box sx={{ p: 1, flexGrow: 1 }}>
