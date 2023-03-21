@@ -28,7 +28,7 @@ const createView = async (req: express.Request, res: express.Response) => {
                 status: "Fail to find app " + owner
             })
         // create and save datasource
-        if (viewtype !== "table" && viewtype !== "detail")
+        if (viewtype != TYPE.TABLE && viewtype != TYPE.DETAIL)
             return res.status(400).json({
                 status: 'View type must be one of "table" or "detail"'
             })
@@ -42,7 +42,7 @@ const createView = async (req: express.Request, res: express.Response) => {
             owner: owner
         })
         // TODO: check filters are valid columns
-        if (viewtype === "table") {
+        if (viewtype == TYPE.TABLE) {
             if (filter) {
                 if (typeof (filter) != "string")
                     return res.status(400).json({
@@ -58,7 +58,7 @@ const createView = async (req: express.Request, res: express.Response) => {
                 newView.userfilter = userfilter
             }
         }
-        else if (viewtype === "detail") {
+        else if (viewtype == TYPE.DETAIL) {
             if (editfilter) {
                 if (typeof (editfilter) != "string")
                     return res.status(400).json({
@@ -113,7 +113,7 @@ const updateView = async (req: express.Request, res: express.Response) => {
             })
         // TODO check owner, table, columns, roles is valid
         // create and save datasource
-        if (viewtype !== "table" && viewtype !== "detail")
+        if (viewtype !== TYPE.TABLE && viewtype !== TYPE.DETAIL)
             return res.status(400).json({
                 status: 'View type must be one of "table" or "detail"'
             })
@@ -129,7 +129,7 @@ const updateView = async (req: express.Request, res: express.Response) => {
         existingView.allowedactions = allowedactions
         existingView.roles = roles as [string]
         // TODO: check filters are valid columns
-        if (viewtype === "table") {
+        if (viewtype === TYPE.TABLE) {
             if (filter) {
                 if (typeof (filter) != "string")
                     return res.status(400).json({
@@ -145,7 +145,7 @@ const updateView = async (req: express.Request, res: express.Response) => {
                 existingView.userfilter = userfilter
             }
         }
-        else if (viewtype === "detail") {
+        else if (viewtype === TYPE.DETAIL) {
             if (editfilter) {
                 if (typeof (editfilter) != "string")
                     return res.status(400).json({
@@ -244,6 +244,11 @@ const deleteView = async (req: express.Request, res: express.Response) => {
     catch (e) {
         console.log(e)
     }
+}
+
+enum TYPE {
+    TABLE = "table",
+    DETAIL = "detail"
 }
 
 export default {

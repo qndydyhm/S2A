@@ -51,7 +51,7 @@ const createDS = async (req: express.Request, res: express.Response) => {
             const column = columns[key]
             if (typeof (column) != "object" || typeof (column.name) != "string" || typeof (column.initvalue) != "string" ||
                 typeof (column.label) != "boolean" || typeof (column.reference) != "string" ||
-                (column.type !== "Boolean" && column.type !== "Number" && column.type !== "Text" && column.type != "URL")) {
+                (column.type != TYPE.BOOLEAN && column.type != TYPE.NUMBER && column.type != TYPE.TEXT && column.type != TYPE.URL)) {
                 return res.status(400).json({
                     status: "Wrong column " + JSON.stringify(column)
                 })
@@ -119,7 +119,7 @@ const updateDS = async (req: express.Request, res: express.Response) => {
             const column = columns[key]
             if (typeof (column) != "object" || typeof (column.name) != "string" || typeof (column.initvalue) != "string" ||
                 typeof (column.label) != "boolean" || typeof (column.reference) != "string" ||
-                (column.type !== "Boolean" && column.type !== "Number" && column.type !== "Text" && column.type != "URL")) {
+                (column.type != TYPE.BOOLEAN && column.type != TYPE.NUMBER && column.type != TYPE.TEXT && column.type != TYPE.URL)) {
                 return res.status(400).json({
                     status: "Wrong column " + JSON.stringify(column)
                 })
@@ -242,6 +242,13 @@ const deleteDS = async (req: express.Request, res: express.Response) => {
     catch (e) {
         console.log(e)
     }
+}
+
+enum TYPE {
+    BOOLEAN = "Boolean",
+    NUMBER = "Number",
+    TEXT = "Text",
+    URL = "URL"
 }
 
 export default {
