@@ -16,9 +16,7 @@ export default function Siderbar() {
     function handleClickViews() {
         store.loadViewPair();
     }
-    function handleClickDisplay() {
-        //REST OF VIEWS RELATED FUNCTION ARE WAITING TO BE IMPLEMENTED
-    }
+
 
     return (
         <Box id="session-header"
@@ -32,10 +30,9 @@ export default function Siderbar() {
                 borderRadius: 1,
             }}>
 
-            <Button variant="contained" style={{ background: '#2E3B55' }} onClick={handleClickApp_Info}>App_Info</Button>
-            <Button variant="contained" style={{ background: '#2E3B55' }} onClick={handleClickData_Source}>DataSource</Button>
-            <Button variant="contained" style={{ background: '#2E3B55' }} onClick={handleClickViews}>Views</Button>
-            <Button variant="contained" style={{ background: '#2E3B55' }} onClick={handleClickDisplay}>Display</Button>
+            <Button variant={store.currentSideBar=="APP_INFO_SECTION"?"outlined":"contained"} style={{ background: '#2E3B55' }} onClick={handleClickApp_Info}>App_Info</Button>
+            <Button variant={store.currentSideBar=="DATA_SOURCE_SECTION"?"outlined":"contained"} style={{ background: '#2E3B55' }} onClick={handleClickData_Source}>DataSource</Button>
+            <Button variant={store.currentSideBar=="VIEW_SECTION"?"outlined":"contained"} style={{ background: '#2E3B55' }} onClick={handleClickViews}>Views</Button>
         </Box>
     )
 
