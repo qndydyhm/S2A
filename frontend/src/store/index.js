@@ -86,12 +86,7 @@ function GlobalStoreContextProvider(props) {
             }
             case GlobalStoreActionType.UPDATE_APP: {
                 return setStore({
-                    currentApp: {
-                        id: store.currentApp.id,
-                        name: payload.app.name,
-                        roleM: payload.app.roleM,
-                        published: payload.app.published
-                    },
+                    currentApp: payload.app,
                     currentSideBar: CurrentSideBar.APP_INFO_SECTION,
                 });
             }
