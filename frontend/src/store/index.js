@@ -102,7 +102,7 @@ function GlobalStoreContextProvider(props) {
             case GlobalStoreActionType.LOAD_VIEW_LIST: {
                 return setStore({
                     viewPairs: payload.pairs,
-                    currentApp: store.currentApp,
+                    currentApp: payload.app,
                     currentSideBar: CurrentSideBar.VIEW_SECTION
                 });
             }
@@ -439,18 +439,28 @@ function GlobalStoreContextProvider(props) {
 
     //Views
     store.createNewView = function () {
-        async function asyncCreateNewView() {
-            const response = await api.createNewView({ name: "Untitled", table: " ", columns: [], viewtype: "table", allowedactions: 0, roles: [], owner: store.currentApp._id });
-            if (response.status == 200) {
-                let value = store.viewPairs;
-                value.push({ _id: response.data.id, name: "Untitled" })
-                storeReducer({
-                    type: GlobalStoreActionType.LOAD_VIEW_LIST,
-                    payload: { pairs: value }
-                });
+        try{
+            async function asyncCreateNewView() {
+                const response = await api.createNewView({ name: "Untitled", table: " ", columns: [], viewtype: "table", allowedactions: 0, roles: [], owner: store.currentApp._id });
+                if (response.status == 200) {
+                    let value = store.viewPairs;
+                    value.push({ _id: response.data.id, name: "Untitled" });
+                    const response1 = await api.getApp(store.currentApp._id);
+                    if (response1.status==200){
+                        storeReducer({
+                            type: GlobalStoreActionType.LOAD_VIEW_LIST,
+                            payload: { pairs: value, app: response1.data.app }
+                        });
+                    }else{
+                        console.log("FAIL TO GET APP");
+                    }
+                }
             }
+            asyncCreateNewView();
+        }catch(e){
+            alert(e.response.data.status);
         }
-        asyncCreateNewView();
+
     }
     store.loadViewPair = function () {
         let pairs = [];
@@ -460,8 +470,8 @@ function GlobalStoreContextProvider(props) {
         }
         storeReducer({
             type: GlobalStoreActionType.LOAD_VIEW_LIST,
-            payload: { pairs: pairs }
-        })
+            payload: { pairs: pairs, app: store.currentApp }
+        });
     }
 
     store.setCurrentSelectedView = function (id) {
@@ -507,25 +517,34 @@ function GlobalStoreContextProvider(props) {
         asyncEditCurrentView();
     }
     store.deleteView = function (id) {
-        async function asyncDeleteView() {
-            const response = await api.deleteView(id);
-            if (response.status = 200) {
-                for (let i = 0; i < store.viewPairs.length; i++) {
-                    if (store.viewPairs[i]._id == id) {
-                        store.viewPairs.splice(i, 1);
-                        break;
+        try{
+            async function asyncDeleteView() {
+                const response = await api.deleteView(id);
+                if (response.status = 200) {
+                    for (let i = 0; i < store.viewPairs.length; i++) {
+                        if (store.viewPairs[i]._id == id) {
+                            store.viewPairs.splice(i, 1);
+                            break;
+                        }
                     }
+                    const response1 = await api.getApp(store.currentApp._id);
+                    if (response1.status==200){
+                        storeReducer({
+                            type: GlobalStoreActionType.LOAD_VIEW_LIST,
+                            payload: { pairs: store.viewPairs, app: response1.data.app }
+                        });
+                    }
+
                 }
-                storeReducer({
-                    type: GlobalStoreActionType.LOAD_VIEW_LIST,
-                    payload: { pairs: store.viewPairs }
-                });
+                else {
+                    console.log("UNABLE TO DELETE VIEW");
+                }
             }
-            else {
-                console.log("UNABLE TO DELETE VIEW");
-            }
+            asyncDeleteView();
         }
-        asyncDeleteView();
+        catch(e){
+            alert(e.response.data.status);
+        }
     }
 
     return (
