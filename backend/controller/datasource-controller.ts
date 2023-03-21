@@ -231,7 +231,7 @@ const deleteDS = async (req: express.Request, res: express.Response) => {
                 return res.status(400).json({
                     status: "Fail to owner " + existingDS.owner
                 })
-            owner.datasources = owner.datasources.filter((a) => { a != dsId })
+            owner.datasources = owner.datasources.filter((a) => { return a != dsId })
             owner.save()
         }
         catch (e) {

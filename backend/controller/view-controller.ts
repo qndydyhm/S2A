@@ -233,7 +233,7 @@ const deleteView = async (req: express.Request, res: express.Response) => {
                 return res.status(400).json({
                     status: "Fail to owner " + existingView.owner
                 })
-            owner.views = owner.views.filter((a) => { a != viewId })
+            owner.views = owner.views.filter((a) => { return a != viewId })
             owner.save()
         }
         catch (e) {
