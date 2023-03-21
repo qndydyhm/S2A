@@ -26,7 +26,7 @@ export default function AppBanner() {
         <Menu
             anchorEl={anchorEl}
             anchorOrigin={{
-                vertical: 'top',
+                vertical: 'bottom',
                 horizontal: 'right',
             }}
             id={menuId}
@@ -60,6 +60,10 @@ export default function AppBanner() {
                         S2A
                         <IconButton onClick={handleGoToMainScreen} color="inherit"><Star ></Star></IconButton>
                     </Typography>
+                    <Box sx={{ flexGrow: 1 }}></Box>
+                    <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
+                        {auth.user}
+                    </Box>
                     <IconButton
                         size="large"
                         edge="end"
@@ -73,9 +77,6 @@ export default function AppBanner() {
                             src={auth.profile}
                         />
                     </IconButton>
-                    <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
-                        {auth.user}
-                    </Box>
                 </Toolbar>
             </AppBar>
             {
