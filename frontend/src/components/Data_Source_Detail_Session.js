@@ -4,11 +4,13 @@ import {
 } from '@mui/material';
 import { Add } from '@mui/icons-material';
 import GlobalStoreContext from '../store';
-import { useContext, useState } from 'react';
+import { useContext, useState, useEffect } from 'react';
 import FormControl from '@mui/material/FormControl';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Switch from '@mui/material/Switch';
 import NativeSelect from '@mui/material/NativeSelect';
+import DeleteIcon from '@mui/icons-material/Delete';
+import IconButton from '@mui/material/IconButton';
 
 
 
@@ -17,12 +19,16 @@ export default function Data_Source_Detail_Session() {
     //IN THEORY, I WILL CHANGE THE COLUMN BY setColumn() like AppCard,but due to some wired bug from react, the setState function can't work properly on the array
     //IN REACT DOCUMENT, IT MENTIONS THAT SOMETIMES setState can't perform immidieately, so I save to global state as well as the rest of value to the currenSelectedDatasource, and sned result to backend when user click save
     const { store } = useContext(GlobalStoreContext);
-    const current_ds = store.currentSelectedDatasource;
+    let current_ds = store.currentSelectedDatasource;
     const [name] = useState(current_ds.name);
     const [url] = useState(current_ds.URL);
     const [key] = useState(current_ds.key);
     const [sheetindex] = useState(current_ds.sheetindex);
-    const [columns] = useState(current_ds.columns);
+    const [columns,setColumn] = useState(current_ds.columns);
+
+    useEffect(()=>{
+        store.updateColumn(columns);
+    },columns)
 
 
 
@@ -76,6 +82,14 @@ export default function Data_Source_Detail_Session() {
             columns[index].type = event.target.value;
         }
         store.updateColumn(columns);
+    }
+    function handleDeleteColumn(event,index){
+        event.stopPropagation();
+        columns.splice(index,1);
+        setColumn(columns);
+        store.updateColumn(columns);
+
+        
     }
 
     function handleCreateNewColumn() {
@@ -134,7 +148,7 @@ export default function Data_Source_Detail_Session() {
                                             <input
                                                 className='modal-textfield'
                                                 type="text"
-                                                defaultValue={column.name}
+                                                value={column.name}
                                                 onChange={(e) => handleUpdateColumn(e, columns.indexOf(column), "name")}
                                             />
                                         </TableCell>
@@ -142,7 +156,7 @@ export default function Data_Source_Detail_Session() {
                                             <input
                                                 className='modal-textfield'
                                                 type="text"
-                                                defaultValue={column.initvalue}
+                                                value={column.initvalue}
                                                 onChange={(e) => handleUpdateColumn(e, columns.indexOf(column), "initvalue")}
                                             />
                                         </TableCell>
@@ -159,7 +173,7 @@ export default function Data_Source_Detail_Session() {
                                             <input
                                                 className='modal-textfield'
                                                 type="text"
-                                                defaultValue={column.reference}
+                                                value={column.reference}
                                                 onChange={(e) => handleUpdateColumn(e, columns.indexOf(column), "reference")}
                                             />
                                         </TableCell>
@@ -167,8 +181,7 @@ export default function Data_Source_Detail_Session() {
                                             <FormControl sx={{ m: 1, minWidth: 80 }}>
                                                 <NativeSelect
                                                     onChange={(e) => handleUpdateColumn(e, columns.indexOf(column), "type")}
-                                                    autoWidth
-                                                    defaultValue={column.type}
+                                                    value={column.type}
                                                 >
                                                     <option value={"Boolean"}>Boolean</option >
                                                     <option value={"Number"}>Number</option >
@@ -176,6 +189,11 @@ export default function Data_Source_Detail_Session() {
                                                     <option value={"URL"}>URL</option >
                                                 </NativeSelect>
                                             </FormControl>
+                                        </TableCell>
+                                        <TableCell>
+                                            <IconButton onClick={(e) => handleDeleteColumn(e, columns.indexOf(column))} aria-label='delete' style={{ float: 'right' }}>
+                                                <DeleteIcon style={{ fontSize: '48pt' }} />
+                                            </IconButton>
                                         </TableCell>
                                     </TableRow>
                                 ))
