@@ -1,6 +1,7 @@
 import express from 'express'
 import auth from '../auth'
 import User from '../models/user-model'
+import GlobalDevelopers from '../tools/global-developer'
 import googleWrapper from '../tools/google-wrapper'
 
 
@@ -114,9 +115,29 @@ const googleCallback = async (req: express.Request, res: express.Response) => {
     }
 }
 
+
+const isGlobalDeveloper = async (req: any, res: express.Response) => {
+    try {
+        const loggedInUser: any = await auth.getUser(req);
+        if (!loggedInUser) {
+            return res.status(200).json({
+                status: "OK",
+                isGlobalDeveloper: false
+            });
+        }
+        return res.status(200).json({
+            status: "OK",
+            isGlobalDeveloper: GlobalDevelopers.isInGlobalDevelopers(loggedInUser.email),
+        });
+    } catch (err) {
+        console.error(err);
+    }
+}
+
 export default {
     loginUser,
     logoutUser,
     getLoggedIn,
-    googleCallback
+    googleCallback,
+    isGlobalDeveloper
 }
