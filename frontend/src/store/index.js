@@ -157,7 +157,7 @@ function GlobalStoreContextProvider(props) {
             case GlobalStoreActionType.UPDATE_VIEW: {
                 return setStore({
                     currentSelectedView: payload.view,
-                    currentApp: store.currentApp,
+                    currentApp: payload.app,
                     idDataSourcePairs: store.idDataSourcePairs,
                     currentSideBar: store.currentSideBar,
                     viewPairs: store.viewPairs
@@ -513,20 +513,33 @@ function GlobalStoreContextProvider(props) {
         asyncSetTableForView();
     }
     store.editCurrentView = function (id, view) {
-        async function asyncEditCurrentView() {
-            const response = await api.updateView(id, view);
-            if (response.status == 200) {
-                console.log("VIEW UPDATED ALREADY");
-                storeReducer({
-                    type: GlobalStoreActionType.UPDATE_VIEW,
-                    payload: { view: view }
-                })
+        try{
+            async function asyncEditCurrentView() {
+                const response = await api.updateView(id, view);
+                if (response.status == 200) {
+                    for (let i=0; i<store.viewPairs.length; i++){
+                        if(store.viewPairs[i]._id == view._id){
+                            store.viewPairs[i].name = view.name;
+                        break;
+                        }
+                    }
+                    const response1 = await api.getApp(store.currentApp._id);
+                    if (response1.status==200){
+                        storeReducer({
+                            type: GlobalStoreActionType.UPDATE_VIEW,
+                            payload: { view: view, app: response1.data.app }
+                        });
+                    }
+                }
+                else {
+                    console.log("API FAIL TO UPDATE CURRENT VIEW");
+                }
             }
-            else {
-                console.log("API FAIL TO UPDATE CURRENT VIEW");
-            }
+            asyncEditCurrentView();
+        }catch(e){
+            alert(e.response.data.status);
         }
-        asyncEditCurrentView();
+
     }
     store.deleteView = function (id) {
         try{

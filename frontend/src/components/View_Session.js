@@ -10,7 +10,6 @@ export default function View_Session(){
     function handleCreateNewView(){
         store.createNewView();
     }
-    
     let viewCard = store.viewPairs!=null?
         <List sx={{ width: '50%', left: '5%', bgcolor: 'background.paper' }}>
         {

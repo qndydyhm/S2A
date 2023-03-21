@@ -226,7 +226,7 @@ import { InputLabel, MenuItem, Select } from "@mui/material";
         if (editFilter!=null){updated_view.editfilter = editFilter;}
         console.log("view changes from: ", current_view, "to: ",updated_view)
         store.editCurrentView(id, updated_view);
-        store.loadViewPair();
+        //store.loadViewPair();
     }
 
     return(
