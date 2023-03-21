@@ -40,7 +40,6 @@ const getLoggedIn = async (req: any, res: express.Response) => {
         });
     } catch (err) {
         console.error(err);
-        res.status(500).send();
     }
 }
 
@@ -112,7 +111,6 @@ const googleCallback = async (req: express.Request, res: express.Response) => {
 
     } catch (err) {
         console.error(err);
-        res.status(500).send();
     }
 }
 
