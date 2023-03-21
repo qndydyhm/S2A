@@ -1,14 +1,16 @@
-import React, { useContext, useEffect } from 'react'
+import React, { useContext, useEffect,useState } from 'react'
 import { GlobalStoreContext } from '../store'
 import AppCard from './AppCard.js'
 import AddIcon from '@mui/icons-material/Add';
 import Fab from '@mui/material/Fab';
 import List from '@mui/material/List';
 import AppworkSpace from './AppworkSpace';
+import AuthContext from '../auth'; 
 
 
 const HomeScreen = () => {
     const { store } = useContext(GlobalStoreContext);
+    const {auth} = useContext(AuthContext);
 
 
     useEffect(() => {
@@ -38,6 +40,7 @@ const HomeScreen = () => {
                 aria-label="add"
                 id="add-list-button"
                 onClick={handleCreateNewApp}
+                disabled={!auth.isGlobalDeveloper}
             >
                 <AddIcon />
             </Fab>

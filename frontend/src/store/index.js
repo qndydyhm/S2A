@@ -187,6 +187,19 @@ function GlobalStoreContextProvider(props) {
 
 
     }
+
+    store.isGlobalDeveloper = function(){
+        async function asyncIsGlobalDeveloper(){
+            const response = await api.isGlobalDeveloper();
+            if(response.status==200){
+                return response.data.isGlobalDeveloper;
+            }
+            else{
+                console.log("FAIL TO CHECK GLOBAL DEVELOPER");
+            }
+        }
+        asyncIsGlobalDeveloper();
+    }
     //RESTORE EVERY STORE VALUE TO DEFAULT
     store.setStoreToDefault = function () {
         storeReducer({
@@ -394,6 +407,7 @@ function GlobalStoreContextProvider(props) {
                             store.idDataSourcePairs[i].name = store.currentSelectedDatasource.name;
                             break;
                         }
+                    }
                         const response1 = await api.getApp(store.currentApp._id);
                         if (response1.status == 200) {
                             storeReducer({
@@ -401,7 +415,6 @@ function GlobalStoreContextProvider(props) {
                                 payload: { data_source: store.currentSelectedDatasource, pairs: store.idDataSourcePairs, app: response1.data.app }
                             });
                         }
-                    }
 
                 }
             }

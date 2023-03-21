@@ -11,8 +11,6 @@ const createApp=(app)=>api.post(`/api/app`,app);
 const updateApp=(id,app) => api.post(`/api/app/${id}`,app);
 const getApp = (id) =>api.get(`/api/app/${id}`);
 const deleteApp=(id)=>api.delete(`/api/app/${id}`);
-
-
 //data source
 
 const createNewDataSource = (ds)=>api.post(`/api/ds`,ds);
@@ -49,7 +47,7 @@ const apis = {
     getDataSource,
     updateDataSource,
     updateView,
-    deleteView
+    deleteView,
 }
 
 export default apis

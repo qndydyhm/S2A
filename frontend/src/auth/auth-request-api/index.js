@@ -3,10 +3,11 @@ axios.defaults.withCredentials = true;
 const api = axios.create({
     baseURL: 'http://localhost',
 })
-export const getLoggedIn = ()=> api.get(`/auth/loggedIn`);
-
+const getLoggedIn = ()=> api.get(`/auth/loggedIn`);
+const isGlobalDeveloper=()=>api.get('/auth/globaldeveloper');
 const apis = {
     getLoggedIn,
+    isGlobalDeveloper,
 
 }
 
