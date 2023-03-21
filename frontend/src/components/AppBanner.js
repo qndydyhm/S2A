@@ -1,22 +1,51 @@
-import { useEffect } from "react";
-import { useContext } from 'react';
+import { useEffect,useContext,useState } from "react";
 import AuthContext from '../auth';
-import AppBar from '@mui/material/AppBar';
-import Box from '@mui/material/Box';
-import IconButton from '@mui/material/IconButton';
-import Toolbar from '@mui/material/Toolbar';
-import Typography from '@mui/material/Typography';
+import { IconButton, Toolbar, Typography, Avatar, Box, AppBar ,Menu,MenuItem} from '@mui/material/';
 import Star from '@mui/icons-material/Star';
 import GlobalStoreContext from '../store';
+import axios from "axios";
+
+
 
 
 export default function AppBanner() {
     const { auth } = useContext(AuthContext);
-    const {store} = useContext(GlobalStoreContext);
+    const { store } = useContext(GlobalStoreContext);
+    const [anchorEl, setAnchorEl] = useState(null);
+    const isMenuOpen = Boolean(anchorEl);
+    const menuId = 'primary-search-account-menu';
+    const handleProfileMenuOpen = (event) => {
+        setAnchorEl(event.currentTarget);
+    };
 
-    function handleGoToMainScreen(){
-        console.log("GO TO MAIN SCREEN");
+    const handleMenuClose = () => {
+        setAnchorEl(null);
+    };
+
+    const loggedInMenu =
+        <Menu
+            anchorEl={anchorEl}
+            anchorOrigin={{
+                vertical: 'top',
+                horizontal: 'right',
+            }}
+            id={menuId}
+            keepMounted
+            transformOrigin={{
+                vertical: 'top',
+                horizontal: 'right',
+            }}
+            open={isMenuOpen}
+            onClose={handleMenuClose}
+        >
+            <MenuItem onClick={handleLogout}>Logout</MenuItem>
+        </Menu>
+
+    function handleGoToMainScreen() {
         store.returnToMainScreen();
+    }
+    function handleLogout() {
+        axios.get("/auth/logout").then(()=>{window.open("/auth/login","_self")});
     }
     return (
         <Box sx={{ flexGrow: 1 }}>
@@ -29,13 +58,29 @@ export default function AppBanner() {
                         sx={{ display: { xs: 'none', sm: 'block' } }}
                     >
                         S2A
-                        <IconButton onClick={handleGoToMainScreen}  color="inherit"><Star ></Star></IconButton>
+                        <IconButton onClick={handleGoToMainScreen} color="inherit"><Star ></Star></IconButton>
                     </Typography>
+                    <IconButton
+                        size="large"
+                        edge="end"
+                        aria-label="account of current user"
+                        aria-controls={menuId}
+                        aria-haspopup="true"
+                        onClick={handleProfileMenuOpen}
+                        color="inherit"
+                    >
+                        <Avatar
+                            src={auth.profile}
+                        />
+                    </IconButton>
                     <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
                         {auth.user}
                     </Box>
                 </Toolbar>
             </AppBar>
+            {
+                loggedInMenu
+            }
         </Box>
     );
 
