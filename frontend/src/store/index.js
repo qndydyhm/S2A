@@ -26,6 +26,7 @@ export const GlobalStoreActionType = {
     CREATE_VIEW: "CREATE_VIEW",
     UPDATE_VIEW: "UPDATE_VIEW",
     SET_CURRENT_SELECTED_VIEW: "SET_CURRENT_SELECTED_VIEW",
+    SET_TABLE_FOR_VIEW: "SET_TABLE_FOR_VIEW"
 
 }
 
@@ -55,6 +56,7 @@ function GlobalStoreContextProvider(props) {
         //view
         viewPairs: [],//[{id,name}....]
         currentSelectedViewId: null,//the id of selected view,
+        currentTableForView: null, //the table associated with current selected view
     });
     const { auth } = useContext(AuthContext);
 
@@ -148,6 +150,15 @@ function GlobalStoreContextProvider(props) {
                     viewPairs: store.viewPairs
                 });
             }
+            case GlobalStoreActionType.SET_TABLE_FOR_VIEW: {
+                return setStore({
+                    currentSelectedView: store.currentSelectedView,
+                    currentApp: store.currentApp,
+                    currentSideBar: store.currentSideBar,
+                    currentTableForView: payload.t,
+                    viewPairs: store.viewPairs
+                });
+            }
             case GlobalStoreActionType.UPDATE_VIEW: {
                 return setStore({
                     currentSelectedView: payload.view,
@@ -155,7 +166,7 @@ function GlobalStoreContextProvider(props) {
                     idDataSourcePairs: store.idDataSourcePairs,
                     currentSideBar: store.currentSideBar,
                     viewPairs: store.viewPairs
-                })
+                });
             }
             default:
                 return store;
@@ -400,10 +411,10 @@ function GlobalStoreContextProvider(props) {
     //Views
     store.createNewView = function () {
         async function asyncCreateNewView() {
-            const response = await api.createNewView({ name: "Untitle", table: " ", columns: [], viewtype: "table", allowedactions: 0, roles: [], owner: store.currentApp._id });
+            const response = await api.createNewView({ name: "Untitled", table: " ", columns: [], viewtype: "table", allowedactions: 0, roles: [], owner: store.currentApp._id });
             if (response.status == 200) {
                 let value = store.viewPairs;
-                value.push({ id: response.data.id, name: "Untitled" })
+                value.push({ _id: response.data.id, name: "Untitled" })
                 storeReducer({
                     type: GlobalStoreActionType.LOAD_VIEW_LIST,
                     payload: { pairs: value }
@@ -424,20 +435,32 @@ function GlobalStoreContextProvider(props) {
         })
     }
 
-    store.setCurrentSelectedView = function (id) {
+    store.setCurrentSelectedView = function (id) {    
         async function asyncGetSelectedView() {
             const response = await api.getView(id);
             if (response.status = 200) {
                 let v = response.data.view;
                 storeReducer({
                     type: GlobalStoreActionType.SET_CURRENT_SELECTED_VIEW,
-                    payload: { v: v }
+                    payload: { v:v }
                 });
             }
         }
         asyncGetSelectedView();
     }
-
+    store.setTableForView = function (id) {
+        async function asyncSetTableForView() {
+            const response = await api.getDataSource(id);
+            if(response.status = 200) {
+                let t = response.data.datasource;
+                storeReducer({
+                    type: GlobalStoreActionType.SET_TABLE_FOR_VIEW,
+                    payload: { t:t }
+                });
+            }
+        }
+        asyncSetTableForView();
+    }
     store.editCurrentView = function (id, view) {
         async function asyncEditCurrentView() {
             const response = await api.updateView(id, view);
@@ -453,6 +476,27 @@ function GlobalStoreContextProvider(props) {
             }
         }
         asyncEditCurrentView();
+    }
+    store.deleteView = function(id){
+        async function asyncDeleteView(){
+            const response = await api.deleteView(id);
+            if(response.status=200){
+                for(let i =0; i<store.viewPairs.length;i++){
+                    if(store.viewPairs[i]._id==id){
+                        store.viewPairs.splice(i,1);
+                        break;
+                    }
+                }
+                storeReducer({
+                    type: GlobalStoreActionType.LOAD_VIEW_LIST,
+                    payload: {pairs: store.viewPairs}
+                });
+            }
+            else{
+                console.log("UNABLE TO DELETE VIEW");
+            }
+        }
+        asyncDeleteView();
     }
 
     return (

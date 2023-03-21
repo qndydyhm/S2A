@@ -29,6 +29,7 @@ const deleteDataSource=(id)=>api.delete(`/api/ds/${id}`);
 const createNewView = (v) =>api.post(`/api/view`,v);
 const getView = (id) =>api.get(`/api/view/${id}`);
 const updateView = (id, v) => api.post(`/api/view/${id}`,v);
+const deleteView = (id) => api.delete(`/api/view/${id}`);
 // api.post('/api/view', view.createView)
 // api.post('/api/view/:id', view.updateView)
 // api.get('/api/view/:id', view.getView)
@@ -47,7 +48,8 @@ const apis = {
     getView,
     getDataSource,
     updateDataSource,
-    updateView
+    updateView,
+    deleteView
 }
 
 export default apis
