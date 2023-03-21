@@ -2,6 +2,9 @@ import express from 'express'
 import auth from '../auth'
 import DataSource from '../models/datasource-model'
 import App from '../models/app-model'
+import User from '../models/user-model'
+import SheetParser from '../tools/sheet-parser'
+import googleWrapper from '../tools/google-wrapper'
 
 
 const createDS = async (req: express.Request, res: express.Response) => {
@@ -21,10 +24,25 @@ const createDS = async (req: express.Request, res: express.Response) => {
             return res.status(400).json({
                 status: "Missing parameter"
             })
+        if (!SheetParser.sheetUrlParser(URL))
+            return res.status(400).json({
+                status: "Data source URL must in the form of https://docs.google.com/spreadsheets/d/spreadsheetId/edit#gid=sheetId"
+            })
         const existingApp = await App.findOne({ _id: owner });
         if (!existingApp)
             return res.status(400).json({
                 status: "Fail to find app " + owner
+            })
+        // check if the creator can access data source URL
+        const creator = await User.findOne({ id: existingApp.creator })
+        if (!creator)
+            return res.status(400).json({
+                status: "Fail to find app creator " + existingApp.creator
+            })
+        const sheetName = googleWrapper.getSheetName(URL, creator.rtoken, creator.atoken, creator.expire)
+        if (!sheetName)
+            return res.status(400).json({
+                status: "Fail to access " + URL + " with " + creator.email + "'s credential"
             })
         // check columns
         let newColumn = []
@@ -33,7 +51,7 @@ const createDS = async (req: express.Request, res: express.Response) => {
             const column = columns[key]
             if (typeof (column) != "object" || typeof (column.name) != "string" || typeof (column.initvalue) != "string" ||
                 typeof (column.label) != "boolean" || typeof (column.reference) != "string" ||
-                (column.type !== "Boolean" && column.type !== "Number" && column.type !== "Text" && column.type != "URL")) {
+                (column.type != TYPE.BOOLEAN && column.type != TYPE.NUMBER && column.type != TYPE.TEXT && column.type != TYPE.URL)) {
                 return res.status(400).json({
                     status: "Wrong column " + JSON.stringify(column)
                 })
@@ -90,6 +108,10 @@ const updateDS = async (req: express.Request, res: express.Response) => {
             return res.status(400).json({
                 status: "Missing parameter"
             })
+        if (!SheetParser.sheetUrlParser(URL))
+            return res.status(400).json({
+                status: "Data source URL must in the form of https://docs.google.com/spreadsheets/d/spreadsheetId/edit#gid=sheetId"
+            })
         // check columns
         let newColumn = []
         let hasLabel: boolean = false
@@ -97,7 +119,7 @@ const updateDS = async (req: express.Request, res: express.Response) => {
             const column = columns[key]
             if (typeof (column) != "object" || typeof (column.name) != "string" || typeof (column.initvalue) != "string" ||
                 typeof (column.label) != "boolean" || typeof (column.reference) != "string" ||
-                (column.type !== "Boolean" && column.type !== "Number" && column.type !== "Text" && column.type != "URL")) {
+                (column.type != TYPE.BOOLEAN && column.type != TYPE.NUMBER && column.type != TYPE.TEXT && column.type != TYPE.URL)) {
                 return res.status(400).json({
                     status: "Wrong column " + JSON.stringify(column)
                 })
@@ -117,12 +139,29 @@ const updateDS = async (req: express.Request, res: express.Response) => {
                 hasLabel = true
             }
         }
-        // find and update datasource
+        // find datasource and the app owns it
         const existingDS = await DataSource.findOne({ _id: dsId });
         if (!existingDS)
-            return res.status(401).json({
+            return res.status(400).json({
                 status: "Fail to find Datasource " + dsId
             })
+        const existingApp = await App.findOne({ _id: existingDS.owner });
+        if (!existingApp)
+            return res.status(400).json({
+                status: "Fail to find App " + existingDS.owner
+            })
+        // check if the creator can access data source URL
+        const creator = await User.findOne({ id: existingApp.creator })
+        if (!creator)
+            return res.status(400).json({
+                status: "Fail to find app creator " + existingApp.creator
+            })
+        const sheetName = googleWrapper.getSheetName(URL, creator.rtoken, creator.atoken, creator.expire)
+        if (!sheetName)
+            return res.status(400).json({
+                status: "Fail to access " + URL + " with " + creator.email + "'s credential"
+            })
+        // update datasources
         existingDS.name = name
         existingDS.URL = URL
         existingDS.sheetindex = sheetindex
@@ -180,12 +219,12 @@ const deleteDS = async (req: express.Request, res: express.Response) => {
                 status: "Missing parameter"
             })
         // find and delete datasource
-        // TODO remove this, only remove when app change/delete
         const existingDS = await DataSource.findOneAndDelete({ _id: dsId });
         if (!existingDS)
             return res.status(400).json({
                 status: "Fail to find DataSource " + dsId
             })
+        // find its owner and drop it from data source list
         try {
             const owner = await App.findById(existingDS.owner)
             if (!owner)
@@ -203,6 +242,13 @@ const deleteDS = async (req: express.Request, res: express.Response) => {
     catch (e) {
         console.log(e)
     }
+}
+
+enum TYPE {
+    BOOLEAN = "Boolean",
+    NUMBER = "Number",
+    TEXT = "Text",
+    URL = "URL"
 }
 
 export default {

@@ -57,74 +57,86 @@ const getToken = async (code: string) => await (await oauth2Client.getToken(code
  * @returns 
  */
 const getUserInfo = async (tokens: any) => {
-    const tempClient = new auth.OAuth2(
-        process.env.CLIENT_ID,
-        process.env.CLIENT_SECRET,
-        process.env.PROTOCOL + "://" + process.env.DOMAIN_NAME + "/auth/google-callback"
-    );
-    tempClient.setCredentials(tokens);
-    const Oauth2 = oauth2({
-        auth: tempClient,
-        version: 'v2'
-    });
-    return (await Oauth2.userinfo.get()).data
+    try {
+        oauth2Client.setCredentials(tokens);
+        const Oauth2 = oauth2({
+            auth: oauth2Client,
+            version: 'v2'
+        });
+        return (await Oauth2.userinfo.get()).data
+    }
+    catch (e) {
+        console.log(e)
+        return null
+    }
 }
 
 const getClient = (refresh_token?: string, access_token?: string, expiry_date?: number) => {
-    let client: any = APIKEY
-    if (refresh_token || access_token || expiry_date) {
-        client = new auth.OAuth2(
-            process.env.CLIENT_ID,
-            process.env.CLIENT_SECRET,
-            process.env.PROTOCOL + "://" + process.env.DOMAIN_NAME + "/auth/google-callback"
-        );
-        client.setCredentials({
-            refresh_token: refresh_token,
-            access_token: access_token,
-            expiry_date: expiry_date
-        });
+    try {
+        let client: any = APIKEY
+        if (refresh_token || access_token || expiry_date) {
+            oauth2Client.setCredentials({
+                refresh_token: refresh_token,
+                access_token: access_token,
+                expiry_date: expiry_date
+            })
+            return oauth2Client
+        }
+        return client;
     }
-    return client;
+    catch (e) {
+        console.log(e)
+        return null
+    }
 }
 
 const getSheetName = async (URL: string, refresh_token?: string, access_token?: string, expiry_date?: number) => {
-    let client = getClient(refresh_token, access_token, expiry_date);
-    const sheetInfo = sheetParser.sheetUrlParser(URL)
-    if (!sheetInfo)
-        throw "Fail to parse URL"
-    const sheetProp = await sheet.spreadsheets.get({
-        auth: client,
-        spreadsheetId: sheetInfo.spreadsheetId
-    })
-    let sheetName = ""
-    for (let key in sheetProp.data.sheets) {
-        if (sheetProp.data.sheets[key as any].properties?.sheetId === sheetInfo.sheetId) {
-            sheetName = sheetProp.data.sheets[key as any].properties?.title || "";
-            break;
+    try {
+        let client = getClient(refresh_token, access_token, expiry_date);
+        const sheetInfo = sheetParser.sheetUrlParser(URL)
+        if (!sheetInfo) return null
+        const sheetProp = await sheet.spreadsheets.get({
+            auth: client,
+            spreadsheetId: sheetInfo.spreadsheetId
+        })
+        let sheetName = null
+        for (let key in sheetProp.data.sheets) {
+            if (sheetProp.data.sheets[key as any].properties?.sheetId === sheetInfo.sheetId) {
+                sheetName = sheetProp.data.sheets[key as any].properties?.title || "";
+                break;
+            }
         }
+        return sheetName;
     }
-    if (!sheetName) {
-        throw "Fail to find sheet with sheetId " + sheetInfo.sheetId
+    catch (e) {
+        console.log(e)
+        return null
     }
-    return sheetName;
 }
 
 const getSheet = async (URL: string, refresh_token?: string, access_token?: string, expiry_date?: number) => {
-    let client: any = getClient(refresh_token, access_token, expiry_date);
-    const sheetInfo = sheetParser.sheetUrlParser(URL)
-    if (!sheetInfo)
-        throw "Fail to parse URL"
-    const sheetName = await getSheetName(URL, refresh_token, access_token, expiry_date);
-    const sheetData = await sheet.spreadsheets.values.get({
-        auth: client,
-        spreadsheetId: sheetInfo.spreadsheetId,
-        range: sheetName
-    })
-    return sheetData.data.values
+    try {
+        let client: any = getClient(refresh_token, access_token, expiry_date);
+        const sheetInfo = sheetParser.sheetUrlParser(URL)
+        const sheetName = await getSheetName(URL, refresh_token, access_token, expiry_date);
+        if (!sheetName || !sheetInfo) return null
+        const sheetData = await sheet.spreadsheets.values.get({
+            auth: client,
+            spreadsheetId: sheetInfo.spreadsheetId,
+            range: sheetName
+        })
+        return sheetData.data.values
+    }
+    catch (e) {
+        console.log(e)
+        return null
+    }
 }
+
 export default {
     getAuthUrl,
     getToken,
     getUserInfo,
-    getSheet
+    getSheet,
+    getSheetName
 }

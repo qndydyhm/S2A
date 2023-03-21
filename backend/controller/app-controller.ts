@@ -5,6 +5,8 @@ import DataSource from '../models/datasource-model'
 import View from '../models/view-model'
 import User from '../models/user-model'
 import GlobalDevelopers from '../tools/global-developer'
+import SheetParser from '../tools/sheet-parser'
+import googleWrapper from '../tools/google-wrapper'
 
 
 const createApp = async (req: express.Request, res: express.Response) => {
@@ -25,6 +27,16 @@ const createApp = async (req: express.Request, res: express.Response) => {
             typeof (roleM) != "string" || roleM === "" || typeof (published) != "boolean")
             return res.status(400).json({
                 status: "Missing or wrong parameter"
+            })
+        if (!SheetParser.sheetUrlParser(roleM))
+            return res.status(400).json({
+                status: "Role membership sheet must in the form of https://docs.google.com/spreadsheets/d/spreadsheetId/edit#gid=sheetId"
+            })
+        // check if the creator can access role membership sheet
+        const sheetName = googleWrapper.getSheetName(roleM, loggedInUser.rtoken, loggedInUser.atoken, loggedInUser.expire)
+        if (!sheetName)
+            return res.status(400).json({
+                status: "Fail to access " + roleM + " with " + loggedInUser.email + "'s credential"
             })
         // create and save app
         const newApp = new App({
@@ -59,11 +71,26 @@ const updateApp = async (req: express.Request, res: express.Response) => {
             return res.status(400).json({
                 status: "Missing parameter"
             })
+        if (!SheetParser.sheetUrlParser(roleM))
+            return res.status(400).json({
+                status: "Role membership sheet must in the form of https://docs.google.com/spreadsheets/d/spreadsheetId/edit#gid=sheetId"
+            })
         // find app, update, and save
         const existingApp = await App.findOne({ _id: appId });
         if (!existingApp)
-            return res.status(401).json({
+            return res.status(400).json({
                 status: "Fail to find App " + appId
+            })
+        // check if the creator can access role membership sheet
+        const creator = await User.findOne({ id: existingApp.creator })
+        if (!creator)
+            return res.status(400).json({
+                status: "Fail to find creator " + existingApp.creator
+            })
+        const sheetName = googleWrapper.getSheetName(roleM, creator.rtoken, creator.atoken, creator.expire)
+        if (!sheetName)
+            return res.status(400).json({
+                status: "Fail to access " + roleM + " with " + creator.email + "'s credential"
             })
         existingApp.name = name;
         existingApp.roleM = roleM
