@@ -86,12 +86,7 @@ function GlobalStoreContextProvider(props) {
             }
             case GlobalStoreActionType.UPDATE_APP: {
                 return setStore({
-                    currentApp: {
-                        id: store.currentApp.id,
-                        name: payload.app.name,
-                        roleM: payload.app.roleM,
-                        published: payload.app.published
-                    },
+                    currentApp: payload.app,
                     currentSideBar: CurrentSideBar.APP_INFO_SECTION,
                 });
             }
@@ -100,14 +95,14 @@ function GlobalStoreContextProvider(props) {
                     currentSelectedDatasource: payload.data_source,
                     idDataSourcePairs: payload.pairs,
                     currentSideBar: store.currentSideBar,
-                    currentApp: store.currentApp
+                    currentApp: payload.app
 
                 });
             }
             case GlobalStoreActionType.LOAD_VIEW_LIST: {
                 return setStore({
                     viewPairs: payload.pairs,
-                    currentApp: store.currentApp,
+                    currentApp: payload.app,
                     currentSideBar: CurrentSideBar.VIEW_SECTION
                 });
             }
@@ -129,7 +124,7 @@ function GlobalStoreContextProvider(props) {
             case GlobalStoreActionType.LOAD_DATA_SOURCE_LIST: {
                 return setStore({
                     idDataSourcePairs: payload.pairs,
-                    currentApp: store.currentApp,
+                    currentApp: payload.app,
                     currentSideBar: CurrentSideBar.DATA_SOURCE_SECTION
 
                 });
@@ -289,31 +284,40 @@ function GlobalStoreContextProvider(props) {
         }
         storeReducer({
             type: GlobalStoreActionType.LOAD_DATA_SOURCE_LIST,
-            payload: { pairs: pairs }
+            payload: { pairs: pairs, app: store.currentApp }
         });
 
     }
     store.deleteDataSource = function (id) {
-        async function deleteDataSource() {
-            const response = await api.deleteDataSource(id);
-            if (response.status === 200) {
-                for (let i = 0; i < store.idDataSourcePairs.length; i++) {
-                    if (store.idDataSourcePairs[i]._id == id) {
-                        store.idDataSourcePairs.splice(i, 1);
-                        break;
+        try {
+            async function deleteDataSource() {
+                const response = await api.deleteDataSource(id);
+                if (response.status === 200) {
+                    for (let i = 0; i < store.idDataSourcePairs.length; i++) {
+                        if (store.idDataSourcePairs[i]._id == id) {
+                            store.idDataSourcePairs.splice(i, 1);
+                            break;
+                        }
                     }
-                }
-                storeReducer({
-                    type: GlobalStoreActionType.LOAD_DATA_SOURCE_LIST,
-                    payload: { pairs: store.idDataSourcePairs }
-                });
+                    const response1 = await api.getApp(store.currentApp._id);
+                    if (response1.status == 200) {
+                        storeReducer({
+                            type: GlobalStoreActionType.LOAD_DATA_SOURCE_LIST,
+                            payload: { pairs: store.idDataSourcePairs, app: response1.data.app }
+                        });
 
+                    }
+
+                }
+                else {
+                    console.log("UNABLE TO DELETE DATA SOURCE");
+                }
             }
-            else {
-                console.log("UNABLE TO DELETE DATA SOURCE");
-            }
+            deleteDataSource();
         }
-        deleteDataSource();
+        catch (error) {
+            alert(error.response.data.status);
+        }
     }
 
     store.setCurrentSelectedDataSource = function (id) {
@@ -335,7 +339,7 @@ function GlobalStoreContextProvider(props) {
         value.columns.push({ name: "Untitled", label: false, reference: " ", type: "Boolean", initvalue: " " });
         storeReducer({
             type: GlobalStoreActionType.UPDATE_DATA_SOURCE,
-            payload: { data_source: value, pairs: store.idDataSourcePairs }
+            payload: { data_source: value, pairs: store.idDataSourcePairs, app: store.currentApp }
         });
     }
 
@@ -345,33 +349,44 @@ function GlobalStoreContextProvider(props) {
         console.log(value.columns);
         storeReducer({
             type: GlobalStoreActionType.UPDATE_DATA_SOURCE,
-            payload: { data_source: value, pairs: store.idDataSourcePairs }
+            payload: { data_source: value, pairs: store.idDataSourcePairs, app: store.currentApp }
         });
     }
     store.updateDataSourceLocally = function (datasource) {
         storeReducer({
             type: GlobalStoreActionType.UPDATE_DATA_SOURCE,
-            payload: { data_source: datasource, pairs: store.idDataSourcePairs }
+            payload: { data_source: datasource, pairs: store.idDataSourcePairs, app: store.currentApp }
         });
     }
     store.createNewDataSource = function () {
-        async function asyncCreateNewDataSource() {
-            console.log(store.currentApp._id);
-            const response = await api.createNewDataSource({ name: "Untitle", URL: "https://docs.google.com/spreadsheets/d/1yCajMCD1cYrDAl-Fki3sMunpDoVtX7n0U7pCXivjm_Y/edit#gid=0", sheetindex: 1, key: " ", columns: [], owner: store.currentApp._id });
-            if (response.status == 200) {
-                let value = store.idDataSourcePairs;
-                value.push({ _id: response.data.id, name: "Untitle" })
-                storeReducer({
-                    type: GlobalStoreActionType.LOAD_DATA_SOURCE_LIST,
-                    payload: { pairs: value }
-                });
+        try {
+            async function asyncCreateNewDataSource() {
+                console.log(store.currentApp._id);
+                const response = await api.createNewDataSource({ name: "Untitle", URL: "https://docs.google.com/spreadsheets/d/1yCajMCD1cYrDAl-Fki3sMunpDoVtX7n0U7pCXivjm_Y/edit#gid=0", sheetindex: 1, key: " ", columns: [], owner: store.currentApp._id });
+                if (response.status == 200) {
+                    let value = store.idDataSourcePairs;
+                    value.push({ _id: response.data.id, name: "Untitle" })
+                    const response1 = await api.getApp(store.currentApp._id);
+                    if (response1.status == 200) {
+                        storeReducer({
+                            type: GlobalStoreActionType.LOAD_DATA_SOURCE_LIST,
+                            payload: { pairs: value, app: response1.data.app }
+                        });
+                    }
+                    else {
+                        console.log("FAIL TO GET APP");
+                    }
+                }
             }
+            asyncCreateNewDataSource();
         }
-        asyncCreateNewDataSource();
+        catch (error) {
+            alert(error.response.data.status);
+        }
     }
     store.confirmEditDataSource = function () {
-        async function asyncEditDataSource() {
-            try{
+        try {
+            async function asyncEditDataSource() {
                 const response = await api.updateDataSource(store.currentSelectedDatasource._id, store.currentSelectedDatasource);
                 if (response.status == 200) {
                     for (let i = 0; i < store.idDataSourcePairs.length; i++) {
@@ -379,19 +394,22 @@ function GlobalStoreContextProvider(props) {
                             store.idDataSourcePairs[i].name = store.currentSelectedDatasource.name;
                             break;
                         }
+                        const response1 = await api.getApp(store.currentApp._id);
+                        if (response1.status == 200) {
+                            storeReducer({
+                                type: GlobalStoreActionType.UPDATE_DATA_SOURCE,
+                                payload: { data_source: store.currentSelectedDatasource, pairs: store.idDataSourcePairs, app: response1.data.app }
+                            });
+                        }
                     }
-                    storeReducer({
-                        type: GlobalStoreActionType.UPDATE_DATA_SOURCE,
-                        payload: { data_source: store.currentSelectedDatasource, pairs: store.idDataSourcePairs }
-                    });
 
+                }
             }
-            }
-            catch(error){
-                alert(error.response.data.status);
-            }
+            asyncEditDataSource();
         }
-        asyncEditDataSource();
+        catch (error) {
+            alert(error.response.data.status);
+        }
 
     }
     store.setCurrentSelectedColumnIndex = function (index) {
@@ -421,18 +439,28 @@ function GlobalStoreContextProvider(props) {
 
     //Views
     store.createNewView = function () {
-        async function asyncCreateNewView() {
-            const response = await api.createNewView({ name: "Untitled", table: " ", columns: [], viewtype: "table", allowedactions: 0, roles: [], owner: store.currentApp._id });
-            if (response.status == 200) {
-                let value = store.viewPairs;
-                value.push({ _id: response.data.id, name: "Untitled" })
-                storeReducer({
-                    type: GlobalStoreActionType.LOAD_VIEW_LIST,
-                    payload: { pairs: value }
-                });
+        try{
+            async function asyncCreateNewView() {
+                const response = await api.createNewView({ name: "Untitled", table: " ", columns: [], viewtype: "table", allowedactions: 0, roles: [], owner: store.currentApp._id });
+                if (response.status == 200) {
+                    let value = store.viewPairs;
+                    value.push({ _id: response.data.id, name: "Untitled" });
+                    const response1 = await api.getApp(store.currentApp._id);
+                    if (response1.status==200){
+                        storeReducer({
+                            type: GlobalStoreActionType.LOAD_VIEW_LIST,
+                            payload: { pairs: value, app: response1.data.app }
+                        });
+                    }else{
+                        console.log("FAIL TO GET APP");
+                    }
+                }
             }
+            asyncCreateNewView();
+        }catch(e){
+            alert(e.response.data.status);
         }
-        asyncCreateNewView();
+
     }
     store.loadViewPair = function () {
         let pairs = [];
@@ -442,8 +470,8 @@ function GlobalStoreContextProvider(props) {
         }
         storeReducer({
             type: GlobalStoreActionType.LOAD_VIEW_LIST,
-            payload: { pairs: pairs }
-        })
+            payload: { pairs: pairs, app: store.currentApp }
+        });
     }
 
     store.setCurrentSelectedView = function (id) {
@@ -489,25 +517,34 @@ function GlobalStoreContextProvider(props) {
         asyncEditCurrentView();
     }
     store.deleteView = function (id) {
-        async function asyncDeleteView() {
-            const response = await api.deleteView(id);
-            if (response.status = 200) {
-                for (let i = 0; i < store.viewPairs.length; i++) {
-                    if (store.viewPairs[i]._id == id) {
-                        store.viewPairs.splice(i, 1);
-                        break;
+        try{
+            async function asyncDeleteView() {
+                const response = await api.deleteView(id);
+                if (response.status = 200) {
+                    for (let i = 0; i < store.viewPairs.length; i++) {
+                        if (store.viewPairs[i]._id == id) {
+                            store.viewPairs.splice(i, 1);
+                            break;
+                        }
                     }
+                    const response1 = await api.getApp(store.currentApp._id);
+                    if (response1.status==200){
+                        storeReducer({
+                            type: GlobalStoreActionType.LOAD_VIEW_LIST,
+                            payload: { pairs: store.viewPairs, app: response1.data.app }
+                        });
+                    }
+
                 }
-                storeReducer({
-                    type: GlobalStoreActionType.LOAD_VIEW_LIST,
-                    payload: { pairs: store.viewPairs }
-                });
+                else {
+                    console.log("UNABLE TO DELETE VIEW");
+                }
             }
-            else {
-                console.log("UNABLE TO DELETE VIEW");
-            }
+            asyncDeleteView();
         }
-        asyncDeleteView();
+        catch(e){
+            alert(e.response.data.status);
+        }
     }
 
     return (
