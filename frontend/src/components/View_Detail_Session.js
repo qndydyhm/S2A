@@ -116,7 +116,6 @@ import { InputLabel, MenuItem, Select } from "@mui/material";
                 <input
                 className='modal-textfield'
                 defaultValue={editableColumns}
-                onKeyDown={handleUpdateEditableColumns}
                 onChange={handleUpdateEditableColumnsText} />
             </div>
         if(document.getElementById("allow-add-checkbox")){document.getElementById("allow-add-checkbox").setAttribute("disabled",true);}
@@ -152,31 +151,20 @@ import { InputLabel, MenuItem, Select } from "@mui/material";
     }
     function handleUpdateColumnsText(event) {
         setColumnsText(event.target.value);
-    }
-    function handleUpdateColumns(event) {
-        if (event.code=="Enter"){
-            let text = columnsText.replace(' ','').split(',');
-            setColumns(text);
-        }
+        let text = event.target.value.split(' ').join('').split(',');
+        setColumns(text);
     }
     function handleUpdateEditableColumnsText(event) {
         setEditableColumnsText(event.target.value);
-    }
-    function handleUpdateEditableColumns(event) {
-        if (event.code=="Enter"){
-            let text = editableColumnsText.replace(' ','').split(',');
-            setEditableColumns(text);
-        }
+        let text = event.target.value.split(' ').join('').split(',');
+        setEditableColumns(text);
     }
     function handleUpdateRolesText(event) {
         setRolesText(event.target.value);
+        let text = event.target.value.split(' ').join('').split(',');
+        setRoles(text);
     }
-    function handleUpdateRoles(event) {
-        if (event.code=="Enter"){
-            let text = rolesText.replace(' ','').split(',');
-            setRoles(text);
-        }
-    }
+
     function handleChangeTable (event) {
         setTable(event.target.value.id);
         setTableName(event.target.value.name);
@@ -292,7 +280,6 @@ import { InputLabel, MenuItem, Select } from "@mui/material";
                 <input
                 className='modal-textfield'
                 defaultValue={columns}
-                onKeyDown={handleUpdateColumns}
                 onChange={handleUpdateColumnsText} />
             </div>
             {editableColumnsField}
@@ -301,7 +288,6 @@ import { InputLabel, MenuItem, Select } from "@mui/material";
                 <input
                 className='modal-textfield'
                 defaultValue={roles}
-                onKeyDown={handleUpdateRoles}
                 onChange={handleUpdateRolesText} />
             </div>
 
