@@ -113,8 +113,14 @@ export default function View_Detail_Session(props){
                 onKeyDown={handleUpdateEditableColumns}
                 onChange={handleUpdateEditableColumnsText} />
             </div>
+        if(document.getElementById("allow-add-checkbox")){document.getElementById("allow-add-checkbox").setAttribute("disabled",true);}
+        if(document.getElementById("allow-edit-checkbox")){document.getElementById("allow-edit-checkbox").removeAttribute("disabled");}
     }
-
+    if(type==="table"){
+        if(document.getElementById("allow-add-checkbox")){document.getElementById("allow-add-checkbox").removeAttribute("disabled");}
+        if(document.getElementById("allow-edit-checkbox")){document.getElementById("allow-edit-checkbox").setAttribute("disabled",true);}
+    }
+    console.log(document.getElementById("allow-add-checkbox"))
     function findObjectById(array, v ,id) {
         for (var i = 0; i < array.length; i++) {
             if (array[i][v] === id) {return array[i];}
@@ -127,6 +133,8 @@ export default function View_Detail_Session(props){
     }
     function handleToggleType() {
         type==="table"?setType("detail"):setType("table");
+        if(type=="detail"){setAllowEdit(false);}
+        else{setAllowAdd(false);}
     }
     function handleToggleAllowAdd() {
         setAllowAdd(!allowAdd);
@@ -233,24 +241,27 @@ export default function View_Detail_Session(props){
             value={type}
             onClick={handleToggleType} />
             </div>
-            <div id="allow-add-checkbox">
+            <div>
                 <input
+                id="allow-add-checkbox"
                 type="checkbox"
                 checked={allowAdd}
                 onChange={handleToggleAllowAdd}
                 />
                 Allow Add
             </div>
-            <div id="allow-edit-checkbox">
+            <div>
                 <input
+                id="allow-edit-checkbox"
                 type="checkbox"
                 checked={allowEdit}
                 onChange={handleToggleAllowEdit}
                 />
                 Allow Edit
             </div>
-            <div id="allow-delete-checkbox">
+            <div>
                 <input
+                id="allow-delete-checkbox"
                 type="checkbox"
                 checked={allowDelete}
                 onChange={handleToggleAllowDelete}
