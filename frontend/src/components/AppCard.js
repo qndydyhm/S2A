@@ -2,8 +2,8 @@ import { useContext} from 'react'
 import { GlobalStoreContext } from '../store'
 import Box from '@mui/material/Box';
 import ListItem from '@mui/material/ListItem';
-
-
+import DeleteIcon from '@mui/icons-material/Delete';
+import IconButton from '@mui/material/IconButton';
 
 
 
@@ -15,6 +15,10 @@ function AppCard(props) {
     function handleLoadList(event, id) {
         store.setCurrentApp(id);
         //VIEW
+    }
+    function handleDeleteApp(event){
+        event.stopPropagation();
+        store.deleteApp(idAppPairs.id);
     }
 
     let cardElement = 
@@ -30,6 +34,10 @@ function AppCard(props) {
             <Box sx={{ p: 1, flexGrow: 1 }}>
                 {idAppPairs.name}
             </Box>
+            <IconButton onClick={handleDeleteApp} aria-label='delete' style={{float:'right'}}
+            >
+                <DeleteIcon style={{ fontSize: '48pt'}} />
+            </IconButton>
         </ListItem>
     return (
         cardElement

@@ -224,6 +224,30 @@ function GlobalStoreContextProvider(props) {
         asyncCreateDefaultApp();
     }
 
+    store.deleteApp = function (id) {
+        async function asyncDeleteApp() {
+            const response = await api.deleteApp(id);
+            if (response.status === 200) {
+                const response1 = await api.getIdAppPairs();
+                if (response1.status === 200) {
+                    let pairs = response1.data.apps;
+                    storeReducer({
+                        type: GlobalStoreActionType.LOAD_APP_LIST,
+                        payload: { pairs: pairs }
+                    });
+                }
+                else {
+                    console.log("API FAILED TO GET THE APP PAIR");
+                }
+            }
+            else {
+                console.log("API FAILED TO DELETE THE APP PAIR");
+
+            }
+        }
+        asyncDeleteApp();
+    }
+
     //argument app has the format {name,creator,roleM, publish}
     store.editCurrentApp = function (app) {
         async function asyncEditCurrentApp() {
@@ -252,6 +276,28 @@ function GlobalStoreContextProvider(props) {
             payload: { pairs: pairs }
         });
 
+    }
+    store.deleteDataSource = function(id){
+        async function deleteDataSource(){
+            const response = await api.deleteDataSource(id);
+            if(response.status===200){
+                for(let i = 0;i<store.idDataSourcePairs.length;i++){
+                    if(store.idDataSourcePairs[i]._id==id){
+                        store.idDataSourcePairs.splice(i,1);
+                        break;
+                    }
+                }
+                storeReducer({
+                    type: GlobalStoreActionType.LOAD_DATA_SOURCE_LIST,
+                    payload: { pairs: store.idDataSourcePairs }
+                });
+                
+            }
+            else{
+                console.log("UNABLE TO DELETE DATA SOURCE");
+            }
+        }
+        deleteDataSource();
     }
 
     store.setCurrentSelectedDataSource = function (id) {
@@ -308,22 +354,22 @@ function GlobalStoreContextProvider(props) {
         asyncCreateNewDataSource();
     }
     store.confirmEditDataSource = function () {
-            async function asyncEditDataSource() {
-                const response = await api.updateDataSource(store.currentSelectedDatasource._id, store.currentSelectedDatasource);
-                if (response.status == 200) {
-                    for (let i = 0; i < store.idDataSourcePairs.length; i++) {
-                        if (store.idDataSourcePairs[i]._id == store.currentSelectedDatasource._id) {
-                            store.idDataSourcePairs[i].name = store.currentSelectedDatasource.name;
-                            break;
-                        }
+        async function asyncEditDataSource() {
+            const response = await api.updateDataSource(store.currentSelectedDatasource._id, store.currentSelectedDatasource);
+            if (response.status == 200) {
+                for (let i = 0; i < store.idDataSourcePairs.length; i++) {
+                    if (store.idDataSourcePairs[i]._id == store.currentSelectedDatasource._id) {
+                        store.idDataSourcePairs[i].name = store.currentSelectedDatasource.name;
+                        break;
                     }
-                    storeReducer({
-                        type: GlobalStoreActionType.UPDATE_DATA_SOURCE,
-                        payload: { data_source: store.currentSelectedDatasource, pairs: store.idDataSourcePairs }
-                    });
                 }
+                storeReducer({
+                    type: GlobalStoreActionType.UPDATE_DATA_SOURCE,
+                    payload: { data_source: store.currentSelectedDatasource, pairs: store.idDataSourcePairs }
+                });
             }
-            asyncEditDataSource();
+        }
+        asyncEditDataSource();
 
     }
     store.setCurrentSelectedColumnIndex = function (index) {
