@@ -26,6 +26,7 @@ const getLoggedIn = async (req: any, res: express.Response) => {
     try {
         const loggedInUser: any = await auth.getUser(req);
         if (!loggedInUser) {
+            globalLogger.info("User not loggin or cookie expired")
             return res.status(200).json({
                 status: "OK",
                 loggedIn: false
@@ -49,11 +50,15 @@ const googleCallback = async (req: express.Request, res: express.Response) => {
     try {
         // extract code from query
         const code: any = req.query.code
-        if (!code) return res.status(400).send({
-            status: "missing token"
-        })
+        if (!code){
+            globalLogger.info("missing token")
+            return res.status(400).send({
+                status: "missing token"
+            })
+        } 
         const tokens = await googleWrapper.getToken(code);
         if (!tokens.access_token) {
+            globalLogger.info("Fail to get access token")
             return res.status(400).send({
                 status: "Fail to get access token"
             })
@@ -62,6 +67,7 @@ const googleCallback = async (req: express.Request, res: express.Response) => {
         // get user info
         const info = await googleWrapper.getUserInfo(tokens);
         if (!info || !info.name || !info.email || !info.picture || !info.id) {
+            globalLogger.info("Fail to access user info")
             return res.status(400).send({
                 status: "Fail to access user info"
             })
@@ -70,6 +76,7 @@ const googleCallback = async (req: express.Request, res: express.Response) => {
         // detect whether the user exists
         let existingUser = await User.findOne({ id: info.id });
         if (!tokens.refresh_token && !existingUser) {
+            globalLogger.info("Fail to get refresh token and cannot find user from database")
             return res.status(400).send({
                 status: "Fail to get refresh token and cannot find user from database"
             })
@@ -121,6 +128,7 @@ const isGlobalDeveloper = async (req: any, res: express.Response) => {
     try {
         const loggedInUser: any = await auth.getUser(req);
         if (!loggedInUser) {
+            globalLogger.info("User not loggin or cookie expired")
             return res.status(200).json({
                 status: "OK",
                 isGlobalDeveloper: false
