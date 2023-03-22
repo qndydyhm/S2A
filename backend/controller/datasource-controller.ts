@@ -54,8 +54,8 @@ const createDS = async (req: express.Request, res: express.Response) => {
             })
         }
 
-        const sheetName = googleWrapper.getSheetName(URL, creator.rtoken, creator.atoken, creator.expire)
-        if (!sheetName){
+        const sheet = googleWrapper.getSheet(URL, creator.rtoken, creator.atoken, creator.expire)
+        if (!sheet){
             appLogger.info("Fail to access " + URL + " with " + creator.email + "'s credential")
             return res.status(400).json({
                 status: "Fail to access " + URL + " with " + creator.email + "'s credential"
@@ -193,8 +193,8 @@ const updateDS = async (req: express.Request, res: express.Response) => {
                 status: "Fail to find app creator " + existingApp.creator
             })
         }
-        const sheetName = googleWrapper.getSheetName(URL, creator.rtoken, creator.atoken, creator.expire)
-        if (!sheetName){
+        const sheet = googleWrapper.getSheet(URL, creator.rtoken, creator.atoken, creator.expire)
+        if (!sheet){
             appLogger.info("Fail to access " + URL + " with " + creator.email + "'s credential")
             return res.status(400).json({
                 status: "Fail to access " + URL + " with " + creator.email + "'s credential"
