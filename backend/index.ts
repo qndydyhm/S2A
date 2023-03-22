@@ -4,7 +4,7 @@ import express from 'express';
 import db from './db'
 import cookieParser from 'cookie-parser'
 import router from './router'
-import GlobalDevelopers from './tools/global-developer';
+import accessControl from './tools/access-control';
 import logger from './tools/logger';
 
 logger.error("S2A starts running")
@@ -15,7 +15,7 @@ app.use(cookieParser())
 app.use(express.json())
 app.use("/", router) // main router
 
-GlobalDevelopers.loadGlobalDeveloper().then(
+accessControl.loadGlobalDeveloper().then(
   () => logger.error("Global developer list loaded")
 )
 

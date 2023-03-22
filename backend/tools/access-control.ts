@@ -1,8 +1,8 @@
 import googleWrapper from './google-wrapper'
 import sheetParser from './sheet-parser'
-import globalLogger from './logger'
+import globalLogger, { getLogger } from './logger'
 
-export default class GlobalDevelopers {
+export default class accessControl {
     private static globalDevelopers = new Set()
 
     public static async loadGlobalDeveloper() {
@@ -14,6 +14,7 @@ export default class GlobalDevelopers {
         const developers = sheetParser.getDeveloperList(sheet)
         if (!developers) {
             globalLogger.error("First row in column A is not “developers”")
+            throw "First row in column A is not “developers”"
         }
         let developerlist = ""
         developers?.forEach((developer) => {
@@ -23,6 +24,26 @@ export default class GlobalDevelopers {
             }
         })
         globalLogger.debug("Global developers: " + developerlist)
+    }
+
+    public static async isInDeveloperList(email: string, roleM: string, rtoken: string, atoken: string, expire: number, appId: string) {
+        const appLogger = getLogger(appId)
+        const sheet = await googleWrapper.getSheet(roleM, rtoken, atoken, expire)
+        if (!sheet || sheet.length === 0) {
+            appLogger.error("Empty global developer sheet or fail to access it")
+            return false
+        }
+        const developers = sheetParser.getDeveloperList(sheet)
+        if (!developers) {
+            appLogger.error("First row in column A is not “developers”")
+            return false
+        }
+        for (let key in developers) {
+            if (developers[key] == email) {
+                return true
+            }
+        }
+        return false
     }
 
     public static isInGlobalDevelopers(email: string) {

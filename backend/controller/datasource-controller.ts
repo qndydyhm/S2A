@@ -40,7 +40,7 @@ const createDS = async (req: express.Request, res: express.Response) => {
             return res.status(400).json({
                 status: "Fail to find app creator " + existingApp.creator
             })
-        const sheet = googleWrapper.getSheet(URL, creator.rtoken, creator.atoken, creator.expire)
+        const sheet = await googleWrapper.getSheet(URL, creator.rtoken, creator.atoken, creator.expire)
         if (!sheet)
             return res.status(400).json({
                 status: "Fail to access " + URL + " with " + creator.email + "'s credential"
@@ -157,7 +157,7 @@ const updateDS = async (req: express.Request, res: express.Response) => {
             return res.status(400).json({
                 status: "Fail to find app creator " + existingApp.creator
             })
-        const sheet = googleWrapper.getSheet(URL, creator.rtoken, creator.atoken, creator.expire)
+        const sheet = await googleWrapper.getSheet(URL, creator.rtoken, creator.atoken, creator.expire)
         if (!sheet)
             return res.status(400).json({
                 status: "Fail to access " + URL + " with " + creator.email + "'s credential"

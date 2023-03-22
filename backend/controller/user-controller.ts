@@ -1,7 +1,7 @@
 import express from 'express'
 import auth from '../auth'
 import User from '../models/user-model'
-import GlobalDevelopers from '../tools/global-developer'
+import accessControl from '../tools/access-control'
 import googleWrapper from '../tools/google-wrapper'
 import globalLogger from '../tools/logger'
 
@@ -128,7 +128,7 @@ const isGlobalDeveloper = async (req: any, res: express.Response) => {
         }
         return res.status(200).json({
             status: "OK",
-            isGlobalDeveloper: GlobalDevelopers.isInGlobalDevelopers(loggedInUser.email),
+            isGlobalDeveloper: accessControl.isInGlobalDevelopers(loggedInUser.email),
         });
     } catch (e) {
         globalLogger.error(e);

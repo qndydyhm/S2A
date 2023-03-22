@@ -4,7 +4,7 @@ import App from '../models/app-model'
 import DataSource from '../models/datasource-model'
 import View from '../models/view-model'
 import User from '../models/user-model'
-import GlobalDevelopers from '../tools/global-developer'
+import accessControl from '../tools/access-control'
 import SheetParser from '../tools/sheet-parser'
 import googleWrapper from '../tools/google-wrapper'
 import globalLogger, { getLogger } from '../tools/logger'
@@ -20,7 +20,7 @@ const createApp = async (req: express.Request, res: express.Response) => {
                 status: "Fail to find User"
             })
         }
-        if (!GlobalDevelopers.isInGlobalDevelopers(loggedInUser.email)) {
+        if (!accessControl.isInGlobalDevelopers(loggedInUser.email)) {
             globalLogger.info("Unauthorized user tried to create App")
             return res.status(401).json({
                 status: "Must be in the global developer list to create App"
@@ -73,7 +73,7 @@ const updateApp = async (req: express.Request, res: express.Response) => {
     try {
         // get user info
         const loggedInUser: any = await auth.getUser(req);
-        if (!loggedInUser){
+        if (!loggedInUser) {
             globalLogger.info("User not loggin or cookie expired")
             return res.status(401).json({
                 status: "Fail to find User"
@@ -82,13 +82,13 @@ const updateApp = async (req: express.Request, res: express.Response) => {
         // check parameters
         const appId = req.params.id;
         const { name, roleM, published } = req.body;
-        if (typeof (name) != "string" || name === "" || typeof (roleM) != "string" || roleM === "" || typeof (published) != "boolean"){
+        if (typeof (name) != "string" || name === "" || typeof (roleM) != "string" || roleM === "" || typeof (published) != "boolean") {
             globalLogger.info("Missing or wrong parameters when creating App" + { name, roleM, published })
             return res.status(400).json({
                 status: "Missing parameter"
             })
         }
-        if (!SheetParser.sheetUrlParser(roleM)){
+        if (!SheetParser.sheetUrlParser(roleM)) {
             globalLogger.info("Fail to parse role membership sheet" + roleM)
             return res.status(400).json({
                 status: "Role membership sheet must in the form of https://docs.google.com/spreadsheets/d/spreadsheetId/edit#gid=sheetId"
@@ -96,22 +96,31 @@ const updateApp = async (req: express.Request, res: express.Response) => {
         }
         // find app, update, and save
         const existingApp = await App.findOne({ _id: appId });
-        if (!existingApp){
-            globalLogger.info("Fail to find App "+appId)
+        if (!existingApp) {
+            globalLogger.info("Fail to find App " + appId)
             return res.status(400).json({
                 status: "Fail to find App " + appId
             })
         }
         // check if the creator can access role membership sheet
         const creator = await User.findOne({ id: existingApp.creator })
-        if (!creator){
-            globalLogger.info("Fail to find creator "+existingApp.creator)
+        if (!creator) {
+            globalLogger.info("Fail to find creator " + existingApp.creator)
             return res.status(400).json({
                 status: "Fail to find creator " + existingApp.creator
             })
         }
+        
+        // check if the user is in role membership list
+        if (loggedInUser.id !== creator.id && !await accessControl.isInDeveloperList(loggedInUser.email, existingApp.roleM, creator.rtoken, creator.atoken, creator.expire, existingApp._id.toString())) {
+            globalLogger.info("User " + loggedInUser.id + " is not in developer role of app " + existingApp._id)
+            return res.status(400).json({
+                status: "User " + loggedInUser.email + " is not in developer role of app " + existingApp._id
+            })
+        }
+
         const sheet = googleWrapper.getSheet(roleM, creator.rtoken, creator.atoken, creator.expire)
-        if (!sheet){
+        if (!sheet) {
             globalLogger.info("Fail to access " + roleM + " with " + loggedInUser.email + "'s credential")
             return res.status(400).json({
                 status: "Fail to access " + roleM + " with " + creator.email + "'s credential"
@@ -134,7 +143,7 @@ const getApp = async (req: express.Request, res: express.Response) => {
     try {
         // get user info
         const loggedInUser: any = await auth.getUser(req);
-        if (!loggedInUser){
+        if (!loggedInUser) {
             globalLogger.info("Fail to find User")
             return res.status(401).json({
                 status: "Fail to find User"
@@ -142,7 +151,7 @@ const getApp = async (req: express.Request, res: express.Response) => {
         }
         // check parameters
         const appId = req.params.id;
-        if (typeof (appId) != "string"){
+        if (typeof (appId) != "string") {
             globalLogger.info("Missing Parameter:appId is not String")
             return res.status(400).json({
                 status: "Missing parameter"
@@ -151,8 +160,8 @@ const getApp = async (req: express.Request, res: express.Response) => {
         // find App and return
         // TODO: check end user
         const existingApp = await App.findOne({ _id: appId });
-        if (!existingApp){
-            globalLogger.info("Fail to find App "+appId)
+        if (!existingApp) {
+            globalLogger.info("Fail to find App " + appId)
             return res.status(400).json({
                 status: "Fail to find App " + appId
             })
@@ -169,7 +178,7 @@ const getApp = async (req: express.Request, res: express.Response) => {
             existingApp.creator = creator.name
             for (let key in existingApp.datasources) {
                 const datasource = await DataSource.findOne({ _id: existingApp.datasources[key] })
-                if (!datasource){
+                if (!datasource) {
                     globalLogger.info("Fail to find data source " + existingApp.datasources[key])
                     return res.status(400).json({
                         status: "Fail to find data source " + existingApp.datasources[key]
@@ -180,7 +189,7 @@ const getApp = async (req: express.Request, res: express.Response) => {
 
             for (let key in existingApp.views) {
                 const view = await View.findOne({ _id: existingApp.views[key] })
-                if (!view){
+                if (!view) {
                     globalLogger.info("Fail to find view " + existingApp.views[key])
                     return res.status(400).json({
                         status: "Fail to find view " + existingApp.views[key]
@@ -206,7 +215,7 @@ const getApp = async (req: express.Request, res: express.Response) => {
         });
         const appLogger = getLogger(existingApp._id.toString())
         appLogger.info("App retrieved: ", existingApp)
-        
+
     }
     catch (e) {
         globalLogger.error(e)
@@ -217,7 +226,7 @@ const deleteApp = async (req: express.Request, res: express.Response) => {
     try {
         // get user info
         const loggedInUser: any = await auth.getUser(req);
-        if (!loggedInUser){
+        if (!loggedInUser) {
             globalLogger.info("Fail to find User")
             return res.status(401).json({
                 status: "Fail to find User"
@@ -225,20 +234,36 @@ const deleteApp = async (req: express.Request, res: express.Response) => {
         }
         // check parameters
         const appId = req.params.id;
-        if (typeof (appId) != "string"){
+        if (typeof (appId) != "string") {
             globalLogger.info("Missing parameter")
             return res.status(400).json({
                 status: "Missing parameter"
             })
         }
         // find app and delete
-        const existingApp = await App.findOneAndDelete({ _id: appId });
-        if (!existingApp){
+        const existingApp = await App.findOne({ _id: appId })
+        if (!existingApp) {
             globalLogger.info("Fail to find App " + appId)
             return res.status(401).json({
                 status: "Fail to find App " + appId
             })
         }
+        // check if the creator can access role membership sheet
+        const creator = await User.findOne({ id: existingApp.creator })
+        if (!creator) {
+            globalLogger.info("Fail to find creator " + existingApp.creator)
+            return res.status(400).json({
+                status: "Fail to find creator " + existingApp.creator
+            })
+        }
+        // check if the user is in role membership list
+        if (loggedInUser.id !== creator.id && !await accessControl.isInDeveloperList(loggedInUser.email, existingApp.roleM, creator.rtoken, creator.atoken, creator.expire, existingApp._id.toString())) {
+            globalLogger.info("User " + loggedInUser.id + " is not in developer role of app " + existingApp._id)
+            return res.status(400).json({
+                status: "User " + loggedInUser.email + " is not in developer role of app " + existingApp._id
+            })
+        }
+        existingApp.deleteOne();
         // Delete datasources and views
         for (let key in existingApp.datasources) {
             try {
@@ -269,7 +294,7 @@ const getApps = async (req: express.Request, res: express.Response) => {
     try {
         // get user info
         const loggedInUser: any = await auth.getUser(req);
-        if (!loggedInUser){
+        if (!loggedInUser) {
             globalLogger.info("Fail to find User")
             return res.status(400).json({
                 status: "Fail to find User"
@@ -278,7 +303,7 @@ const getApps = async (req: express.Request, res: express.Response) => {
         // find apps and return
         // TODO: check end user
         const apps = await App.find({ $or: [{ creator: loggedInUser.id }, { published: true }] });
-        if (!Array.isArray(apps)){
+        if (!Array.isArray(apps)) {
             globalLogger.info("Apps not found")
             return res.status(400).json({
                 status: "Apps not found"
