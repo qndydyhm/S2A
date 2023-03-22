@@ -1,6 +1,7 @@
 import { auth, oauth2 } from '@googleapis/oauth2'
 import { sheets } from '@googleapis/sheets';
 import sheetParser from './sheet-parser';
+import globalLogger from './logger';
 
 const APIKEY = process.env.API_KEY
 
@@ -66,7 +67,7 @@ const getUserInfo = async (tokens: any) => {
         return (await Oauth2.userinfo.get()).data
     }
     catch (e) {
-        console.log(e)
+        globalLogger.error(e)
         return null
     }
 }
@@ -91,7 +92,7 @@ const getClient = (refresh_token?: string, access_token?: string, expiry_date?: 
         return client;
     }
     catch (e) {
-        console.log(e)
+        globalLogger.error(e)
         return null
     }
 }
@@ -123,7 +124,7 @@ const getSheetName = async (URL: string, refresh_token?: string, access_token?: 
         return sheetName;
     }
     catch (e) {
-        console.log(e)
+        globalLogger.error(e)
         return undefined
     }
 }
@@ -150,7 +151,7 @@ const getSheet = async (URL: string, refresh_token?: string, access_token?: stri
         return sheetData.data.values
     }
     catch (e) {
-        console.log(e)
+        globalLogger.error(e)
         return undefined
     }
 }

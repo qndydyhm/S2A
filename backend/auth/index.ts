@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken"
 import express from 'express'
 import User from '../models/user-model'
-
+import globalLogger from "../tools/logger"
 
 
 const getUser = async (req: express.Request) => {
@@ -18,8 +18,8 @@ const getUser = async (req: express.Request) => {
         }
         return undefined;
     }
-    catch (err) {
-        console.error(err);
+    catch (e) {
+        globalLogger.error(e);
     }
 }
 

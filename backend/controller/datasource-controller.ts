@@ -5,6 +5,7 @@ import App from '../models/app-model'
 import User from '../models/user-model'
 import SheetParser from '../tools/sheet-parser'
 import googleWrapper from '../tools/google-wrapper'
+import globalLogger, { getLogger } from '../tools/logger'
 
 
 const createDS = async (req: express.Request, res: express.Response) => {
@@ -87,7 +88,7 @@ const createDS = async (req: express.Request, res: express.Response) => {
         await res.send({ status: "OK", id: savedDS._id });
     }
     catch (e) {
-        console.log(e)
+        globalLogger.error(e)
     }
 }
 
@@ -171,7 +172,7 @@ const updateDS = async (req: express.Request, res: express.Response) => {
         await res.send({ status: "OK" });
     }
     catch (e) {
-        console.log(e)
+        globalLogger.error(e)
     }
 }
 
@@ -199,7 +200,7 @@ const getDS = async (req: express.Request, res: express.Response) => {
         await res.send({ status: "OK", datasource: existingDS });
     }
     catch (e) {
-        console.log(e)
+        globalLogger.error(e)
     }
 }
 
@@ -235,12 +236,12 @@ const deleteDS = async (req: express.Request, res: express.Response) => {
             owner.save()
         }
         catch (e) {
-            console.log(e)
+            globalLogger.error(e)
         }
         await res.send({ status: "OK", datasource: existingDS });
     }
     catch (e) {
-        console.log(e)
+        globalLogger.error(e)
     }
 }
 

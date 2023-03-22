@@ -7,6 +7,7 @@ import User from '../models/user-model'
 import GlobalDevelopers from '../tools/global-developer'
 import SheetParser from '../tools/sheet-parser'
 import googleWrapper from '../tools/google-wrapper'
+import globalLogger, { getLogger } from '../tools/logger'
 
 
 const createApp = async (req: express.Request, res: express.Response) => {
@@ -48,11 +49,11 @@ const createApp = async (req: express.Request, res: express.Response) => {
             published: published
         })
         const savedApp = await newApp.save();
-        console.info("New App created: ", savedApp)
+        globalLogger.info("New App created: ", savedApp)
         await res.send({ status: "OK", id: savedApp._id });
     }
     catch (e) {
-        console.log(e)
+        globalLogger.error(e)
     }
 }
 
@@ -99,7 +100,7 @@ const updateApp = async (req: express.Request, res: express.Response) => {
         await res.send({ status: "OK" });
     }
     catch (e) {
-        console.log(e)
+        globalLogger.error(e)
     }
 }
 
@@ -153,10 +154,10 @@ const getApp = async (req: express.Request, res: express.Response) => {
             }
         }
         catch (e) {
-            console.log(e)
+            globalLogger.error(e)
         }
         await res.send({
-            status: "OK", 
+            status: "OK",
             app: {
                 _id: existingApp._id,
                 name: existingApp.name,
@@ -169,7 +170,7 @@ const getApp = async (req: express.Request, res: express.Response) => {
         });
     }
     catch (e) {
-        console.log(e)
+        globalLogger.error(e)
     }
 }
 
@@ -199,7 +200,7 @@ const deleteApp = async (req: express.Request, res: express.Response) => {
                 DataSource.findOneAndDelete({ _id: existingApp.datasources[key] })
             }
             catch (e) {
-                console.error(e)
+                globalLogger.error(e)
             }
         }
         for (let key in existingApp.views) {
@@ -207,13 +208,13 @@ const deleteApp = async (req: express.Request, res: express.Response) => {
                 View.findOneAndDelete({ _id: existingApp.views[key] })
             }
             catch (e) {
-                console.error(e)
+                globalLogger.error(e)
             }
         }
         await res.send({ status: "OK", app: existingApp });
     }
     catch (e) {
-        console.log(e)
+        globalLogger.error(e)
     }
 }
 
@@ -244,7 +245,7 @@ const getApps = async (req: express.Request, res: express.Response) => {
         await res.send({ status: "OK", apps: applist });
     }
     catch (e) {
-        console.log(e)
+        globalLogger.error(e)
     }
 }
 
