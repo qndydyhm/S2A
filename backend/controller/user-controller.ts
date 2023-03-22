@@ -3,6 +3,7 @@ import auth from '../auth'
 import User from '../models/user-model'
 import GlobalDevelopers from '../tools/global-developer'
 import googleWrapper from '../tools/google-wrapper'
+import globalLogger from '../tools/logger'
 
 
 const loginUser = async (req: express.Request, res: express.Response) => {
@@ -39,8 +40,8 @@ const getLoggedIn = async (req: any, res: express.Response) => {
                 profile: loggedInUser.profile
             }
         });
-    } catch (err) {
-        console.error(err);
+    } catch (e) {
+        globalLogger.error(e);
     }
 }
 
@@ -84,7 +85,7 @@ const googleCallback = async (req: express.Request, res: express.Response) => {
                 existingUser.atoken = tokens.access_token as string;
                 existingUser.expire = tokens.expiry_date as number;
                 await existingUser.save()
-                console.info("Existing user login: ", existingUser)
+                globalLogger.info("Existing user login: ", existingUser)
                 return auth.signToken(existingUser._id);
             }
             else {
@@ -99,7 +100,7 @@ const googleCallback = async (req: express.Request, res: express.Response) => {
                     expire: tokens.expiry_date
                 });
                 const savedUser = await newUser.save();
-                console.info("New user login: ", savedUser)
+                globalLogger.info("New user login: ", savedUser)
                 return auth.signToken(savedUser._id);
             }
         }
@@ -110,8 +111,8 @@ const googleCallback = async (req: express.Request, res: express.Response) => {
             sameSite: "none"
         }).redirect('/');
 
-    } catch (err) {
-        console.error(err);
+    } catch (e) {
+        globalLogger.error(e);
     }
 }
 
@@ -129,8 +130,8 @@ const isGlobalDeveloper = async (req: any, res: express.Response) => {
             status: "OK",
             isGlobalDeveloper: GlobalDevelopers.isInGlobalDevelopers(loggedInUser.email),
         });
-    } catch (err) {
-        console.error(err);
+    } catch (e) {
+        globalLogger.error(e);
     }
 }
 

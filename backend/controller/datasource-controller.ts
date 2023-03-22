@@ -84,7 +84,7 @@ const createDS = async (req: express.Request, res: express.Response) => {
         const savedDS = await newDS.save();
         existingApp.datasources.push(savedDS._id.toString());
         existingApp.save();
-        console.info("New Datasource created: ", savedDS)
+        globalLogger.info("New Datasource created: ", savedDS)
         await res.send({ status: "OK", id: savedDS._id });
     }
     catch (e) {

@@ -29,6 +29,7 @@ export const getLogger = (filename: string) => {
         transports: [
             new winston.transports.Console(),
             new winston.transports.File({ filename: logPath + filename + '.log' }),
+            new winston.transports.File({ filename: logPath + 's2a.log' }),
             new winston.transports.File({ filename: logPath + 'error.log', level: 'error' })
         ],
     });

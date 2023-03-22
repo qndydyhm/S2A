@@ -14,31 +14,42 @@ const createApp = async (req: express.Request, res: express.Response) => {
     try {
         // get user info
         const loggedInUser: any = await auth.getUser(req);
-        if (!loggedInUser)
+        if (!loggedInUser) {
+            globalLogger.info("User not loggin or cookie expired")
             return res.status(401).json({
                 status: "Fail to find User"
             })
-        if (!GlobalDevelopers.isInGlobalDevelopers(loggedInUser.email))
+        }
+        if (!GlobalDevelopers.isInGlobalDevelopers(loggedInUser.email)) {
+            globalLogger.info("Unauthorized user tried to create App")
             return res.status(401).json({
                 status: "Must be in the global developer list to create App"
             })
+        }
         // check parameters
         const { name, roleM, published } = req.body;
         if (typeof (name) != "string" || name === "" ||
-            typeof (roleM) != "string" || roleM === "" || typeof (published) != "boolean")
+            typeof (roleM) != "string" || roleM === "" || typeof (published) != "boolean") {
+            globalLogger.info("Missing or wrong parameters when creating App" + { name, roleM, published })
             return res.status(400).json({
                 status: "Missing or wrong parameter"
             })
-        if (!SheetParser.sheetUrlParser(roleM))
+        }
+        if (!SheetParser.sheetUrlParser(roleM)) {
+            globalLogger.info("Fail to parse role membership sheet" + roleM)
             return res.status(400).json({
                 status: "Role membership sheet must in the form of https://docs.google.com/spreadsheets/d/spreadsheetId/edit#gid=sheetId"
             })
+        }
+
         // check if the creator can access role membership sheet
         const sheetName = googleWrapper.getSheetName(roleM, loggedInUser.rtoken, loggedInUser.atoken, loggedInUser.expire)
-        if (!sheetName)
+        if (!sheetName) {
+            globalLogger.info("Fail to access " + roleM + " with " + loggedInUser.email + "'s credential")
             return res.status(400).json({
                 status: "Fail to access " + roleM + " with " + loggedInUser.email + "'s credential"
             })
+        }
         // create and save app
         const newApp = new App({
             name: name,
@@ -49,7 +60,8 @@ const createApp = async (req: express.Request, res: express.Response) => {
             published: published
         })
         const savedApp = await newApp.save();
-        globalLogger.info("New App created: ", savedApp)
+        const appLogger = getLogger(savedApp._id.toString())
+        appLogger.info("New App created: ", savedApp)
         await res.send({ status: "OK", id: savedApp._id });
     }
     catch (e) {

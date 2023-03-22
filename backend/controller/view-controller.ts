@@ -2,6 +2,7 @@ import express from 'express'
 import auth from '../auth'
 import View from '../models/view-model'
 import App from '../models/app-model'
+import globalLogger from '../tools/logger'
 
 
 const createView = async (req: express.Request, res: express.Response) => {
@@ -84,11 +85,11 @@ const createView = async (req: express.Request, res: express.Response) => {
         const savedView = await newView.save();
         existingApp.views.push(savedView._id.toString())
         existingApp.save()
-        console.info("New View created: ", savedView)
+        globalLogger.info("New View created: ", savedView)
         await res.send({ status: "OK", id: savedView._id });
     }
     catch (e) {
-        console.log(e)
+        globalLogger.error(e)
     }
 }
 
@@ -169,11 +170,11 @@ const updateView = async (req: express.Request, res: express.Response) => {
             }
         }
         await existingView.save();
-        console.info("View updated: ", existingView)
+        globalLogger.info("View updated: ", existingView)
         await res.send({ status: "OK" });
     }
     catch (e) {
-        console.log(e)
+        globalLogger.error(e)
     }
 }
 
@@ -201,7 +202,7 @@ const getView = async (req: express.Request, res: express.Response) => {
         await res.send({ status: "OK", view: existingView });
     }
     catch (e) {
-        console.log(e)
+        globalLogger.error(e)
     }
 }
 
@@ -237,12 +238,12 @@ const deleteView = async (req: express.Request, res: express.Response) => {
             owner.save()
         }
         catch (e) {
-            console.log(e)
+            globalLogger.error(e)
         }
         await res.send({ status: "OK", view: existingView });
     }
     catch (e) {
-        console.log(e)
+        globalLogger.error(e)
     }
 }
 
