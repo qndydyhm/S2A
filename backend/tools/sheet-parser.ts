@@ -14,8 +14,8 @@ const getValuesByColumn = (sheet: any[][], column: string, type?: string): any[]
         throw "Empty sheet"
     let index = undefined;
     // TODO: find whether the column is unique
-    for (let i = 0; i < sheet[0].length; ++ i) {
-        if (sheet[0][i] === column){
+    for (let i = 0; i < sheet[0].length; ++i) {
+        if (sheet[0][i] === column) {
             index = i
             break
         }
@@ -23,13 +23,22 @@ const getValuesByColumn = (sheet: any[][], column: string, type?: string): any[]
     if (index === undefined)
         throw "Fail to find column " + column + " in sheet " + sheet
     const res = []
-    for (let i = 1; i < sheet.length; ++ i) {
+    for (let i = 1; i < sheet.length; ++i) {
         res.push(sheet[i].length > index ? sheet[i][index] : undefined)
     }
     return res;
 }
 
+
+const getDeveloperList = (sheet: any[][]) => {
+    if (!sheet || sheet.length === 0 || sheet[0].length === 0 || sheet[0][0] !== "developers") {
+        return undefined
+    }
+    return getValuesByColumn(sheet, "developers")
+}
+
 export default {
     sheetUrlParser,
-    getValuesByColumn
+    getValuesByColumn,
+    getDeveloperList
 }

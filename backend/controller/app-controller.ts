@@ -43,8 +43,8 @@ const createApp = async (req: express.Request, res: express.Response) => {
         }
 
         // check if the creator can access role membership sheet
-        const sheetName = googleWrapper.getSheetName(roleM, loggedInUser.rtoken, loggedInUser.atoken, loggedInUser.expire)
-        if (!sheetName) {
+        const sheet = googleWrapper.getSheet(roleM, loggedInUser.rtoken, loggedInUser.atoken, loggedInUser.expire)
+        if (!sheet) {
             globalLogger.info("Fail to access " + roleM + " with " + loggedInUser.email + "'s credential")
             return res.status(400).json({
                 status: "Fail to access " + roleM + " with " + loggedInUser.email + "'s credential"
@@ -100,8 +100,8 @@ const updateApp = async (req: express.Request, res: express.Response) => {
             return res.status(400).json({
                 status: "Fail to find creator " + existingApp.creator
             })
-        const sheetName = googleWrapper.getSheetName(roleM, creator.rtoken, creator.atoken, creator.expire)
-        if (!sheetName)
+        const sheet = googleWrapper.getSheet(roleM, creator.rtoken, creator.atoken, creator.expire)
+        if (!sheet)
             return res.status(400).json({
                 status: "Fail to access " + roleM + " with " + creator.email + "'s credential"
             })
