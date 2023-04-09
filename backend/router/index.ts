@@ -37,6 +37,7 @@ api.delete('/api/ds/:id', ds.deleteDS)
 api.post('/api/view', view.createView)
 api.post('/api/view/:id', view.updateView)
 api.get('/api/view/:id', view.getView)
+api.get('/api/view', view.getViews)
 api.delete('/api/view/:id', view.deleteView)
-
+api.get('/api/tableview/:id')
 export default api

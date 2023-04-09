@@ -90,7 +90,7 @@ const createView = async (req: express.Request, res: express.Response) => {
                 }
                 // TODO: check editable columns are valid
                 for (let key in editablecolumns) {
-                    if (typeof (editablecolumns[key]) != "string"){
+                    if (typeof (editablecolumns[key]) != "string") {
                         globalLogger.info('Editable columns must be an Array of string')
                         return res.status(400).json({
                             status: 'Editable columns must be an Array of string'
@@ -138,14 +138,14 @@ const updateView = async (req: express.Request, res: express.Response) => {
         }
         // TODO check owner, table, columns, roles is valid
         // create and save datasource
-        if (viewtype !== TYPE.TABLE && viewtype !== TYPE.DETAIL){
+        if (viewtype !== TYPE.TABLE && viewtype !== TYPE.DETAIL) {
             globalLogger.info('View type must be one of "table" or "detail"')
             return res.status(400).json({
                 status: 'View type must be one of "table" or "detail"'
             })
         }
         const existingView = await View.findOne({ _id: viewId })
-        if (!existingView){
+        if (!existingView) {
             globalLogger.info('Fail to find view')
             return res.status(400).json({
                 status: 'Fail to find view'
@@ -160,7 +160,7 @@ const updateView = async (req: express.Request, res: express.Response) => {
         // TODO: check filters are valid columns
         if (viewtype === TYPE.TABLE) {
             if (filter) {
-                if (typeof (filter) != "string"){
+                if (typeof (filter) != "string") {
                     globalLogger.info('Filter must be a string')
                     return res.status(400).json({
                         status: 'Filter must be a string'
@@ -169,7 +169,7 @@ const updateView = async (req: express.Request, res: express.Response) => {
                 existingView.filter = filter
             }
             if (userfilter) {
-                if (typeof (userfilter) != "string"){
+                if (typeof (userfilter) != "string") {
                     globalLogger.info('User filter must be a string')
                     return res.status(400).json({
                         status: 'User filter must be a string'
@@ -180,7 +180,7 @@ const updateView = async (req: express.Request, res: express.Response) => {
         }
         else if (viewtype === TYPE.DETAIL) {
             if (editfilter) {
-                if (typeof (editfilter) != "string"){
+                if (typeof (editfilter) != "string") {
                     globalLogger.info('Edit filter must be a string')
                     return res.status(400).json({
                         status: 'Edit filter must be a string'
@@ -189,7 +189,7 @@ const updateView = async (req: express.Request, res: express.Response) => {
                 existingView.editfilter = editfilter
             }
             if (editablecolumns) {
-                if (!Array.isArray(editablecolumns)){
+                if (!Array.isArray(editablecolumns)) {
                     globalLogger.info('Editable columns must be an Array')
                     return res.status(400).json({
                         status: 'Editable columns must be an Array'
@@ -197,7 +197,7 @@ const updateView = async (req: express.Request, res: express.Response) => {
                 }
                 // TODO: check editable columns are valid
                 for (let key in editablecolumns) {
-                    if (typeof (editablecolumns[key]) != "string"){
+                    if (typeof (editablecolumns[key]) != "string") {
                         globalLogger.info('Editable columns must be an Array of string')
                         return res.status(400).json({
                             status: 'Editable columns must be an Array of string'
@@ -221,7 +221,7 @@ const getView = async (req: express.Request, res: express.Response) => {
         // get user info
         // TODO: check user is end user
         const loggedInUser: any = await auth.getUser(req);
-        if (!loggedInUser){
+        if (!loggedInUser) {
             globalLogger.info("Fail to find User")
             return res.status(401).json({
                 status: "Fail to find User"
@@ -229,7 +229,7 @@ const getView = async (req: express.Request, res: express.Response) => {
         }
         // check parameters
         const viewId = req.params.id;
-        if (!viewId){
+        if (!viewId) {
             globalLogger.info("Missing parameter")
             return res.status(400).json({
                 status: "Missing parameter"
@@ -237,13 +237,13 @@ const getView = async (req: express.Request, res: express.Response) => {
         }
         // find and return view
         const existingView = await View.findOne({ _id: viewId });
-        if (!existingView){
+        if (!existingView) {
             globalLogger.info("Fail to find View " + viewId)
             return res.status(400).json({
                 status: "Fail to find View " + viewId
             })
         }
-        globalLogger.info("View retrieved: ",existingView._id)
+        globalLogger.info("View retrieved: ", existingView._id)
         await res.send({ status: "OK", view: existingView });
     }
     catch (e) {
@@ -256,7 +256,7 @@ const deleteView = async (req: express.Request, res: express.Response) => {
         // get user info
         // TODO: check user is developer
         const loggedInUser: any = await auth.getUser(req);
-        if (!loggedInUser){
+        if (!loggedInUser) {
             globalLogger.info("Fail to find User")
             return res.status(401).json({
                 status: "Fail to find User"
@@ -264,7 +264,7 @@ const deleteView = async (req: express.Request, res: express.Response) => {
         }
         // check parameters
         const viewId = req.params.id;
-        if (!viewId){
+        if (!viewId) {
             globalLogger.info("Missing parameter")
             return res.status(400).json({
                 status: "Missing parameter"
@@ -272,7 +272,7 @@ const deleteView = async (req: express.Request, res: express.Response) => {
         }
         // find and delete view
         const existingView = await View.findOneAndDelete({ _id: viewId });
-        if (!existingView){
+        if (!existingView) {
             globalLogger.info("Fail to find view " + viewId)
             return res.status(400).json({
                 status: "Fail to find view " + viewId
@@ -281,7 +281,7 @@ const deleteView = async (req: express.Request, res: express.Response) => {
         // find its owner and drop view
         try {
             const owner = await App.findById(existingView.owner)
-            if (!owner){
+            if (!owner) {
                 globalLogger.info("Fail to owner " + existingView.owner)
                 return res.status(400).json({
                     status: "Fail to owner " + existingView.owner
@@ -293,12 +293,58 @@ const deleteView = async (req: express.Request, res: express.Response) => {
         catch (e) {
             globalLogger.error(e)
         }
-        globalLogger.info("View deleted: ",existingView)
+        globalLogger.info("View deleted: ", existingView)
         await res.send({ status: "OK", view: existingView });
     }
     catch (e) {
         globalLogger.error(e)
     }
+}
+
+const getViews = async (req: express.Request, res: express.Response) => {
+    try {
+        const id: any = req.query.id
+        if (!id) {
+            globalLogger.info("missing app id")
+            return res.status(400).send({
+                status: "missing app id"
+            })
+        }
+        const owner = await App.findById(id);
+        if (!owner) {
+            globalLogger.info("Fail to find app " + id)
+            return res.status(400).json({
+                status: "Fail to find owner " + id
+            })
+        }
+        // TODO access control
+        const appLogger = getLogger(id)
+        const viewlist = Array();
+        for (let key in owner.views) {
+            const view = await View.findById(owner.views[key]);
+            if (!view) {
+                appLogger.info("Fail to find view " + owner.views[key])
+                return res.status(400).json({
+                    status: "Fail to find view " + owner.views[key]
+                })
+            }
+            if (view.viewtype == TYPE.TABLE) {
+                viewlist.push({
+                    name: view.name,
+                    id: view._id
+                })
+            }
+        }
+        appLogger.info("Table views fetched")
+        return res.status(200).json({
+            status: "OK",
+            views: viewlist
+        })
+    }
+    catch (e) {
+        globalLogger.error(e)
+    }
+
 }
 
 enum TYPE {
@@ -310,5 +356,6 @@ export default {
     createView,
     updateView,
     getView,
-    deleteView
+    deleteView,
+    getViews
 }
