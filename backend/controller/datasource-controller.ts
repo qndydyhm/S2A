@@ -112,6 +112,8 @@ const createDS = async (req: express.Request, res: express.Response) => {
             columns: newColumn,
             owner: owner
         })
+        if (label)
+            newDS.label = label
         const savedDS = await newDS.save();
         existingApp.datasources.push(savedDS._id.toString());
         existingApp.save();
@@ -230,6 +232,8 @@ const updateDS = async (req: express.Request, res: express.Response) => {
         existingDS.sheetindex = sheetindex
         existingDS.key = key
         existingDS.columns = newColumn
+        if (label)
+            existingDS.label = label
         await existingDS.save()
         appLogger.info("Datasource updated: ", existingDS)
         await res.send({ status: "OK" });
