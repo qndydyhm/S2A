@@ -97,7 +97,7 @@ const createDS = async (req: express.Request, res: express.Response) => {
                 type: column.type
             })
         }
-        if (!columnsName.has(key) || !columnsName.has(label)) {
+        if (!columnsName.has(key) || (label && !columnsName.has(label))) {
             globalLogger.info("key or label is not in columns")
             return res.status(400).json({
                 status: "key or label is not in columns"
@@ -178,7 +178,7 @@ const updateDS = async (req: express.Request, res: express.Response) => {
                 type: column.type
             })
         }
-        if (!columnsName.has(key) || !columnsName.has(label)) {
+        if (!columnsName.has(key) || (label && !columnsName.has(label))) {
             globalLogger.info("key or label is not in columns")
             return res.status(400).json({
                 status: "key or label is not in columns"
