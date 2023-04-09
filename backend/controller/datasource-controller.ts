@@ -21,9 +21,9 @@ const createDS = async (req: express.Request, res: express.Response) => {
             })
         }
         // check parameters
-        const { name, URL, sheetindex, key, columns, owner } = req.body;
+        const { name, URL, sheetindex, key, label, columns, owner } = req.body;
         if (typeof (name) != "string" || name === "" || typeof (URL) != "string" || URL === "" ||
-            typeof (sheetindex) != "number" || typeof (key) != "string" || key === "" ||
+            typeof (sheetindex) != "number" || typeof (key) != "string" || key === "" || (label != undefined && typeof (label) != "string") ||
             !Array.isArray(columns) || typeof (owner) != "string" || owner === "") {
             globalLogger.info("Missing or wrong parameters when creating data source" + { name, URL, sheetindex, key, columns, owner })
             return res.status(400).json({
@@ -73,33 +73,35 @@ const createDS = async (req: express.Request, res: express.Response) => {
 
         // check columns
         let newColumn = []
-        let hasLabel: boolean = false
+        const columnsName = new Set()
         for (let key in columns) {
             const column = columns[key]
-            if (typeof (column) != "object" || typeof (column.name) != "string" || typeof (column.initvalue) != "string" ||
-                typeof (column.label) != "boolean" || typeof (column.reference) != "string" ||
+            if (typeof (column) != "object" || typeof (column.name) != "string" || typeof (column.initvalue) != "string" || typeof (column.reference) != "string" ||
                 (column.type != TYPE.BOOLEAN && column.type != TYPE.NUMBER && column.type != TYPE.TEXT && column.type != TYPE.URL)) {
                 appLogger.info("Column attributes have wrong type " + JSON.stringify(column))
                 return res.status(400).json({
                     status: "Wrong column " + JSON.stringify(column)
                 })
             }
+            if (columnsName.has(column.name)) {
+                globalLogger.info("Column name " + column.name + " replicated")
+                return res.status(400).json({
+                    status: "Column name " + column.name + " replicated"
+                })
+            }
+            columnsName.add(column.name)
             newColumn.push({
                 name: column.name,
                 initvalue: column.initvalue,
-                label: column.label,
                 reference: column.reference,
                 type: column.type
             })
-            if (column.label) {
-                if (hasLabel) {
-                    appLogger.info("More than one column has label")
-                    return res.status(400).json({
-                        status: "At most one column label is true"
-                    })
-                }
-                hasLabel = true
-            }
+        }
+        if (!columnsName.has(key) || !columnsName.has(label)) {
+            globalLogger.info("key or label is not in columns")
+            return res.status(400).json({
+                status: "key or label is not in columns"
+            })
         }
         // create and save datasource
         const newDS = new DataSource({
@@ -134,9 +136,10 @@ const updateDS = async (req: express.Request, res: express.Response) => {
         }
         // check parameters
         const dsId = req.params.id;
-        const { name, URL, sheetindex, key, columns } = req.body;
+        const { name, URL, sheetindex, key, label, columns } = req.body;
         if (!dsId || typeof (name) != "string" || name === "" || typeof (URL) != "string" || URL === "" ||
-            typeof (sheetindex) != "number" || typeof (key) != "string" || key === "" || !Array.isArray(columns)) {
+            typeof (sheetindex) != "number" || typeof (key) != "string" || key === "" ||
+            (label != undefined && typeof (label) != "string") || !!Array.isArray(columns)) {
             globalLogger.info("Missing or wrong parameters when updating data source" + { name, URL, sheetindex, key, columns })
             return res.status(400).json({
                 status: "Missing parameter"
@@ -150,33 +153,36 @@ const updateDS = async (req: express.Request, res: express.Response) => {
         }
         // check columns
         let newColumn = []
-        let hasLabel: boolean = false
+        let columnsName = new Set()
         for (let key in columns) {
             const column = columns[key]
             if (typeof (column) != "object" || typeof (column.name) != "string" || typeof (column.initvalue) != "string" ||
-                typeof (column.label) != "boolean" || typeof (column.reference) != "string" ||
+                typeof (column.reference) != "string" ||
                 (column.type != TYPE.BOOLEAN && column.type != TYPE.NUMBER && column.type != TYPE.TEXT && column.type != TYPE.URL)) {
                 globalLogger.info("Column attributes have wrong type " + JSON.stringify(column))
                 return res.status(400).json({
                     status: "Wrong column " + JSON.stringify(column)
                 })
             }
+            if (columnsName.has(column.name)) {
+                globalLogger.info("Column name " + column.name + " replicated")
+                return res.status(400).json({
+                    status: "Column name " + column.name + " replicated"
+                })
+            }
+            columnsName.add(column.name)
             newColumn.push({
                 name: column.name,
                 initvalue: column.initvalue,
-                label: column.label,
                 reference: column.reference,
                 type: column.type
             })
-            if (column.label) {
-                if (hasLabel) {
-                    globalLogger.info("More than one column has label")
-                    return res.status(400).json({
-                        status: "At most one column lable is true"
-                    })
-                }
-                hasLabel = true
-            }
+        }
+        if (!columnsName.has(key) || !columnsName.has(label)) {
+            globalLogger.info("key or label is not in columns")
+            return res.status(400).json({
+                status: "key or label is not in columns"
+            })
         }
         // find datasource and the app owns it
         const existingDS = await DataSource.findOne({ _id: dsId });
@@ -317,7 +323,7 @@ const deleteDS = async (req: express.Request, res: express.Response) => {
                 status: "User " + loggedInUser.email + " is not in developer role of app " + existingApp._id
             })
         }
-    
+
         const appLogger = getLogger(existingApp._id.toString());
         existingApp.datasources = existingApp.datasources.filter((a) => { return a != dsId })
         appLogger.info("Datasource deleted: ", existingDS)

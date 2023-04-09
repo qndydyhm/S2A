@@ -2,6 +2,9 @@ import express from 'express'
 import auth from '../auth'
 import View from '../models/view-model'
 import App from '../models/app-model'
+import DataSource from '../models/datasource-model'
+import googleWrapper from '../tools/google-wrapper'
+import sheetParser from '../tools/sheet-parser'
 import globalLogger, { getLogger } from '../tools/logger'
 
 
@@ -303,6 +306,15 @@ const deleteView = async (req: express.Request, res: express.Response) => {
 
 const getViews = async (req: express.Request, res: express.Response) => {
     try {
+        // get user info
+        // TODO: check user is end user
+        const loggedInUser: any = await auth.getUser(req);
+        if (!loggedInUser) {
+            globalLogger.info("Fail to find User")
+            return res.status(401).json({
+                status: "Fail to find User"
+            })
+        }
         const id: any = req.query.id
         if (!id) {
             globalLogger.info("missing app id")
@@ -323,7 +335,7 @@ const getViews = async (req: express.Request, res: express.Response) => {
         for (let key in owner.views) {
             const view = await View.findById(owner.views[key]);
             if (!view) {
-                appLogger.info("Fail to find view " + owner.views[key])
+                globalLogger.info("Fail to find view " + owner.views[key])
                 return res.status(400).json({
                     status: "Fail to find view " + owner.views[key]
                 })
@@ -335,7 +347,7 @@ const getViews = async (req: express.Request, res: express.Response) => {
                 })
             }
         }
-        appLogger.info("Table views fetched")
+        globalLogger.info("Table views fetched")
         return res.status(200).json({
             status: "OK",
             views: viewlist
@@ -347,6 +359,107 @@ const getViews = async (req: express.Request, res: express.Response) => {
 
 }
 
+const getTableView = async (req: express.Request, res: express.Response) => {
+    try {
+        // get user info
+        // TODO check user is end user
+        const loggedInUser: any = await auth.getUser(req);
+        if (!loggedInUser) {
+            globalLogger.info("Fail to find User")
+            return res.status(401).json({
+                status: "Fail to find User"
+            })
+        }
+        const viewId = req.params.id;
+        if (!viewId) {
+            globalLogger.info("Missing view id")
+            return res.status(400).json({
+                status: "Missing view id"
+            })
+        }
+        const view = await View.findById(viewId)
+        if (!view) {
+            globalLogger.info("Fail to get view " + viewId)
+            return res.status(400).json({
+                status: "Fail to get view " + viewId
+            })
+        }
+        if (view.viewtype != TYPE.TABLE) {
+            globalLogger.info("View type is not table")
+            return res.status(400).json({
+                status: "View type is not table"
+            })
+        }
+        const datasource = await DataSource.findById(view.table)
+        if (!datasource) {
+            globalLogger.info("Fail to get datasource" + view.table)
+            return res.status(400).json({
+                status: "Fail to get datasource" + view.table
+            })
+        }
+        const sheet = await googleWrapper.getSheet(datasource.URL)
+        if (!sheet) {
+            globalLogger.info("Fail to get sheet" + datasource.URL)
+            return res.status(400).json({
+                status: "Fail to get sheet" + datasource.URL
+            })
+        }
+        let data = []
+        try {
+            for (let key in view.columns) {
+                data.push(sheetParser.getValuesByColumn(sheet, view.columns[key]))
+            }
+        }
+        catch (e) {
+            globalLogger.info(e)
+            return res.status(400).json({
+                status: e
+            })
+        }
+        data = sheetParser.transposeTable(data)
+        if (view.filter) {
+            let index = undefined
+            for (let key in data[0]) {
+                if (data[0][key] == view.filter)
+                    index = key
+            }
+            if (index === undefined) {
+                globalLogger.info(view.filter + " is not in columns")
+            }
+            let oldData = data
+            data = []
+            for (let i = 1; i < oldData.length; ++i) {
+                if (oldData[i][index as any] === true)
+                    data.push(oldData[i])
+            }
+        }
+        if (view.userfilter) {
+            let index = undefined
+            for (let key in data[0]) {
+                if (data[0][key] == view.userfilter)
+                    index = key
+            }
+            if (index === undefined) {
+                globalLogger.info(view.userfilter + " is not in columns")
+            }
+            let oldData = data
+            data = []
+            for (let i = 1; i < oldData.length; ++i) {
+                if (oldData[i][index as any] === loggedInUser.email)
+                    data.push(oldData[i])
+            }
+        }
+        return res.status(200).json({
+            status: "OK",
+            data: data
+        })
+    }
+    catch (e) {
+        globalLogger.error(e)
+    }
+}
+
+
 enum TYPE {
     TABLE = "table",
     DETAIL = "detail"
@@ -357,5 +470,6 @@ export default {
     updateView,
     getView,
     deleteView,
-    getViews
+    getViews,
+    getTableView
 }

@@ -13,7 +13,8 @@ const getValuesByColumn = (sheet: any[][], column: string, type?: string): any[]
     if (!sheet || sheet.length === 0)
         throw "Empty sheet"
     let index = undefined;
-    // TODO: find whether the column is unique
+    if (!checkUniqueness(sheet[0])) 
+        throw "Sheet columns name is not unique"
     for (let i = 0; i < sheet[0].length; ++i) {
         if (sheet[0][i] === column) {
             index = i
@@ -23,8 +24,8 @@ const getValuesByColumn = (sheet: any[][], column: string, type?: string): any[]
     if (index === undefined)
         throw "Fail to find column " + column + " in sheet " + sheet
     const res = []
-    for (let i = 1; i < sheet.length; ++i) {
-        res.push(sheet[i].length > index ? sheet[i][index] : undefined)
+    for (let key in sheet) {
+        res.push(sheet[key].length > index ? sheet[key][index] : undefined)
     }
     return res;
 }
@@ -34,11 +35,33 @@ const getDeveloperList = (sheet: any[][]) => {
     if (!sheet || sheet.length === 0 || sheet[0].length === 0 || sheet[0][0] !== "developers") {
         return undefined
     }
-    return getValuesByColumn(sheet, "developers")
+    return getValuesByColumn(sheet, "developers").slice(1)
+}
+
+const transposeTable = (sheet: any[][]) => {
+    const res = Array.from(Array(sheet[0].length), _ => Array(sheet.length))
+    for (let i in sheet) {
+        for (let j in sheet[i]) {
+            res[j][i] = sheet[i][j]
+        }
+    }
+    return res;
+}
+
+const checkUniqueness = (column: any[]) => {
+    const visited = new Set();
+    for (let key in column) {
+        if (visited.has(column[key]))
+            return false
+        visited.add(column[key])
+    }
+    return true
 }
 
 export default {
     sheetUrlParser,
     getValuesByColumn,
-    getDeveloperList
+    getDeveloperList,
+    transposeTable,
+    checkUniqueness
 }
