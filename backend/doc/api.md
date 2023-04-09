@@ -164,7 +164,7 @@ request:
     URL: string, 
     sheetindex: number, 
     key: string, 
-    label: string?,
+    label: string,
     columns: [{
         name: string, 
         initvalue: string, 

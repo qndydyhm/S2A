@@ -35,7 +35,18 @@ JWT_SECRET=any random string(ascii, no empty characters)
 # Make sure to quote the sheet URL since there is a "#"
 # Example: "https://docs.google.com/spreadsheets/d/1afOf4eBmmvoakoWFVH6X2Exc9qvnM14MKpxjLF2krEM/edit#gid=0"
 GLOBAL_DEVELOPER_LIST=URL to global developer list sheet
-
+LOG_PATH="./logs/"
+LOG_LEVEL="debug"
+// Can be any level in
+// {
+//   error,
+//   warn,
+//   info,
+//   http,
+//   verbose,
+//   debug,
+//   silly
+// };
 ```
 
 ## Install dependencies
