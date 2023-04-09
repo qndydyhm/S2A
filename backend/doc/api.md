@@ -292,3 +292,31 @@ response:
     status
 }
 ```
+
+- Get Views
+```
+GET /api/view?id=%APPID%
+request:
+null
+response:
+{
+    status,
+    views: {
+        name,
+        id
+    }
+}
+```
+
+- Get Table View
+```
+GET /api/table/:id
+request:
+null
+response:
+{
+    status,
+    id,
+    data:[][]
+}
+```

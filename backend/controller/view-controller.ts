@@ -451,6 +451,7 @@ const getTableView = async (req: express.Request, res: express.Response) => {
         }
         return res.status(200).json({
             status: "OK",
+            id: view._id,
             data: data
         })
     }
