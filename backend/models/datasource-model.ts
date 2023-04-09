@@ -4,7 +4,6 @@ import { Schema, Types, model } from 'mongoose';
 export type DataSource = {
     name: string;
     URL: string;
-    sheetindex: number;
     key: string;
     label: string;
     columns: {name: string, initvalue: string, reference: string, type: string}[];
@@ -25,7 +24,6 @@ const columnSchema = new Schema<{
 const dataSchema = new Schema<DataSource>({
     name: { type: String, required: true },
     URL: {type: String, required: true},
-    sheetindex: {type: Number, required: true},
     key: { type: String, required: true },
     label: {type: String, required: true},
     columns: { type: [columnSchema], required: true },

@@ -136,7 +136,6 @@ request:
 { 
     name: string, 
     URL: string, 
-    sheetindex: number, 
     key: string, 
     label: string?,
     columns: [{
@@ -162,7 +161,6 @@ request:
 { 
     name: string, 
     URL: string, 
-    sheetindex: number, 
     key: string, 
     label: string,
     columns: [{
@@ -191,7 +189,6 @@ response:
         _id,
         name, 
         URL, 
-        sheetindex, 
         key, 
         columns,
         owner // owned app
