@@ -21,11 +21,11 @@ const createDS = async (req: express.Request, res: express.Response) => {
             })
         }
         // check parameters
-        const { name, URL, sheetindex, key, label, columns, owner } = req.body;
+        const { name, URL, key, label, columns, owner } = req.body;
         if (typeof (name) != "string" || name === "" || typeof (URL) != "string" || URL === "" ||
-            typeof (sheetindex) != "number" || typeof (key) != "string" || key === "" || typeof (label) != "string" ||
+            typeof (key) != "string" || key === "" || typeof (label) != "string" ||
             !Array.isArray(columns) || typeof (owner) != "string" || owner === "") {
-            globalLogger.info("Missing or wrong parameters when creating data source" + { name, URL, sheetindex, key, columns, owner })
+            globalLogger.info("Missing or wrong parameters when creating data source" + { name, URL, key, columns, owner })
             return res.status(400).json({
                 status: "Missing parameter"
             })
@@ -107,7 +107,6 @@ const createDS = async (req: express.Request, res: express.Response) => {
         const newDS = new DataSource({
             name: name,
             URL: URL,
-            sheetindex: sheetindex,
             key: key,
             columns: newColumn,
             owner: owner
@@ -137,11 +136,11 @@ const updateDS = async (req: express.Request, res: express.Response) => {
         }
         // check parameters
         const dsId = req.params.id;
-        const { name, URL, sheetindex, key, label, columns } = req.body;
+        const { name, URL, key, label, columns } = req.body;
         if (!dsId || typeof (name) != "string" || name === "" || typeof (URL) != "string" || URL === "" ||
-            typeof (sheetindex) != "number" || typeof (key) != "string" || key === "" ||
+            typeof (key) != "string" || key === "" ||
             typeof (label) != "string" || !!Array.isArray(columns)) {
-            globalLogger.info("Missing or wrong parameters when updating data source" + { name, URL, sheetindex, key, columns })
+            globalLogger.info("Missing or wrong parameters when updating data source" + { name, URL, key, columns })
             return res.status(400).json({
                 status: "Missing parameter"
             })
@@ -228,7 +227,6 @@ const updateDS = async (req: express.Request, res: express.Response) => {
         // update datasources
         existingDS.name = name
         existingDS.URL = URL
-        existingDS.sheetindex = sheetindex
         existingDS.key = key
         existingDS.columns = newColumn
         existingDS.label = label
