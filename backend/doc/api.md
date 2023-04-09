@@ -138,10 +138,10 @@ request:
     URL: string, 
     sheetindex: number, 
     key: string, 
+    label: string?,
     columns: [{
         name: string, 
         initvalue: string, 
-        label: boolean, 
         reference: string, 
         type: string
     }], 
@@ -164,10 +164,10 @@ request:
     URL: string, 
     sheetindex: number, 
     key: string, 
+    label: string?,
     columns: [{
         name: string, 
         initvalue: string, 
-        label: boolean, 
         reference: string, 
         type: string
     }]
