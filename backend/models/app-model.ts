@@ -8,6 +8,7 @@ export type App = {
     views: string[];
     roleM: string;
     published: boolean;
+    developers: string[]
     //   organization: Types.ObjectId;
 }
 
@@ -19,7 +20,8 @@ const appSchema = new Schema<App>({
     datasources: { type: [String], required: true },
     views: { type: [String], required: true },
     roleM: { type: String, required: true },
-    published: { type: Boolean, required: true }
+    published: { type: Boolean, required: true },
+    developers: {type: [String], required: true}
     // And `Schema.Types.ObjectId` in the schema definition.
     //   organization: { type: Schema.Types.ObjectId, ref: 'Organization' }
 });

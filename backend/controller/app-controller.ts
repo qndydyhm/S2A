@@ -8,6 +8,7 @@ import accessControl from '../tools/access-control'
 import SheetParser from '../tools/sheet-parser'
 import googleWrapper from '../tools/google-wrapper'
 import globalLogger, { getLogger } from '../tools/logger'
+import sheetParser from '../tools/sheet-parser'
 
 
 const createApp = async (req: express.Request, res: express.Response) => {
@@ -50,6 +51,14 @@ const createApp = async (req: express.Request, res: express.Response) => {
                 status: "Fail to access " + roleM + " with " + loggedInUser.email + "'s credential"
             })
         }
+
+        const developers = sheetParser.getDeveloperList(sheet)
+        if (!developers) {
+            globalLogger.info("Invalid role member sheet " + URL)
+            return res.status(400).json({
+                status: "Invalid role member sheet " + URL
+            })
+        }
         // create and save app
         const newApp = new App({
             name: name,
@@ -57,7 +66,8 @@ const createApp = async (req: express.Request, res: express.Response) => {
             datasources: [],
             views: [],
             roleM: roleM,
-            published: published
+            published: published,
+            developers: developers
         })
         const savedApp = await newApp.save();
         const appLogger = getLogger(savedApp._id.toString())
@@ -119,16 +129,24 @@ const updateApp = async (req: express.Request, res: express.Response) => {
             })
         }
 
-        const sheet = googleWrapper.getSheet(roleM, creator.rtoken, creator.atoken, creator.expire)
+        const sheet = await googleWrapper.getSheet(roleM, creator.rtoken, creator.atoken, creator.expire)
         if (!sheet) {
             globalLogger.info("Fail to access " + roleM + " with " + loggedInUser.email + "'s credential")
             return res.status(400).json({
                 status: "Fail to access " + roleM + " with " + creator.email + "'s credential"
             })
         }
+        const developers = sheetParser.getDeveloperList(sheet)
+        if (!developers) {
+            globalLogger.info("Invalid role member sheet " + URL)
+            return res.status(400).json({
+                status: "Invalid role member sheet " + URL
+            })
+        }
         existingApp.name = name;
         existingApp.roleM = roleM
         existingApp.published = published
+        existingApp.developers = developers
         existingApp.save()
         const appLogger = getLogger(existingApp._id.toString())
         appLogger.info("App updated: ", existingApp)
@@ -302,7 +320,7 @@ const getApps = async (req: express.Request, res: express.Response) => {
         }
         // find apps and return
         // TODO: check end user
-        const apps = await App.find({ $or: [{ creator: loggedInUser.id }, { published: true }] });
+        const apps = await App.find({ $or: [{ creator: loggedInUser.id }, {developers: loggedInUser.email}, { published: true }] });
         if (!Array.isArray(apps)) {
             globalLogger.info("Apps not found")
             return res.status(400).json({
@@ -314,7 +332,8 @@ const getApps = async (req: express.Request, res: express.Response) => {
             let app = apps[key];
             let pair = {
                 id: app._id,
-                name: app.name
+                name: app.name,
+                canEdit: app.creator == loggedInUser.id || app.developers.includes(loggedInUser.email)
             };
             applist.push(pair)
         }

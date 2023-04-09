@@ -106,8 +106,9 @@ request:
 null
 response:
 {
-    status
+    status,
     // if OK
+    canEdit,
     apps {
         id,
         name
