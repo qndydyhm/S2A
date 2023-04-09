@@ -25,7 +25,7 @@ const dataSchema = new Schema<DataSource>({
     name: { type: String, required: true },
     URL: {type: String, required: true},
     key: { type: String, required: true },
-    label: {type: String, required: true},
+    label: {type: String, required: false},
     columns: { type: [columnSchema], required: true },
     owner: { type: String, required: true }
     // And `Schema.Types.ObjectId` in the schema definition.

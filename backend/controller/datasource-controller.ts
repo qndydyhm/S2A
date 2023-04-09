@@ -23,7 +23,7 @@ const createDS = async (req: express.Request, res: express.Response) => {
         // check parameters
         const { name, URL, key, label, columns, owner } = req.body;
         if (typeof (name) != "string" || name === "" || typeof (URL) != "string" || URL === "" ||
-            typeof (key) != "string" || key === "" || typeof (label) != "string" ||
+            typeof (key) != "string" || key === "" || (label != undefined && typeof (label) != "string") ||
             !Array.isArray(columns) || typeof (owner) != "string" || owner === "") {
             globalLogger.info("Missing or wrong parameters when creating data source" + { name, URL, key, columns, owner })
             return res.status(400).json({
@@ -97,7 +97,7 @@ const createDS = async (req: express.Request, res: express.Response) => {
                 type: column.type
             })
         }
-        if (!columnsName.has(key) || (label !== "" && !columnsName.has(label))) {
+        if (!columnsName.has(key) || (label && !columnsName.has(label))) {
             globalLogger.info("key or label is not in columns")
             return res.status(400).json({
                 status: "key or label is not in columns"
@@ -108,11 +108,11 @@ const createDS = async (req: express.Request, res: express.Response) => {
             name: name,
             URL: URL,
             key: key,
-            label: label,
             columns: newColumn,
             owner: owner
         })
-        
+        if (label)
+            newDS.label = label
         const savedDS = await newDS.save();
         existingApp.datasources.push(savedDS._id.toString());
         existingApp.save();
@@ -140,7 +140,7 @@ const updateDS = async (req: express.Request, res: express.Response) => {
         const { name, URL, key, label, columns } = req.body;
         if (!dsId || typeof (name) != "string" || name === "" || typeof (URL) != "string" || URL === "" ||
             typeof (key) != "string" || key === "" ||
-            typeof (label) != "string" || !!Array.isArray(columns)) {
+            (label != undefined && typeof (label) != "string") || !!Array.isArray(columns)) {
             globalLogger.info("Missing or wrong parameters when updating data source" + { name, URL, key, columns })
             return res.status(400).json({
                 status: "Missing parameter"
@@ -179,7 +179,7 @@ const updateDS = async (req: express.Request, res: express.Response) => {
                 type: column.type
             })
         }
-        if (!columnsName.has(key) || (label !== "" && !columnsName.has(label))) {
+        if (!columnsName.has(key) || (label && !columnsName.has(label))) {
             globalLogger.info("key or label is not in columns")
             return res.status(400).json({
                 status: "key or label is not in columns"
@@ -230,7 +230,8 @@ const updateDS = async (req: express.Request, res: express.Response) => {
         existingDS.URL = URL
         existingDS.key = key
         existingDS.columns = newColumn
-        existingDS.label = label
+        if (label)
+            existingDS.label = label
         await existingDS.save()
         appLogger.info("Datasource updated: ", existingDS)
         await res.send({ status: "OK" });
