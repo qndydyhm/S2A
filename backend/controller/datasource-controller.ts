@@ -108,10 +108,11 @@ const createDS = async (req: express.Request, res: express.Response) => {
             name: name,
             URL: URL,
             key: key,
+            label: label,
             columns: newColumn,
             owner: owner
         })
-        newDS.label = label
+        
         const savedDS = await newDS.save();
         existingApp.datasources.push(savedDS._id.toString());
         existingApp.save();
