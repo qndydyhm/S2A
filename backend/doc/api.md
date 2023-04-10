@@ -315,6 +315,7 @@ response:
 {
     status,
     id,
-    data:[][]
+    data:[][],
+    columns:[],
 }
 ```

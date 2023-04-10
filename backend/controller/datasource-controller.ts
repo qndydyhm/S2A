@@ -140,8 +140,9 @@ const updateDS = async (req: express.Request, res: express.Response) => {
         const { name, URL, key, label, columns } = req.body;
         if (!dsId || typeof (name) != "string" || name === "" || typeof (URL) != "string" || URL === "" ||
             typeof (key) != "string" || key === "" ||
-            (label != undefined && typeof (label) != "string") || !!Array.isArray(columns)) {
+            (label != undefined && typeof (label) != "string") || !Array.isArray(columns)) {
             globalLogger.info("Missing or wrong parameters when updating data source" + { name, URL, key, columns })
+            console.log(label != undefined && typeof (label) != "string")
             return res.status(400).json({
                 status: "Missing parameter"
             })

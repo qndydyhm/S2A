@@ -449,10 +449,13 @@ const getTableView = async (req: express.Request, res: express.Response) => {
                     data.push(oldData[i])
             }
         }
+        const columns=data[0];
+        data.splice(0,1);
         return res.status(200).json({
             status: "OK",
             id: view._id,
-            data: data
+            data: data,
+            columns:columns
         })
     }
     catch (e) {
