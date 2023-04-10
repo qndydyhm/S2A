@@ -32,6 +32,12 @@ const deleteView = (id) => api.delete(`/api/view/${id}`);
 // api.delete('/api/view/:id', view.deleteView)
 
 
+const getIdTableViewPairs=(id)=>api.get(`/api/view`,{params: {id:id}});
+const getTableData=(id)=>api.get(`/api/table/${id}`)
+//api.get('/api/view', view.getViews)
+// api.get('/api/table/:id', view.getTableView)
+
+
 const apis = {
     getIdAppPairs,
     createApp,
@@ -46,6 +52,8 @@ const apis = {
     updateDataSource,
     updateView,
     deleteView,
+    getIdTableViewPairs,
+    getTableData
 }
 
 export default apis

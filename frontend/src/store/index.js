@@ -27,7 +27,11 @@ export const GlobalStoreActionType = {
     CREATE_VIEW: "CREATE_VIEW",
     UPDATE_VIEW: "UPDATE_VIEW",
     SET_CURRENT_SELECTED_VIEW: "SET_CURRENT_SELECTED_VIEW",
-    SET_TABLE_FOR_VIEW: "SET_TABLE_FOR_VIEW"
+    SET_TABLE_FOR_VIEW: "SET_TABLE_FOR_VIEW",
+
+    //End User Section
+    SET_TABLE_DATA: "SET_TABLE_DATA",
+    LOAD_TABLE_VIEW_LIST: "LOAD_TABLE_VIEW_LIST"
 
 }
 
@@ -57,6 +61,10 @@ function GlobalStoreContextProvider(props) {
         viewPairs: [],//[{id,name}....]
         currentSelectedViewId: null,//the id of selected view,
         currentTableForView: null, //the table associated with current selected view
+        //table view
+        startApp: false,
+        idTableViewPairs: [],
+        currentSelectedTableData: null
     });
     const { auth } = useContext(AuthContext);
 
@@ -68,25 +76,30 @@ function GlobalStoreContextProvider(props) {
             case GlobalStoreActionType.CLOSE_APP: {
                 return setStore({
                     currentApp: null,
+                    startApp: false,
+                    startApp:false
                 });
             }
             case GlobalStoreActionType.GO_TO_MAIN_SCREEN: {
                 return setStore({
                     idAppPairs: payload.pairs,
-                    currentApp: null
+                    currentApp: null,
+                    startApp:false
                 });
             }
             case GlobalStoreActionType.LOAD_APP_LIST: {
                 return setStore({
                     idAppPairs: payload.pairs,
                     currentApp: store.currentApp,
-                    idDataSourcePairs: store.idDataSourcePairs
+                    idDataSourcePairs: store.idDataSourcePairs,
+                    startApp:store.startApp
                 });
             }
             case GlobalStoreActionType.UPDATE_APP: {
                 return setStore({
                     currentApp: payload.app,
                     currentSideBar: CurrentSideBar.APP_INFO_SECTION,
+                    startApp:store.startApp
                 });
             }
             case GlobalStoreActionType.UPDATE_DATA_SOURCE: {
@@ -94,7 +107,8 @@ function GlobalStoreContextProvider(props) {
                     currentSelectedDatasource: payload.data_source,
                     idDataSourcePairs: payload.pairs,
                     currentSideBar: store.currentSideBar,
-                    currentApp: payload.app
+                    currentApp: payload.app,
+                    startApp:store.startApp
 
                 });
             }
@@ -102,21 +116,23 @@ function GlobalStoreContextProvider(props) {
                 return setStore({
                     viewPairs: payload.pairs,
                     currentApp: payload.app,
-                    currentSideBar: CurrentSideBar.VIEW_SECTION
+                    currentSideBar: CurrentSideBar.VIEW_SECTION,
+                    startApp:store.startApp
                 });
             }
             case GlobalStoreActionType.OPEN_APP: {
                 return setStore({
                     currentApp: payload.app,
                     currentSideBar: CurrentSideBar.APP_INFO_SECTION,
+                    startApp: false
 
                 });
             }
 
             case GlobalStoreActionType.SET_CURRENT_SELECTED_COLUMN_INDEX: {
                 return setStore({
-                    currentSelectedColumnIndex: payload.index
-
+                    currentSelectedColumnIndex: payload.index,
+                    startApp:store.startApp
                 });
             }
 
@@ -124,7 +140,9 @@ function GlobalStoreContextProvider(props) {
                 return setStore({
                     idDataSourcePairs: payload.pairs,
                     currentApp: payload.app,
-                    currentSideBar: CurrentSideBar.DATA_SOURCE_SECTION
+                    currentSideBar: CurrentSideBar.DATA_SOURCE_SECTION,
+                    startApp:store.startApp
+                    
 
                 });
             }
@@ -133,7 +151,8 @@ function GlobalStoreContextProvider(props) {
                     currentSelectedDatasource: payload.pairs,
                     currentApp: store.currentApp,
                     idDataSourcePairs: store.idDataSourcePairs,
-                    currentSideBar: store.currentSideBar
+                    currentSideBar: store.currentSideBar,
+                    startApp:store.startApp
                 });
             }
             case GlobalStoreActionType.SET_CURRENT_SELECTED_VIEW: {
@@ -142,7 +161,8 @@ function GlobalStoreContextProvider(props) {
                     currentApp: store.currentApp,
                     idDataSourcePairs: store.idDataSourcePairs,
                     currentSideBar: store.currentSideBar,
-                    viewPairs: store.viewPairs
+                    viewPairs: store.viewPairs,
+                    startApp:store.startApp
                 });
             }
             case GlobalStoreActionType.SET_TABLE_FOR_VIEW: {
@@ -151,7 +171,8 @@ function GlobalStoreContextProvider(props) {
                     currentApp: store.currentApp,
                     currentSideBar: store.currentSideBar,
                     currentTableForView: payload.t,
-                    viewPairs: store.viewPairs
+                    viewPairs: store.viewPairs,
+                    startApp:store.startApp
                 });
             }
             case GlobalStoreActionType.UPDATE_VIEW: {
@@ -160,7 +181,26 @@ function GlobalStoreContextProvider(props) {
                     currentApp: payload.app,
                     idDataSourcePairs: store.idDataSourcePairs,
                     currentSideBar: store.currentSideBar,
-                    viewPairs: store.viewPairs
+                    viewPairs: store.viewPairs,
+                    startApp:store.startApp
+                });
+            }
+            case GlobalStoreActionType.SET_TABLE_DATA: {
+                return setStore({
+                    currentSelectedTableData: payload.table,
+                    currentApp: store.currentApp,
+                    idAppPairs: store.idAppPairs,
+                    idTableViewPairs: store.idTableViewPairs,
+                    startApp: true
+
+                });
+            }
+            case GlobalStoreActionType.LOAD_TABLE_VIEW_LIST: {
+                return setStore({
+                    currentSelectedTableData: null,
+                    idTableViewPairs: payload.pairs,
+                    currentApp: payload.id,
+                    startApp: true
                 });
             }
             default:
@@ -187,13 +227,13 @@ function GlobalStoreContextProvider(props) {
 
     }
 
-    store.isGlobalDeveloper = function(){
-        async function asyncIsGlobalDeveloper(){
+    store.isGlobalDeveloper = function () {
+        async function asyncIsGlobalDeveloper() {
             const response = await api.isGlobalDeveloper();
-            if(response.status==200){
+            if (response.status == 200) {
                 return response.data.isGlobalDeveloper;
             }
-            else{
+            else {
                 console.log("FAIL TO CHECK GLOBAL DEVELOPER");
             }
         }
@@ -348,7 +388,7 @@ function GlobalStoreContextProvider(props) {
     }
     store.createNewColumn = function () {
         let value = store.currentSelectedDatasource;
-        value.columns.push({ name: "Untitled", label: false, reference: " ", type: "Boolean", initvalue: " " });
+        value.columns.push({ name: "Untitled", reference: " ", type: "Boolean", initvalue: " " });
         storeReducer({
             type: GlobalStoreActionType.UPDATE_DATA_SOURCE,
             payload: { data_source: value, pairs: store.idDataSourcePairs, app: store.currentApp }
@@ -373,8 +413,7 @@ function GlobalStoreContextProvider(props) {
     store.createNewDataSource = function () {
         try {
             async function asyncCreateNewDataSource() {
-                console.log(store.currentApp._id);
-                const response = await api.createNewDataSource({ name: "Untitle", URL: "https://docs.google.com/spreadsheets/d/1yCajMCD1cYrDAl-Fki3sMunpDoVtX7n0U7pCXivjm_Y/edit#gid=0", sheetindex: 1, key: " ", columns: [], owner: store.currentApp._id });
+                const response = await api.createNewDataSource({ name: "Untitle", URL: "https://docs.google.com/spreadsheets/d/1yCajMCD1cYrDAl-Fki3sMunpDoVtX7n0U7pCXivjm_Y/edit#gid=0", key: "Untitle", columns: [{ name: "Untitle", reference: " ", type: "Boolean", initvalue: " " }], owner: store.currentApp._id });
                 if (response.status == 200) {
                     let value = store.idDataSourcePairs;
                     value.push({ _id: response.data.id, name: "Untitle" })
@@ -399,6 +438,17 @@ function GlobalStoreContextProvider(props) {
     store.confirmEditDataSource = function () {
         try {
             async function asyncEditDataSource() {
+                let flag = store.currentSelectedDatasource.label==undefined||store.currentSelectedDatasource.label=="";
+                for (let i = 0; i < store.currentSelectedDatasource.columns.length; i++) {
+                    if (store.currentSelectedDatasource.columns[i].name == store.currentSelectedDatasource.label) {
+                        flag = true;
+                        break;
+                    }
+                }
+                if (!flag) {
+                    store.currentSelectedDatasource.label = undefined;
+                    alert("The label name you enter doesn't exist");
+                }
                 const response = await api.updateDataSource(store.currentSelectedDatasource._id, store.currentSelectedDatasource);
                 if (response.status == 200) {
                     for (let i = 0; i < store.idDataSourcePairs.length; i++) {
@@ -407,15 +457,16 @@ function GlobalStoreContextProvider(props) {
                             break;
                         }
                     }
-                        const response1 = await api.getApp(store.currentApp._id);
-                        if (response1.status == 200) {
-                            storeReducer({
-                                type: GlobalStoreActionType.UPDATE_DATA_SOURCE,
-                                payload: { data_source: store.currentSelectedDatasource, pairs: store.idDataSourcePairs, app: response1.data.app }
-                            });
-                        }
+                    const response1 = await api.getApp(store.currentApp._id);
+                    if (response1.status == 200) {
+                        storeReducer({
+                            type: GlobalStoreActionType.UPDATE_DATA_SOURCE,
+                            payload: { data_source: store.currentSelectedDatasource, pairs: store.idDataSourcePairs, app: response1.data.app }
+                        });
+                    }
 
                 }
+
             }
             asyncEditDataSource();
         }
@@ -451,25 +502,25 @@ function GlobalStoreContextProvider(props) {
 
     //Views
     store.createNewView = function () {
-        try{
+        try {
             async function asyncCreateNewView() {
                 const response = await api.createNewView({ name: "Untitled", table: " ", columns: [], viewtype: "table", allowedactions: 0, roles: [], owner: store.currentApp._id });
                 if (response.status == 200) {
                     let value = store.viewPairs;
                     value.push({ _id: response.data.id, name: "Untitled" });
                     const response1 = await api.getApp(store.currentApp._id);
-                    if (response1.status==200){
+                    if (response1.status == 200) {
                         storeReducer({
                             type: GlobalStoreActionType.LOAD_VIEW_LIST,
                             payload: { pairs: value, app: response1.data.app }
                         });
-                    }else{
+                    } else {
                         console.log("FAIL TO GET APP");
                     }
                 }
             }
             asyncCreateNewView();
-        }catch(e){
+        } catch (e) {
             alert(e.response.data.status);
         }
 
@@ -513,18 +564,18 @@ function GlobalStoreContextProvider(props) {
         asyncSetTableForView();
     }
     store.editCurrentView = function (id, view) {
-        try{
+        try {
             async function asyncEditCurrentView() {
                 const response = await api.updateView(id, view);
                 if (response.status == 200) {
-                    for (let i=0; i<store.viewPairs.length; i++){
-                        if(store.viewPairs[i]._id == view._id){
+                    for (let i = 0; i < store.viewPairs.length; i++) {
+                        if (store.viewPairs[i]._id == view._id) {
                             store.viewPairs[i].name = view.name;
-                        break;
+                            break;
                         }
                     }
                     const response1 = await api.getApp(store.currentApp._id);
-                    if (response1.status==200){
+                    if (response1.status == 200) {
                         storeReducer({
                             type: GlobalStoreActionType.UPDATE_VIEW,
                             payload: { view: view, app: response1.data.app }
@@ -536,13 +587,13 @@ function GlobalStoreContextProvider(props) {
                 }
             }
             asyncEditCurrentView();
-        }catch(e){
+        } catch (e) {
             alert(e.response.data.status);
         }
 
     }
     store.deleteView = function (id) {
-        try{
+        try {
             async function asyncDeleteView() {
                 const response = await api.deleteView(id);
                 if (response.status = 200) {
@@ -553,7 +604,7 @@ function GlobalStoreContextProvider(props) {
                         }
                     }
                     const response1 = await api.getApp(store.currentApp._id);
-                    if (response1.status==200){
+                    if (response1.status == 200) {
                         storeReducer({
                             type: GlobalStoreActionType.LOAD_VIEW_LIST,
                             payload: { pairs: store.viewPairs, app: response1.data.app }
@@ -567,9 +618,44 @@ function GlobalStoreContextProvider(props) {
             }
             asyncDeleteView();
         }
-        catch(e){
+        catch (e) {
             alert(e.response.data.status);
         }
+    }
+
+    store.setCurrentSelectedTableViewCard = (id) => {
+        async function asyncgetTableData() {
+            const response = await api.getTableData(id);
+            console.log(response.data);
+            if (response.status == 200) {
+                storeReducer({
+                    type: GlobalStoreActionType.SET_TABLE_DATA,
+                    payload: { table: response.data }
+                });
+            }
+            else {
+                console.log("API FAIL TO FETCH TABLE DATA");
+            }
+        }
+        asyncgetTableData();
+    }
+    store.startCurrentApp = (id) => {
+        async function asyncLoadIdTableViewPairs() {
+            const response = await api.getIdTableViewPairs(id);
+            if (response.status == 200) {
+                let pairs = response.data.views;
+                storeReducer({
+                    type: GlobalStoreActionType.LOAD_TABLE_VIEW_LIST,
+                    payload: { pairs: pairs, id:id }
+                });
+            }
+            else {
+                console.log("API FAILED TO GET THE APP PAIR");
+            }
+        }
+        asyncLoadIdTableViewPairs();
+
+
     }
 
     return (

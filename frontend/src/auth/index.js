@@ -12,7 +12,7 @@ function AuthContextProvider(props) {
         user: "",
         email: "",
         profile:"",
-        isGlobalDeveloper:false,
+        isGlobalDeveloper:"",
     });
     useEffect(()=>{
         const getLogIn = async function () {

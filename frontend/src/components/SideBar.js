@@ -16,9 +16,7 @@ export default function Siderbar() {
     function handleClickViews() {
         store.loadViewPair();
     }
-
-
-    return (
+    let res =store.startApp==false?
         <Box id="session-header"
             sx={{
                 display: 'flex',
@@ -33,7 +31,9 @@ export default function Siderbar() {
             <Button variant={store.currentSideBar=="APP_INFO_SECTION"?"outlined":"contained"} style={{ background: '#2E3B55' }} onClick={handleClickApp_Info}>App_Info</Button>
             <Button variant={store.currentSideBar=="DATA_SOURCE_SECTION"?"outlined":"contained"} style={{ background: '#2E3B55' }} onClick={handleClickData_Source}>DataSource</Button>
             <Button variant={store.currentSideBar=="VIEW_SECTION"?"outlined":"contained"} style={{ background: '#2E3B55' }} onClick={handleClickViews}>Views</Button>
-        </Box>
-    )
+        </Box>:<div></div>;
+
+
+    return (res);
 
 }

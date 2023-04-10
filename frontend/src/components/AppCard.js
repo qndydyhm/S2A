@@ -4,13 +4,13 @@ import Box from '@mui/material/Box';
 import ListItem from '@mui/material/ListItem';
 import DeleteIcon from '@mui/icons-material/Delete';
 import IconButton from '@mui/material/IconButton';
+import StartIcon from '@mui/icons-material/Start';
 
 
 
 function AppCard(props) {
     const { store } = useContext(GlobalStoreContext);
     const {idAppPairs} = props;
-
 
     function handleLoadList(event, id) {
         store.setCurrentApp(id);
@@ -19,6 +19,10 @@ function AppCard(props) {
     function handleDeleteApp(event){
         event.stopPropagation();
         store.deleteApp(idAppPairs.id);
+    }
+    function handleStartApp(event,id){
+        event.stopPropagation();
+        store.startCurrentApp(id);
     }
 
     let cardElement = 
@@ -36,6 +40,9 @@ function AppCard(props) {
             </Box>
             <IconButton onClick={handleDeleteApp} aria-label='delete' style={{float:'right'}}>
                 <DeleteIcon style={{ fontSize: '48pt'}} />
+            </IconButton>
+            <IconButton  onClick={(event) => {handleStartApp(event, idAppPairs.id)}}aria-label='delete' style={{float:'right'}}>
+                <StartIcon style={{ fontSize: '48pt'}} />
             </IconButton>
         </ListItem>
     return (

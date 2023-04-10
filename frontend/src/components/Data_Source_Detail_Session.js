@@ -6,8 +6,6 @@ import { Add } from '@mui/icons-material';
 import GlobalStoreContext from '../store';
 import { useContext, useState, useEffect } from 'react';
 import FormControl from '@mui/material/FormControl';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Switch from '@mui/material/Switch';
 import NativeSelect from '@mui/material/NativeSelect';
 import DeleteIcon from '@mui/icons-material/Delete';
 import IconButton from '@mui/material/IconButton';
@@ -23,12 +21,12 @@ export default function Data_Source_Detail_Session() {
     const [name] = useState(current_ds.name);
     const [url] = useState(current_ds.URL);
     const [key] = useState(current_ds.key);
-    const [sheetindex] = useState(current_ds.sheetindex);
-    const [columns,setColumn] = useState(current_ds.columns);
+    const [label] =useState(current_ds.label);
+    const [columns, setColumn] = useState(current_ds.columns);
 
-    useEffect(()=>{
+    useEffect(() => {
         store.updateColumn(columns);
-    },columns)
+    }, columns)
 
 
 
@@ -45,22 +43,11 @@ export default function Data_Source_Detail_Session() {
         store.currentSelectedDatasource.key = event.target.value;
         store.updateDataSourceLocally(store.currentSelectedDatasource);
     }
-    function handleUpdateSheetI(event) {
-        if (/^\d+$/.test(event.target.value)) {
-            store.currentSelectedDatasource.sheetindex = parseInt(event.target.value);
-        }
-        else {
-            alert("Sheet index has to be integer only");
-            store.currentSelectedDatasource.sheetindex = event.target.value;
-        }
+    function handleUpdateLabel(event){
+        store.currentSelectedDatasource.label = event.target.value;
         store.updateDataSourceLocally(store.currentSelectedDatasource);
     }
-
     function handleConfirmEditDataSource() {
-        if (!(/^\d+$/.test(store.currentSelectedDatasource.sheetindex))) {
-            alert("sheetindex should be digit only");
-            return;
-        }
         store.confirmEditDataSource();
         //{ name: "Untitle", URL: " ", sheetindex: 1, key: " ", columns: [], owner: store.currentApp._id }
     }
@@ -68,9 +55,6 @@ export default function Data_Source_Detail_Session() {
         event.stopPropagation();
         if (tag == "name") {
             columns[index].name = event.target.value;
-        }
-        else if (tag == "label") {
-            columns[index].label = !columns[index].label;
         }
         else if (tag == "initvalue") {
             columns[index].initvalue = event.target.value;
@@ -83,13 +67,13 @@ export default function Data_Source_Detail_Session() {
         }
         store.updateColumn(columns);
     }
-    function handleDeleteColumn(event,index){
+    function handleDeleteColumn(event, index) {
         event.stopPropagation();
-        columns.splice(index,1);
+        columns.splice(index, 1);
         setColumn(columns);
         store.updateColumn(columns);
 
-        
+
     }
 
     function handleCreateNewColumn() {
@@ -108,21 +92,21 @@ export default function Data_Source_Detail_Session() {
             <input
                 className='modal-textfield'
                 type="text"
-                style={{width:'500pt'}}
+                style={{ width: '500pt' }}
                 defaultValue={url}
                 onChange={handleUpdateURL} />
-            <div id="sheetI-prompt" className="prompt">Sheet Index:</div>
-            <input
-                className='modal-textfield'
-                type="text"
-                defaultValue={sheetindex}
-                onChange={handleUpdateSheetI} />
             <div id="key-prompt" className="prompt">Key:</div>
             <input
                 className='modal-textfield'
                 type="text"
                 defaultValue={key}
                 onChange={handleUpdateKey} />
+            <div id="key-prompt" className="prompt">Label:</div>
+            <input
+                className='modal-textfield'
+                type="text"
+                defaultValue={label}
+                onChange={handleUpdateLabel} />
             <div>
                 <div>
                     <Add onClick={handleCreateNewColumn} />
@@ -133,7 +117,6 @@ export default function Data_Source_Detail_Session() {
                             <TableRow>
                                 <TableCell >name</TableCell>
                                 <TableCell>Initial Value</TableCell>
-                                <TableCell>Label</TableCell>
                                 <TableCell>Reference</TableCell>
                                 <TableCell>Type</TableCell>
                             </TableRow>
@@ -160,15 +143,6 @@ export default function Data_Source_Detail_Session() {
                                                 value={column.initvalue}
                                                 onChange={(e) => handleUpdateColumn(e, columns.indexOf(column), "initvalue")}
                                             />
-                                        </TableCell>
-                                        <TableCell align="right">
-                                            <FormControl component="fieldset" variant="standard">
-                                                <FormControlLabel
-                                                    control={
-                                                        <Switch checked={column.label} onChange={(e) => handleUpdateColumn(e, columns.indexOf(column), "label")} />
-                                                    }
-                                                />
-                                            </FormControl>
                                         </TableCell>
                                         <TableCell align="right">
                                             <input
