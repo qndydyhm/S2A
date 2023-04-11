@@ -34,7 +34,7 @@ export default function App_Info_Session() {
 
     return (
         <div>
-            <div>Creator: {current_app.creator}</div>
+            <div style={{ fontSize: 30 }}>Creator: {current_app.creator}</div>
             <div id="name-prompt" className="prompt">Name: </div>
             <input
                 className='modal-textfield'
