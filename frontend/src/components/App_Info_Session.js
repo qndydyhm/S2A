@@ -15,6 +15,7 @@ export default function App_Info_Session() {
     const [name, setName] = useState(current_app.name);
     const [roleM, setRoleM] = useState(current_app.roleM);
     const [published, setPublished] = useState(current_app.published);
+    const [editRoleM, setEditRoleM] = useState(false);
 
 
     function handleUpdateName(event) {
@@ -29,7 +30,21 @@ export default function App_Info_Session() {
     }
     function handleConfirmEditApp(event) {
         store.editCurrentApp({ _id: store.currentApp._id, name: name, roleM: roleM, published: published, views: store.currentApp.views, datasources: store.currentApp.datasources });
+        setEditRoleM(false);
+    }
+    function handleToggleEditRoleM() {
+        setEditRoleM(!editRoleM);
+    }
 
+    let roleM_display = <a href={roleM}>{roleM}</a>
+    if (editRoleM){
+        roleM_display =
+        <input
+           className='modal-textfield'
+           type="text"
+           defaultValue={roleM}
+           style={{width:'500pt'}}
+           onChange={handleUpdateRoleM} />
     }
 
     return (
@@ -42,13 +57,15 @@ export default function App_Info_Session() {
                 onChange={handleUpdateName} />
             <div id="roleM-prompt" className="prompt">Role Membership:</div>
             {/* There are problem, it is a list with group of member, the implementation should looks like music playlist */}
-            <input
-                className='modal-textfield'
-                type="text"
-                defaultValue={roleM}
-                style={{width:'500pt'}}
-                onChange={handleUpdateRoleM} />
             <div>
+                {roleM_display}
+                <div>
+                    <input
+                    type="button"
+                    id="edi-roleM-button"
+                    value='Edit'
+                    onClick={handleToggleEditRoleM} />
+                </div>
                 <div>Published:</div>
                 <FormControl component="fieldset" variant="standard">
                     <FormControlLabel
