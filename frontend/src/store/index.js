@@ -77,14 +77,14 @@ function GlobalStoreContextProvider(props) {
                 return setStore({
                     currentApp: null,
                     startApp: false,
-                    startApp:false
+                    startApp: false
                 });
             }
             case GlobalStoreActionType.GO_TO_MAIN_SCREEN: {
                 return setStore({
                     idAppPairs: payload.pairs,
                     currentApp: null,
-                    startApp:false
+                    startApp: false
                 });
             }
             case GlobalStoreActionType.LOAD_APP_LIST: {
@@ -92,14 +92,14 @@ function GlobalStoreContextProvider(props) {
                     idAppPairs: payload.pairs,
                     currentApp: store.currentApp,
                     idDataSourcePairs: store.idDataSourcePairs,
-                    startApp:store.startApp
+                    startApp: store.startApp
                 });
             }
             case GlobalStoreActionType.UPDATE_APP: {
                 return setStore({
                     currentApp: payload.app,
                     currentSideBar: CurrentSideBar.APP_INFO_SECTION,
-                    startApp:store.startApp
+                    startApp: store.startApp
                 });
             }
             case GlobalStoreActionType.UPDATE_DATA_SOURCE: {
@@ -108,7 +108,7 @@ function GlobalStoreContextProvider(props) {
                     idDataSourcePairs: payload.pairs,
                     currentSideBar: store.currentSideBar,
                     currentApp: payload.app,
-                    startApp:store.startApp
+                    startApp: store.startApp
 
                 });
             }
@@ -117,7 +117,7 @@ function GlobalStoreContextProvider(props) {
                     viewPairs: payload.pairs,
                     currentApp: payload.app,
                     currentSideBar: CurrentSideBar.VIEW_SECTION,
-                    startApp:store.startApp
+                    startApp: store.startApp
                 });
             }
             case GlobalStoreActionType.OPEN_APP: {
@@ -132,7 +132,7 @@ function GlobalStoreContextProvider(props) {
             case GlobalStoreActionType.SET_CURRENT_SELECTED_COLUMN_INDEX: {
                 return setStore({
                     currentSelectedColumnIndex: payload.index,
-                    startApp:store.startApp
+                    startApp: store.startApp
                 });
             }
 
@@ -141,8 +141,8 @@ function GlobalStoreContextProvider(props) {
                     idDataSourcePairs: payload.pairs,
                     currentApp: payload.app,
                     currentSideBar: CurrentSideBar.DATA_SOURCE_SECTION,
-                    startApp:store.startApp
-                    
+                    startApp: store.startApp
+
 
                 });
             }
@@ -152,7 +152,7 @@ function GlobalStoreContextProvider(props) {
                     currentApp: store.currentApp,
                     idDataSourcePairs: store.idDataSourcePairs,
                     currentSideBar: store.currentSideBar,
-                    startApp:store.startApp
+                    startApp: store.startApp
                 });
             }
             case GlobalStoreActionType.SET_CURRENT_SELECTED_VIEW: {
@@ -162,7 +162,7 @@ function GlobalStoreContextProvider(props) {
                     idDataSourcePairs: store.idDataSourcePairs,
                     currentSideBar: store.currentSideBar,
                     viewPairs: store.viewPairs,
-                    startApp:store.startApp
+                    startApp: store.startApp
                 });
             }
             case GlobalStoreActionType.SET_TABLE_FOR_VIEW: {
@@ -172,7 +172,7 @@ function GlobalStoreContextProvider(props) {
                     currentSideBar: store.currentSideBar,
                     currentTableForView: payload.t,
                     viewPairs: store.viewPairs,
-                    startApp:store.startApp
+                    startApp: store.startApp
                 });
             }
             case GlobalStoreActionType.UPDATE_VIEW: {
@@ -182,7 +182,7 @@ function GlobalStoreContextProvider(props) {
                     idDataSourcePairs: store.idDataSourcePairs,
                     currentSideBar: store.currentSideBar,
                     viewPairs: store.viewPairs,
-                    startApp:store.startApp
+                    startApp: store.startApp
                 });
             }
             case GlobalStoreActionType.SET_TABLE_DATA: {
@@ -318,9 +318,6 @@ function GlobalStoreContextProvider(props) {
                         payload: { app: app }
                     })
                 }
-                else {
-                    console.log("API FAIL TO UPDATE CURRENT APP");
-                }
             }
             catch (error) {
                 alert(error.response.data.status);
@@ -436,9 +433,9 @@ function GlobalStoreContextProvider(props) {
         }
     }
     store.confirmEditDataSource = function () {
-        try {
-            async function asyncEditDataSource() {
-                let flag = store.currentSelectedDatasource.label==undefined||store.currentSelectedDatasource.label=="";
+        async function asyncEditDataSource() {
+            try {
+                let flag = store.currentSelectedDatasource.label == undefined || store.currentSelectedDatasource.label == "";
                 for (let i = 0; i < store.currentSelectedDatasource.columns.length; i++) {
                     if (store.currentSelectedDatasource.columns[i].name == store.currentSelectedDatasource.label) {
                         flag = true;
@@ -464,15 +461,14 @@ function GlobalStoreContextProvider(props) {
                             payload: { data_source: store.currentSelectedDatasource, pairs: store.idDataSourcePairs, app: response1.data.app }
                         });
                     }
-
                 }
-
             }
-            asyncEditDataSource();
+            catch (error) {
+                alert(error.response.data.status);
+            }
+
         }
-        catch (error) {
-            alert(error.response.data.status);
-        }
+        asyncEditDataSource();
 
     }
     store.setCurrentSelectedColumnIndex = function (index) {
@@ -646,7 +642,7 @@ function GlobalStoreContextProvider(props) {
                 let pairs = response.data.views;
                 storeReducer({
                     type: GlobalStoreActionType.LOAD_TABLE_VIEW_LIST,
-                    payload: { pairs: pairs, id:id }
+                    payload: { pairs: pairs, id: id }
                 });
             }
             else {
