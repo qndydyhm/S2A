@@ -9,7 +9,7 @@ import { GlobalStoreContext } from '../store';
 export default function Table_View_Detail_Session(){
     const { store } = useContext(GlobalStoreContext);
     const [table,setTable] = useState(store.currentSelectedTableData);
-    return(
+    let res=table.columns!=null?
         <div style={{ width: '100%', fontSize: '15pt', backgroundColor: '#9f98a1' }}>
             <TableContainer component={Paper}>
                 <Table sx={{ minWidth: 750 }} aria-label="simple table">
@@ -43,6 +43,10 @@ export default function Table_View_Detail_Session(){
                 </Table>
             </TableContainer>
         </div>
-    );
+        :<div>No </div>;
+        return (
+            <div>
+                {res}
+            </div>);
 
 }

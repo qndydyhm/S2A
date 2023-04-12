@@ -4,7 +4,7 @@ import { useContext, useState } from "react"
 import { all } from "axios";
 import { InputLabel, MenuItem, Select } from "@mui/material";
 
-    //TODO: MINOR BUG: Not showing selected filter
+    //TODO: MINOR BUG: Now showing selected filter
     //TODO: check if editable columns belong to columns
     //TODO: check if roles are in roles list
 
@@ -120,14 +120,10 @@ import { InputLabel, MenuItem, Select } from "@mui/material";
             </div>
         if(document.getElementById("allow-add-checkbox")){document.getElementById("allow-add-checkbox").setAttribute("disabled",true);}
         if(document.getElementById("allow-edit-checkbox")){document.getElementById("allow-edit-checkbox").removeAttribute("disabled");}
-        if(document.getElementById("set-view-type-table-button")){document.getElementById("set-view-type-table-button").removeAttribute("disabled");}
-        if(document.getElementById("set-view-type-detail-button")){document.getElementById("set-view-type-detail-button").setAttribute("disabled",true);}
     }
     if(type==="table"){
         if(document.getElementById("allow-add-checkbox")){document.getElementById("allow-add-checkbox").removeAttribute("disabled");}
         if(document.getElementById("allow-edit-checkbox")){document.getElementById("allow-edit-checkbox").setAttribute("disabled",true);}
-        if(document.getElementById("set-view-type-detail-button")){document.getElementById("set-view-type-detail-button").removeAttribute("disabled");}
-        if(document.getElementById("set-view-type-table-button")){document.getElementById("set-view-type-table-button").setAttribute("disabled",true);}
     }
     function findObjectById(array, v ,id) {
         for (var i = 0; i < array.length; i++) {
@@ -179,7 +175,7 @@ import { InputLabel, MenuItem, Select } from "@mui/material";
             setFilter(null);
             setFilterName(null);
         }else{
-            setFilter(event.target.value._id);
+            setFilter(event.target.value.name);
             setFilterName(event.target.value.name);
         }
     }
@@ -188,7 +184,7 @@ import { InputLabel, MenuItem, Select } from "@mui/material";
             setUserFilter(null);
             setUserFilterName(null);
         }else{
-            setUserFilter(event.target.value._id);
+            setUserFilter(event.target.value.name);
             setUserFilterName(event.target.value.name);
         }
     }
@@ -197,7 +193,7 @@ import { InputLabel, MenuItem, Select } from "@mui/material";
             setEditFilter(null);
             setEditFilterName(null);
         }else{
-            setEditFilter(event.target.value._id);
+            setEditFilter(event.target.value.name);
             setEditFilterName(event.target.value.name);
         }
     }
@@ -230,16 +226,11 @@ import { InputLabel, MenuItem, Select } from "@mui/material";
                 className='modal-textfield'
                 defaultValue={name}
                 onChange={handleUpdateName} />
-            View Type: {type}
+            View Type: 
             <input
             type="button"
-            id="set-view-type-table-button"
-            value={"table"}
-            onClick={handleToggleType} />            
-            <input
-            type="button"
-            id="set-view-type-detail-button"
-            value={"detail"}
+            id="toggle-view-type-button"
+            value={type}
             onClick={handleToggleType} />
             </div>
             <div>

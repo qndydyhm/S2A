@@ -560,8 +560,8 @@ function GlobalStoreContextProvider(props) {
         asyncSetTableForView();
     }
     store.editCurrentView = function (id, view) {
-        try {
-            async function asyncEditCurrentView() {
+        async function asyncEditCurrentView() {
+            try {
                 const response = await api.updateView(id, view);
                 if (response.status == 200) {
                     for (let i = 0; i < store.viewPairs.length; i++) {
@@ -581,12 +581,11 @@ function GlobalStoreContextProvider(props) {
                 else {
                     console.log("API FAIL TO UPDATE CURRENT VIEW");
                 }
+            } catch (e) {
+                alert(e.response.data.status);
             }
-            asyncEditCurrentView();
-        } catch (e) {
-            alert(e.response.data.status);
         }
-
+        asyncEditCurrentView();
     }
     store.deleteView = function (id) {
         try {
