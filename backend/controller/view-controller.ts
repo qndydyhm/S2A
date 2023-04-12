@@ -198,6 +198,9 @@ const updateView = async (req: express.Request, res: express.Response) => {
                 }
                 existingView.filter = filter
             }
+            else {
+                existingView.filter = undefined
+            }
             if (userfilter) {
                 if (typeof (userfilter) != "string") {
                     globalLogger.info('User filter must be a string')
@@ -206,6 +209,9 @@ const updateView = async (req: express.Request, res: express.Response) => {
                     })
                 }
                 existingView.userfilter = userfilter
+            }
+            else {
+                existingView.userfilter = undefined
             }
         }
         else if (viewtype === TYPE.DETAIL) {
@@ -217,6 +223,9 @@ const updateView = async (req: express.Request, res: express.Response) => {
                     })
                 }
                 existingView.editfilter = editfilter
+            }
+            else {
+                existingView.editfilter = undefined
             }
             if (editablecolumns) {
                 if (!Array.isArray(editablecolumns)) {
@@ -454,9 +463,9 @@ const getTableView = async (req: express.Request, res: express.Response) => {
                 globalLogger.info(view.filter + " is not in columns")
             }
             let oldData = data
-            data = []
+            data = [JSON.parse(JSON.stringify(oldData[0]))];
             for (let i = 1; i < oldData.length; ++i) {
-                if (oldData[i][index as any] === true)
+                if (oldData[i][index as any] === "TRUE")
                     data.push(oldData[i])
             }
         }
@@ -470,7 +479,7 @@ const getTableView = async (req: express.Request, res: express.Response) => {
                 globalLogger.info(view.userfilter + " is not in columns")
             }
             let oldData = data
-            data = []
+            data = [JSON.parse(JSON.stringify(oldData[0]))];
             for (let i = 1; i < oldData.length; ++i) {
                 if (oldData[i][index as any] === loggedInUser.email)
                     data.push(oldData[i])
