@@ -23,12 +23,26 @@ export default function Data_Source_Detail_Session() {
     const [key] = useState(current_ds.key);
     const [label] =useState(current_ds.label);
     const [columns, setColumn] = useState(current_ds.columns);
+    const [editUrl, setEditUrl] = useState(false);
 
     useEffect(() => {
         store.updateColumn(columns);
     }, columns)
 
+    let urlLink = <a href={url}>{url}</a>;
+    if (editUrl){
+        urlLink =
+        <input
+        className='modal-textfield'
+        type="text"
+        style={{ width: '500pt' }}
+        defaultValue={url}
+        onChange={handleUpdateURL} />
+    }
 
+    function handleToggleEditUrlLink() {
+        setEditUrl(!editUrl);
+    }
 
     function handleUpdateName(event) {
         store.currentSelectedDatasource.name = event.target.value;
@@ -89,12 +103,14 @@ export default function Data_Source_Detail_Session() {
                 defaultValue={name}
                 onChange={handleUpdateName} />
             <div id="URL-prompt" className="prompt">URL:</div>
-            <input
-                className='modal-textfield'
-                type="text"
-                style={{ width: '500pt' }}
-                defaultValue={url}
-                onChange={handleUpdateURL} />
+            {urlLink}
+            <div>
+                    <input
+                    type="button"
+                    id="edi-roleM-button"
+                    value='Edit'
+                    onClick={handleToggleEditUrlLink} />
+                </div>
             <div id="key-prompt" className="prompt">Key:</div>
             <input
                 className='modal-textfield'
