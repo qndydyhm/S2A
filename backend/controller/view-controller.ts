@@ -6,6 +6,8 @@ import DataSource from '../models/datasource-model'
 import googleWrapper from '../tools/google-wrapper'
 import sheetParser from '../tools/sheet-parser'
 import globalLogger, { getLogger } from '../tools/logger'
+import accessControl from '../tools/access-control'
+import User from '../models/user-model'
 
 
 const createView = async (req: express.Request, res: express.Response) => {
@@ -154,6 +156,31 @@ const updateView = async (req: express.Request, res: express.Response) => {
                 status: 'Fail to find view'
             })
         }
+        // check if the creator can access role membership sheet
+        const existingApp = await App.findOne({ _id: existingView.owner })
+        if (!existingApp) {
+            globalLogger.info("Fail to find App " + existingView.owner)
+            return res.status(401).json({
+                status: "Fail to find App " + existingView.owner
+            })
+        }
+        const creator = await User.findOne({ id: existingApp.creator })
+        if (!creator) {
+            globalLogger.info("Fail to find creator " + existingApp.creator)
+            return res.status(400).json({
+                status: "Fail to find creator " + existingApp.creator
+            })
+        }
+        // check if the user is in role membership list
+        if (loggedInUser.id !== creator.id && !await accessControl.isInDeveloperList(loggedInUser.email, existingApp.roleM, creator.rtoken, creator.atoken, creator.expire, existingApp._id.toString())) {
+            globalLogger.info("User " + loggedInUser.id + " is not in developer role of app " + existingApp._id)
+            return res.status(400).json({
+                status: "User " + loggedInUser.email + " is not in developer role of app " + existingApp._id
+            })
+        }
+
+
+
         existingView.name = name
         existingView.table = table
         existingView.columns = columns as [string]
@@ -449,13 +476,13 @@ const getTableView = async (req: express.Request, res: express.Response) => {
                     data.push(oldData[i])
             }
         }
-        const columns=data[0];
-        data.splice(0,1);
+        const columns = data[0];
+        data.splice(0, 1);
         return res.status(200).json({
             status: "OK",
             id: view._id,
             data: data,
-            columns:columns
+            columns: columns
         })
     }
     catch (e) {
