@@ -188,7 +188,9 @@ import { InputLabel, MenuItem, Select } from "@mui/material";
             setUserFilter(null);
             setUserFilterName(null);
         }else{
-            setUserFilter(event.target.value._id);
+            console.log(event.target.value)
+            console.log(current_view.userfilter)
+            setUserFilter(event.target.value.name);
             setUserFilterName(event.target.value.name);
         }
     }
