@@ -31,7 +31,8 @@ export const GlobalStoreActionType = {
 
     //End User Section
     SET_TABLE_DATA: "SET_TABLE_DATA",
-    LOAD_TABLE_VIEW_LIST: "LOAD_TABLE_VIEW_LIST"
+    LOAD_TABLE_VIEW_LIST: "LOAD_TABLE_VIEW_LIST",
+    LOAD_DETAIL_VIEW_LIST:"LOAD_DETAIL_VIEW_LIST"
 
 }
 
@@ -64,7 +65,8 @@ function GlobalStoreContextProvider(props) {
         //table view
         startApp: false,
         idTableViewPairs: [],
-        currentSelectedTableData: null
+        currentSelectedTableData: null,
+        currentSelectedDetailData:null
     });
     const { auth } = useContext(AuthContext);
 
@@ -77,7 +79,6 @@ function GlobalStoreContextProvider(props) {
                 return setStore({
                     currentApp: null,
                     startApp: false,
-                    startApp: false
                 });
             }
             case GlobalStoreActionType.GO_TO_MAIN_SCREEN: {
@@ -201,6 +202,15 @@ function GlobalStoreContextProvider(props) {
                     idTableViewPairs: payload.pairs,
                     currentApp: payload.id,
                     startApp: true
+                });
+            }
+            case GlobalStoreActionType.LOAD_DETAIL_VIEW_LIST:{
+                return setStore({
+                    currentSelectedTableData:store.currentSelectedTableData,
+                    idTableViewPairs: payload.pairs,
+                    currentApp: payload.id,
+                    startApp: true,
+                    currentSelectedDetailData:payload.data
                 });
             }
             default:
@@ -649,8 +659,13 @@ function GlobalStoreContextProvider(props) {
             }
         }
         asyncLoadIdTableViewPairs();
+    }
 
-
+    store.loadDetailView=()=>{
+        // change the current detailView
+    }
+    store.addNewRecord = ()=>{
+        // create the modal to add record for user
     }
 
     return (
