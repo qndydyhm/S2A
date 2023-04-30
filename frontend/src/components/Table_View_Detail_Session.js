@@ -18,8 +18,8 @@ export default function Table_View_Detail_Session() {
     function handleCreateNewRecord() {
         store.addNewRecord();
     }
-    function handleDeleteRecord() {
-        store.deleteRecord();
+    function handleDeleteRecord(key) {
+        store.deleteRecord(key);
     }
     let res = table.columns != null ?
         <div style={{ width: '100%', fontSize: '15pt', backgroundColor: '#9f98a1' }}>
@@ -56,8 +56,7 @@ export default function Table_View_Detail_Session() {
                                     }
                                     <TableCell>
                                         {/* onClick={handleDeleteRecord(table.key[table.data.indexOf(data)])} */}
-                                        <IconButton aria-label='delete' style={{ float: 'right' }}
-                                        onClick={handleDeleteRecord(table.key[table.data.indexOf(data)])}>
+                                        <IconButton aria-label='delete' style={{ float: 'right' }}>
                                             <DeleteIcon style={{ fontSize: '20pt' }} />
                                         </IconButton>
                                     </TableCell>

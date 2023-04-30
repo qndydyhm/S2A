@@ -632,8 +632,8 @@ function GlobalStoreContextProvider(props) {
     store.setCurrentSelectedTableViewCard = (id) => {
         async function asyncgetTableData() {
             const response = await api.getTableData(id);
-            console.log(response.data);
             if (response.status == 200) {
+                response.id = id;
                 storeReducer({
                     type: GlobalStoreActionType.SET_TABLE_DATA,
                     payload: { table: response.data }
@@ -682,6 +682,35 @@ function GlobalStoreContextProvider(props) {
     }
     store.addNewRecord = ()=>{
         // create the modal to add record for user
+    }
+    store.deleteRecord=(id)=>{
+        // try {
+        //     async function asyncDeleteRecord() {
+        //         const response = await api.deleteRecord(id);
+        //         if (response.status === 200) {
+        //             const response1 = await api.getTableData(store.currentSelectedTableData.id);
+        //             if (response1.status == 200) {
+        //                 response1.id = id;
+        //                 storeReducer({
+        //                     type: GlobalStoreActionType.SET_TABLE_DATA,
+        //                     payload: { table: response1.data }
+        //                 });
+        //             }
+        //             else {
+        //                 console.log("API FAIL TO FETCH TABLE DATA");
+        //             }
+
+        //         }
+        //         else {
+        //             console.log("UNABLE TO DELETE DATA SOURCE");
+        //         }
+        //     }
+        //     asyncDeleteRecord();
+        // }
+        // catch (error) {
+        //     alert(error.response.data.status);
+        // }
+        
     }
 
     return (
