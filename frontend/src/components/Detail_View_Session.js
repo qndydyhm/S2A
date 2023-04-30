@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react'
 import { GlobalStoreContext } from '../store'
 import List from '@mui/material/List';
+import PageviewIcon from '@mui/icons-material/Pageview';
 
 import {
     Table, TableBody, TableCell, TableContainer,
@@ -10,6 +11,9 @@ import {
 export default function Detail_View_Session() {
     const { store } = useContext(GlobalStoreContext);
     const [table,setTable] = useState(store.currentSelectedDetailData);
+    function loadEditItItemModal(each){
+
+    }
     let res=store.currentSelectedDetailData!=null?
     <div style={{ width: '100%', fontSize: '15pt', backgroundColor: '#9f98a1' }}>
         <div>DETAIL VIEW:</div>
@@ -34,8 +38,12 @@ export default function Detail_View_Session() {
                                 {
                                     data.map((each)=>(
                                         <TableCell>{each}</TableCell>
+                                        
                                     ))
                                 }
+                                    <TableCell><PageviewIcon
+                                        onClick={(event) => { loadEditItItemModal(data) }}
+                                    ></PageviewIcon></TableCell>
                             </TableRow>
                         ))
                     }

@@ -56,7 +56,8 @@ export default function Table_View_Detail_Session() {
                                     }
                                     <TableCell>
                                         {/* onClick={handleDeleteRecord(table.key[table.data.indexOf(data)])} */}
-                                        <IconButton aria-label='delete' style={{ float: 'right' }}>
+                                        <IconButton aria-label='delete' style={{ float: 'right' }}
+                                        onClick={handleDeleteRecord(table.key[table.data.indexOf(data)])}>
                                             <DeleteIcon style={{ fontSize: '20pt' }} />
                                         </IconButton>
                                     </TableCell>

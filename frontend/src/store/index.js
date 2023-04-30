@@ -201,16 +201,17 @@ function GlobalStoreContextProvider(props) {
                     currentSelectedTableData: null,
                     idTableViewPairs: payload.pairs,
                     currentApp: payload.id,
-                    startApp: true
+                    startApp: true,
+                    currentSelectedDetailData:null
                 });
             }
             case GlobalStoreActionType.LOAD_DETAIL_VIEW_LIST:{
                 return setStore({
                     currentSelectedTableData:store.currentSelectedTableData,
-                    idTableViewPairs: payload.pairs,
-                    currentApp: payload.id,
-                    startApp: true,
-                    currentSelectedDetailData:payload.data
+                    currentSelectedDetailData: payload.pairs,
+                    idAppPairs: store.idAppPairs,
+                    currentApp: store.currentApp,
+                    startApp: true
                 });
             }
             default:
@@ -663,6 +664,21 @@ function GlobalStoreContextProvider(props) {
 
     store.loadDetailView=()=>{
         // change the current detailView
+        async function asyncGetDetailView() {
+            // const response = await api.getDetailView();
+            // if (response.status == 200) {
+            //     let data = response.data;
+            //     storeReducer({
+            //         type: GlobalStoreActionType.LOAD_DETAIL_VIEW_LIST,
+            //         payload: { pairs: pairs, id: id }
+            //     });
+            // }
+            // else {
+            //     console.log("API FAILED TO GET THE APP PAIR");
+            // }
+        }
+        asyncGetDetailView();
+
     }
     store.addNewRecord = ()=>{
         // create the modal to add record for user
