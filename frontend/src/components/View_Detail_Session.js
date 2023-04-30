@@ -1,8 +1,9 @@
-import { CheckBox } from "@mui/icons-material";
 import GlobalStoreContext from "../store"
 import { useContext, useState } from "react"
 import { all } from "axios";
 import { InputLabel, MenuItem, Select } from "@mui/material";
+import IconButton from '@mui/material/IconButton';
+import InfoIcon from '@mui/icons-material/Info';
 
     //TODO: MINOR BUG: Now showing selected filter
     //TODO: check if editable columns belong to columns
@@ -28,6 +29,15 @@ import { InputLabel, MenuItem, Select } from "@mui/material";
     const [editableColumnsText, setEditableColumnsText] = useState(current_view.editablecolumns);
     const [roles, setRoles] = useState(current_view.roles);
     const [rolesText, setRolesText] = useState(current_view.roles);
+
+    let debug = true;
+    let debugButton = <div></div>
+    if(debug){
+        debugButton =   <IconButton onClick={handleDebug} aria-label='debug' style={{float:'right'}}>
+                            <InfoIcon style={{ fontSize: '48pt'}} />
+                        </IconButton>
+    }
+    function handleDebug(){console.log(fullTable, columns);}
 
     var selectedTable = findObjectById(idDataSourcePairs, "id" ,current_view.table)
     if (fullTable){
@@ -120,10 +130,14 @@ import { InputLabel, MenuItem, Select } from "@mui/material";
             </div>
         if(document.getElementById("allow-add-checkbox")){document.getElementById("allow-add-checkbox").setAttribute("disabled",true);}
         if(document.getElementById("allow-edit-checkbox")){document.getElementById("allow-edit-checkbox").removeAttribute("disabled");}
+        if(document.getElementById("set-view-type-table-button")){document.getElementById("set-view-type-table-button").removeAttribute("disabled");}
+        if(document.getElementById("set-view-type-detail-button")){document.getElementById("set-view-type-detail-button").setAttribute("disabled",true);}
     }
     if(type==="table"){
         if(document.getElementById("allow-add-checkbox")){document.getElementById("allow-add-checkbox").removeAttribute("disabled");}
         if(document.getElementById("allow-edit-checkbox")){document.getElementById("allow-edit-checkbox").setAttribute("disabled",true);}
+        if(document.getElementById("set-view-type-detail-button")){document.getElementById("set-view-type-detail-button").removeAttribute("disabled");}
+        if(document.getElementById("set-view-type-table-button")){document.getElementById("set-view-type-table-button").setAttribute("disabled",true);}
     }
     function findObjectById(array, v ,id) {
         for (var i = 0; i < array.length; i++) {
@@ -228,11 +242,16 @@ import { InputLabel, MenuItem, Select } from "@mui/material";
                 className='modal-textfield'
                 defaultValue={name}
                 onChange={handleUpdateName} />
-            View Type: 
+            View Type: {type}
             <input
             type="button"
-            id="toggle-view-type-button"
-            value={type}
+            id="set-view-type-table-button"
+            value={"table"}
+            onClick={handleToggleType} />            
+            <input
+            type="button"
+            id="set-view-type-detail-button"
+            value={"detail"}
             onClick={handleToggleType} />
             </div>
             <div>
@@ -298,7 +317,7 @@ import { InputLabel, MenuItem, Select } from "@mui/material";
             id="edit-v-confirm-button"
             value='Save'
             onClick={handleConfirmEditView} />
-
+            {debugButton}
         </div>
     );
 }
