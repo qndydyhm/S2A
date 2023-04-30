@@ -453,45 +453,80 @@ const getTableView = async (req: express.Request, res: express.Response) => {
             })
         }
         data = sheetParser.transposeTable(data)
+        const columns = data.splice(0,1)[0];
+        let keys = []
+        try {
+            keys = sheetParser.getValuesByColumn(sheet, datasource.key)
+        }
+        catch (e) {
+            globalLogger.info(e)
+            return res.status(400).json({
+                status: e
+            })
+        }
+        keys.splice(0,1)
+        if (!sheetParser.checkUniqueness(keys)) {
+            globalLogger.info("key column in datasource " + datasource._id + " is not unique")
+            return res.status(400).json({
+                status: "key column in datasource " + datasource._id + " is not unique"
+            })
+        }
         if (view.filter) {
             let index = undefined
-            for (let key in data[0]) {
-                if (data[0][key] == view.filter)
+            for (let key in columns) {
+                if (columns[key] == view.filter) {
                     index = key
+                    break
+                }
             }
             if (index === undefined) {
-                globalLogger.info(view.filter + " is not in columns")
+                globalLogger.info("filter " + view.filter + " is not in columns")
+                return res.status(400).json({
+                    status: "filter " + view.filter + " is not in columns"
+                })
             }
             let oldData = data
-            data = [JSON.parse(JSON.stringify(oldData[0]))];
-            for (let i = 1; i < oldData.length; ++i) {
-                if (oldData[i][index as any] === "TRUE")
-                    data.push(oldData[i])
+            let oldKeys = keys
+            data = [];
+            keys = [];
+            for (let key in oldData) {
+                if (oldData[key][index as any] === "TRUE") {
+                    data.push(oldData[key])
+                    keys.push(oldKeys[key])
+                }
             }
         }
         if (view.userfilter) {
             let index = undefined
-            for (let key in data[0]) {
-                if (data[0][key] == view.userfilter)
+            for (let key in columns) {
+                if (columns[key] == view.userfilter) {
                     index = key
+                    break
+                }
             }
             if (index === undefined) {
-                globalLogger.info(view.userfilter + " is not in columns")
+                globalLogger.info("user filter " + view.userfilter + " is not in columns")
+                return res.status(400).json({
+                    status: "user filter " + view.userfilter + " is not in columns"
+                })
             }
             let oldData = data
-            data = [JSON.parse(JSON.stringify(oldData[0]))];
-            for (let i = 1; i < oldData.length; ++i) {
-                if (oldData[i][index as any] === loggedInUser.email)
-                    data.push(oldData[i])
+            let oldKeys = keys
+            data = [];
+            keys = [];
+            for (let key in oldData) {
+                if (oldData[key][index as any] === "TRUE") {
+                    data.push(oldData[key])
+                    keys.push(oldKeys[key])
+                }
             }
         }
-        const columns = data[0];
-        data.splice(0, 1);
         return res.status(200).json({
             status: "OK",
             id: view._id,
             data: data,
-            columns: columns
+            columns: columns,
+            keys: keys
         })
     }
     catch (e) {
