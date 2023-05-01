@@ -18,6 +18,10 @@
 4. Share this sheet and make it public
 5. Save the **link of the sheet** for later use.
 
+## Set up necessary dependencies
+1. MongoDB
+2. Redis
+
 ## Create **.env** file in backend folder
 ```
 # Bash-like shell can use this command to create the file or manually create it following the instruction
@@ -28,6 +32,8 @@ DOMAIN_NAME=localhost # redirect URL domain name
 EXPRESS_PORT=4000
 MONGO_URL=mongodb://127.0.0.1:27017 # replace with your mongo URL
 MONGO_DBNAME=S2A # Any valid db name
+REDIS_URL=redis://127.0.0.1:6379 # replace with your redis URL
+REDIS_EXPIRE=60 # times before expiring a cache (in second)
 CLIENT_ID=google client id
 CLIENT_SECRET=google client secret
 API_KEY=google api key

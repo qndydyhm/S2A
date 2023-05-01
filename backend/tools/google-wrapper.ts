@@ -2,6 +2,7 @@ import { auth, oauth2 } from '@googleapis/oauth2'
 import { sheets } from '@googleapis/sheets';
 import sheetParser from './sheet-parser';
 import globalLogger from './logger';
+import redis from './redis';
 
 const APIKEY = process.env.API_KEY
 
@@ -141,13 +142,17 @@ const getSheet = async (URL: string, refresh_token?: string, access_token?: stri
     try {
         let client: any = getClient(refresh_token, access_token, expiry_date);
         const sheetInfo = sheetParser.sheetUrlParser(URL)
+        if (!sheetInfo) return undefined
+        const data = await redis.get(sheetInfo.spreadsheetId+","+sheetInfo.sheetId)
+        if (data) return data
         const sheetName = await getSheetName(URL, refresh_token, access_token, expiry_date);
-        if (!sheetName || !sheetInfo) return undefined
+        if (!sheetName) return undefined
         const sheetData = await sheet.spreadsheets.values.get({
             auth: client,
             spreadsheetId: sheetInfo.spreadsheetId,
             range: sheetName
         })
+        await redis.set(sheetInfo.spreadsheetId+","+sheetInfo.sheetId, sheetData.data.values)
         return sheetData.data.values
     }
     catch (e) {
@@ -184,6 +189,7 @@ const updateSheet = async (URL: string, data: any[][], refresh_token?: string, a
                 values: data
             }
         })
+        await redis.del(sheetInfo.spreadsheetId+","+sheetInfo.sheetId)
         return result
     }
     catch (e) {
