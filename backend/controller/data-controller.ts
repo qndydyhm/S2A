@@ -34,11 +34,11 @@ const updateRecord = async (req: express.Request, res: express.Response) => {
                 status: "Fail to find view " + id
             })
         }
-        const existingDS = await DataSource.findById(existingView._id);
+        const existingDS = await DataSource.findById(existingView.table);
         if (!existingDS) {
-            globalLogger.info("Fail to find data source " + existingView._id)
+            globalLogger.info("Fail to find data source " + existingView.table)
             return res.status(400).json({
-                status: "Fail to find data source " + existingView._id
+                status: "Fail to find data source " + existingView.table
             })
         }
         const existingApp = await App.findById(existingDS.owner);
@@ -159,11 +159,11 @@ const deleteRecord = async (req: express.Request, res: express.Response) => {
                 status: "Fail to find view " + id
             })
         }
-        const existingDS = await DataSource.findById(existingView._id);
+        const existingDS = await DataSource.findById(existingView.table);
         if (!existingDS) {
-            globalLogger.info("Fail to find data source " + existingView._id)
+            globalLogger.info("Fail to find data source " + existingView.table)
             return res.status(400).json({
-                status: "Fail to find data source " + existingView._id
+                status: "Fail to find data source " + existingView.table
             })
         }
         const existingApp = await App.findById(existingDS.owner);
