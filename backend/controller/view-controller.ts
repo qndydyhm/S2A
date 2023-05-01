@@ -453,7 +453,7 @@ const getTableView = async (req: express.Request, res: express.Response) => {
             })
         }
         data = sheetParser.transposeTable(data)
-        const columns = data.splice(0,1)[0];
+        const columns = data.splice(0, 1)[0];
         let keys = []
         try {
             keys = sheetParser.getValuesByColumn(sheet, datasource.key)
@@ -464,7 +464,7 @@ const getTableView = async (req: express.Request, res: express.Response) => {
                 status: e
             })
         }
-        keys.splice(0,1)
+        keys.splice(0, 1)
         if (!sheetParser.checkUniqueness(keys)) {
             globalLogger.info("key column in datasource " + datasource._id + " is not unique")
             return res.status(400).json({
@@ -533,6 +533,124 @@ const getTableView = async (req: express.Request, res: express.Response) => {
         globalLogger.error(e)
     }
 }
+const getDetailView = async (req: express.Request, res: express.Response) => {
+    try {
+        // get user info
+        // TODO check user is end user
+        const loggedInUser: any = await auth.getUser(req);
+        if (!loggedInUser) {
+            globalLogger.info("Fail to find User")
+            return res.status(401).json({
+                status: "Fail to find User"
+            }) 
+        }
+        const viewId = req.params.id;
+        const keyValue: any = req.query.key
+        if (!viewId) {
+            globalLogger.info("Missing view id")
+            return res.status(400).json({
+                status: "Missing view id"
+            })
+        }
+        const view = await View.findById(viewId)
+        if (!view) {
+            globalLogger.info("Fail to get view " + viewId)
+            return res.status(400).json({
+                status: "Fail to get view " + viewId
+            })
+        }
+        if (view.viewtype != TYPE.TABLE) {
+            globalLogger.info("View type is not table")
+            return res.status(400).json({
+                status: "View type is not table"
+            })
+        }
+        //iterate the view to find a detail view with the same datasource
+        const viewArray = await View.find({ table: view.table });
+        let detailView =null;
+        for(let i=0;i<viewArray.length;i++){
+            if(viewArray[i]._id!=view._id&&viewArray[i].viewtype==TYPE.DETAIL){
+                detailView = viewArray[i]
+                break;
+            }
+        }
+        if(detailView==null){
+            globalLogger.info("Fail to get detail view for table" + view.table)
+            return res.status(400).json({
+                status: "Fail to get detail view for table" + view.table
+            })
+        }
+        const datasource = await DataSource.findById(view.table)
+        if (!datasource) {
+            globalLogger.info("Fail to get datasource" + view.table)
+            return res.status(400).json({
+                status: "Fail to get datasource" + view.table
+            })
+        }
+        const sheet = await googleWrapper.getSheet(datasource.URL)
+        if (!sheet) {
+            globalLogger.info("Fail to get sheet" + datasource.URL)
+            return res.status(400).json({
+                status: "Fail to get sheet" + datasource.URL
+            })
+        }
+        let data = []
+        try {
+            for (let key in detailView.columns) {
+                data.push(sheetParser.getValuesByColumn(sheet, detailView.columns[key]))
+            }
+        }
+        catch (e) {
+            globalLogger.info(e)
+            return res.status(400).json({
+                status: e
+            })
+        }
+        data = sheetParser.transposeTable(data)
+        const columns = data.splice(0, 1)[0];
+        let keys: any[] = []
+        try {
+            keys = sheetParser.getValuesByColumn(sheet, datasource.key)
+        }
+        catch (e) {
+            globalLogger.info(e)
+            return res.status(400).json({
+                status: e
+            })
+        }
+        keys.splice(0, 1)
+        if (!sheetParser.checkUniqueness(keys)) {
+            globalLogger.info("key column in datasource " + datasource._id + " is not unique")
+            return res.status(400).json({
+                status: "key column in datasource " + datasource._id + " is not unique"
+            })
+        }
+
+        // apply filter
+        let oldData = data
+        let oldKeys = keys
+        data = [];
+        keys = [];
+        for (let key in oldKeys) {
+            if (oldKeys[key] == keyValue ) {
+                data.push(oldData[key])
+                keys.push(oldKeys[key])
+                break
+            }
+        }
+
+        return res.status(200).json({
+            status: "OK",
+            id: detailView._id,
+            data: data,
+            columns: columns,
+            keys: keys
+        })
+    }
+    catch (e) {
+        globalLogger.error(e)
+    }
+}
 
 
 enum TYPE {
@@ -546,5 +664,6 @@ export default {
     getView,
     deleteView,
     getViews,
-    getTableView
+    getTableView,
+    getDetailView
 }

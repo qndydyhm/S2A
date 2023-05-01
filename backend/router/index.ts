@@ -40,4 +40,5 @@ api.get('/api/view/:id', view.getView)
 api.get('/api/view', view.getViews)
 api.delete('/api/view/:id', view.deleteView)
 api.get('/api/table/:id', view.getTableView)
+api.get(`/api/detail/:id`,view.getDetailView)
 export default api
