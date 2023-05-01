@@ -48,7 +48,7 @@ const updateRecord = async (req: express.Request, res: express.Response) => {
                 status: "Fail to find app " + existingDS.owner
             })
         }
-        const creator = await User.findById(existingApp.creator);
+        const creator = await User.findOne({ id: existingApp.creator })
         if (!creator) {
             globalLogger.info("Fail to find user " + existingApp.creator)
             return res.status(400).json({
@@ -173,7 +173,7 @@ const deleteRecord = async (req: express.Request, res: express.Response) => {
                 status: "Fail to find app " + existingDS.owner
             })
         }
-        const creator = await User.findById(existingApp.creator);
+        const creator = await User.findOne({ id: existingApp.creator })
         if (!creator) {
             globalLogger.info("Fail to find user " + existingApp.creator)
             return res.status(400).json({

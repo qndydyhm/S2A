@@ -117,7 +117,7 @@ const createView = async (req: express.Request, res: express.Response) => {
                 status: "Cannot create view for data source in different app"
             })
         }
-        const creator = await User.findById(existingApp.creator);
+        const creator = await User.findOne({ id: existingApp.creator })
         if (!creator) {
             globalLogger.info("Fail to find creator " + existingApp.creator)
             return res.status(400).json({
@@ -353,7 +353,7 @@ const deleteView = async (req: express.Request, res: express.Response) => {
                 status: "Fail to get app " + existingDS.owner
             })
         }
-        const creator = await User.findById(existingApp.creator);
+        const creator = await User.findOne({ id: existingApp.creator })
         if (!creator) {
             globalLogger.info("Fail to find creator " + existingApp.creator)
             return res.status(400).json({
@@ -494,7 +494,7 @@ const getTableView = async (req: express.Request, res: express.Response) => {
                 status: "Fail to get app " + existingDS.owner
             })
         }
-        const creator = await User.findById(existingApp.creator);
+        const creator = await User.findOne({ id: existingApp.creator })
         if (!creator) {
             globalLogger.info("Fail to find creator " + existingApp.creator)
             return res.status(400).json({
