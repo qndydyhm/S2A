@@ -156,6 +156,7 @@ const getSheet = async (URL: string, refresh_token?: string, access_token?: stri
         return sheetData.data.values
     }
     catch (e) {
+        console.log(e)
         globalLogger.error(e)
         return undefined
     }
@@ -173,24 +174,28 @@ const updateSheet = async (URL: string, data: any[][], refresh_token?: string, a
     try {
         let client: any = getClient(refresh_token, access_token, expiry_date);
         const sheetInfo = sheetParser.sheetUrlParser(URL)
-        const sheetName = await getSheetName(URL, refresh_token, access_token, expiry_date);
-        if (!sheetName || !sheetInfo) return undefined
-        await sheet.spreadsheets.values.clear({
-            auth: client,
-            spreadsheetId: sheetInfo.spreadsheetId,
-            range: sheetName
-        })
-        const result = await sheet.spreadsheets.values.update({
-            auth: client,
-            spreadsheetId: sheetInfo.spreadsheetId,
-            range: sheetName,
-            valueInputOption: "USER_ENTERED",
-            requestBody: {
-                values: data
-            }
-        })
-        await redis.del(sheetInfo.spreadsheetId)
-        return result
+        if (!sheetInfo) return undefined
+        const res = await redis.del(sheetInfo.spreadsheetId)
+        if (res >= 0) {
+            const sheetName = await getSheetName(URL, refresh_token, access_token, expiry_date);
+            if (!sheetName) return undefined
+            await sheet.spreadsheets.values.clear({
+                auth: client,
+                spreadsheetId: sheetInfo.spreadsheetId,
+                range: sheetName
+            })
+            const result = await sheet.spreadsheets.values.update({
+                auth: client,
+                spreadsheetId: sheetInfo.spreadsheetId,
+                range: sheetName,
+                valueInputOption: "USER_ENTERED",
+                includeValuesInResponse: true,
+                requestBody: {
+                    values: data
+                }
+            })
+            return await redis.set(sheetInfo.spreadsheetId, sheetInfo.sheetId+"", result.data.updatedData?.values)
+        }
     }
     catch (e) {
         globalLogger.error(e)

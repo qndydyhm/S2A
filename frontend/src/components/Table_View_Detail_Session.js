@@ -19,7 +19,8 @@ export default function Table_View_Detail_Session() {
     function handleCreateNewRecord() {
         store.addNewRecord();
     }
-    function handleDeleteRecord(key) {
+    function handleDeleteRecord(event,key) {
+        event.stopPropagation();
         store.deleteRecord(key);
     }
     let res = store.currentSelectedTableData.columns != null ?
@@ -58,7 +59,9 @@ export default function Table_View_Detail_Session() {
                                     <TableCell>
                                         {/* onClick={handleDeleteRecord(table.key[table.data.indexOf(data)])} */}
                                         <IconButton aria-label='delete' style={{ float: 'right' }}>
-                                            <DeleteIcon style={{ fontSize: '20pt' }} />
+                                            <DeleteIcon style={{ fontSize: '20pt' }} 
+                                            onClick={(event)=>handleDeleteRecord(event,store.currentSelectedTableData.keys[store.currentSelectedTableData.data.indexOf(data)])}
+                                            />
                                         </IconButton>
                                     </TableCell>
                                     <TableCell><PageviewIcon

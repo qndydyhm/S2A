@@ -143,7 +143,6 @@ const updateDS = async (req: express.Request, res: express.Response) => {
             typeof (key) != "string" || key === "" ||
             (label != undefined && typeof (label) != "string") || !Array.isArray(columns)) {
             globalLogger.info("Missing or wrong parameters when updating data source" + { name, URL, key, columns })
-            console.log(label != undefined && typeof (label) != "string")
             return res.status(400).json({
                 status: "Missing parameter"
             })

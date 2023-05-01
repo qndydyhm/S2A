@@ -13,9 +13,6 @@ const updateRecord = async (req: express.Request, res: express.Response) => {
     try {
         // get user info
         // TODO: check user is end user
-        console.log(req.query.key);
-        console.log(req.params.id);
-        console.log(req.body);
         const loggedInUser: any = await auth.getUser(req);
         if (!loggedInUser) {
             globalLogger.info("Fail to find User")
@@ -103,7 +100,6 @@ const updateRecord = async (req: express.Request, res: express.Response) => {
                 })
                 }
                 const col = dict[column.name as any];
-                console.log(req.body);
                 if (req.body[column.name]) {
                     newColumn[col] = req.body[column.name]
                 }
@@ -113,11 +109,13 @@ const updateRecord = async (req: express.Request, res: express.Response) => {
             }
             sheet.splice(row+1, 1, newColumn)
             try {
-                googleWrapper.updateSheet(existingDS.URL, sheet, creator.rtoken, creator.atoken, creator.expire)
-                globalLogger.info(existingDS.URL + " update " + req.query.key + " success")
-                return res.status(200).json({
-                    status: "OK"
+                googleWrapper.updateSheet(existingDS.URL, sheet, creator.rtoken, creator.atoken, creator.expire).then(async () => {
+                    globalLogger.info(existingDS.URL + " update " + req.query.key + " success")
+                    return res.status(200).json({
+                        status: "OK"
+                    })
                 })
+                
             }
             catch (e) {
                 globalLogger.info(e)
@@ -220,6 +218,7 @@ const deleteRecord = async (req: express.Request, res: express.Response) => {
                 })
             }
             sheet.splice(index+1, 1)
+            console.log(sheet+"\n")
             try {
                 googleWrapper.updateSheet(existingDS.URL, sheet, creator.rtoken, creator.atoken, creator.expire)
                 globalLogger.info(existingDS.URL + " delete " + req.query.key + " success")

@@ -32,10 +32,10 @@ export const GlobalStoreActionType = {
     //End User Section
     SET_TABLE_DATA: "SET_TABLE_DATA",
     LOAD_TABLE_VIEW_LIST: "LOAD_TABLE_VIEW_LIST",
-    LOAD_DETAIL_VIEW:"LOAD_DETAIL_VIEW",
+    LOAD_DETAIL_VIEW: "LOAD_DETAIL_VIEW",
 
     //Modal
-    ON_EDIT_RECORD:"ON_EDIT_RECORD"
+    ON_EDIT_RECORD: "ON_EDIT_RECORD"
 
 }
 
@@ -69,8 +69,8 @@ function GlobalStoreContextProvider(props) {
         startApp: false,
         idTableViewPairs: [],
         currentSelectedTableData: null,
-        currentSelectedDetailData:null,
-        editRecord:false
+        currentSelectedDetailData: null,
+        editRecord: false
     });
     const { auth } = useContext(AuthContext);
 
@@ -188,18 +188,18 @@ function GlobalStoreContextProvider(props) {
                     currentSideBar: store.currentSideBar,
                     viewPairs: store.viewPairs,
                     startApp: store.startApp,
-                    editRecord:store.editRecord
+                    editRecord: store.editRecord
                 });
             }
             case GlobalStoreActionType.SET_TABLE_DATA: {
                 return setStore({
                     currentSelectedTableData: payload.table,
-                    currentSelectedDetailData:null,
+                    currentSelectedDetailData: null,
                     currentApp: store.currentApp,
                     idAppPairs: store.idAppPairs,
                     idTableViewPairs: store.idTableViewPairs,
                     startApp: true,
-                    editRecord:false
+                    editRecord: false
 
                 });
             }
@@ -209,30 +209,30 @@ function GlobalStoreContextProvider(props) {
                     idTableViewPairs: payload.pairs,
                     currentApp: payload.id,
                     startApp: true,
-                    currentSelectedDetailData:null,
-                    editRecord:false
+                    currentSelectedDetailData: null,
+                    editRecord: false
                 });
             }
-            case GlobalStoreActionType.LOAD_DETAIL_VIEW:{
+            case GlobalStoreActionType.LOAD_DETAIL_VIEW: {
                 return setStore({
-                    currentSelectedTableData:store.currentSelectedTableData,
+                    currentSelectedTableData: store.currentSelectedTableData,
                     currentSelectedDetailData: payload.table,
                     idAppPairs: store.idAppPairs,
                     idTableViewPairs: store.idTableViewPairs,
                     currentApp: store.currentApp,
                     startApp: true,
-                    editRecord:store.editRecord
+                    editRecord: store.editRecord
                 });
             }
-            case GlobalStoreActionType.ON_EDIT_RECORD:{
+            case GlobalStoreActionType.ON_EDIT_RECORD: {
                 return setStore({
-                    currentSelectedTableData:store.currentSelectedTableData,
+                    currentSelectedTableData: store.currentSelectedTableData,
                     currentSelectedDetailData: store.currentSelectedDetailData,
                     idAppPairs: store.idAppPairs,
                     idTableViewPairs: store.idTableViewPairs,
                     currentApp: store.currentApp,
                     startApp: true,
-                    editRecord:true
+                    editRecord: true
                 });
             }
             default:
@@ -682,15 +682,15 @@ function GlobalStoreContextProvider(props) {
         asyncLoadIdTableViewPairs().catch(e => alert(e.response.data.status));
     }
 
-    store.loadDetailView=(id,key)=>{
+    store.loadDetailView = (id, key) => {
         // change the current detailView
         async function asyncGetDetailView() {
-            const response = await api.getDetailView(id,key);
+            const response = await api.getDetailView(id, key);
             if (response.status == 200) {
                 let data = response.data;
                 storeReducer({
                     type: GlobalStoreActionType.LOAD_DETAIL_VIEW,
-                    payload: {table: response.data }
+                    payload: { table: response.data }
                 });
             }
             else {
@@ -700,71 +700,70 @@ function GlobalStoreContextProvider(props) {
         asyncGetDetailView();
 
     }
-    store.addNewRecord = ()=>{
+    store.addNewRecord = () => {
         // create the modal to add record for user
     }
-    store.deleteRecord=(id)=>{
-        // try {
-        //     async function asyncDeleteRecord() {
-        //         const response = await api.deleteRecord(id);
-        //         if (response.status === 200) {
-        //             const response1 = await api.getTableData(store.currentSelectedTableData.id);
-        //             if (response1.status == 200) {
-        //                 response1.id = id;
-        //                 storeReducer({
-        //                     type: GlobalStoreActionType.SET_TABLE_DATA,
-        //                     payload: { table: response1.data }
-        //                 });
-        //             }
-        //             else {
-        //                 console.log("API FAIL TO FETCH TABLE DATA");
-        //             }
+    store.deleteRecord = (key) => {
+        try {
+            async function asyncDeleteRecord() {
+                const response = await api.updateRecord(store.currentSelectedTableData.id,key,null);
+                if (response.status === 200) {
+                    const response1 = await api.getTableData(store.currentSelectedTableData.id);
+                    if (response1.status == 200) {
+                        storeReducer({
+                            type: GlobalStoreActionType.SET_TABLE_DATA,
+                            payload: { table: response1.data }
+                        });
+                    }
+                    else {
+                        console.log("API FAIL TO FETCH TABLE DATA");
+                    }
 
-        //         }
-        //         else {
-        //             console.log("UNABLE TO DELETE DATA SOURCE");
-        //         }
-        //     }
-        //     asyncDeleteRecord();
-        // }
-        // catch (error) {
-        //     alert(error.response.data.status);
-        // }
-        
+                }
+                else {
+                    console.log("UNABLE TO DELETE DATA SOURCE");
+                }
+            }
+            asyncDeleteRecord();
+        }
+        catch (error) {
+            alert(error.response.data.status);
+        }
+
     }
-    store.closeDetailView=()=>{
+    store.closeDetailView = () => {
         storeReducer({
             type: GlobalStoreActionType.SET_TABLE_DATA,
-            payload: { table:store.currentSelectedTableData}
+            payload: { table: store.currentSelectedTableData }
         });
 
     }
-    store.openEditRecord=()=>{
+    store.openEditRecord = () => {
         storeReducer({
-            type:GlobalStoreActionType.ON_EDIT_RECORD
+            type: GlobalStoreActionType.ON_EDIT_RECORD
         })
     }
-    store.updateRecordLocally=(table)=>{
+    store.updateRecordLocally = (table) => {
         storeReducer({
             type: GlobalStoreActionType.LOAD_DETAIL_VIEW,
-            payload: {table:table }
+            payload: { table: table }
         });
     }
-    store.updateRecord=(table)=>{
+    store.updateRecord = (table) => {
         async function asyncEditCurrentView() {
             try {
-                let t={};
-                for (let i=0;i<table.columns.length;i++){
-                    t[table.columns[i]]=table.data[0][i];
+                let t = {};
+                for (let i = 0; i < table.columns.length; i++) {
+                    t[table.columns[i]] = table.data[0][i];
                 }
-                const response = await api.updateRecord(table.id,table.keys[0],t);
+                const response = await api.updateRecord(table.id, table.keys[0], t);
                 if (response.status == 200) {
                     const response1 = await api.getTableData(store.currentSelectedTableData.id);
-                    if(response1.status==200){
+                    if (response1.status == 200) {
                         console.log(response1);
                         storeReducer({
                             type: GlobalStoreActionType.SET_TABLE_DATA,
-                            payload: {table:response1.data}
+                            payload: { table: response1.data }
                         })
 
                     }

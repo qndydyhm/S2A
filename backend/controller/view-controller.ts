@@ -530,7 +530,7 @@ const getTableView = async (req: express.Request, res: express.Response) => {
             })
         }
         const sheet = await googleWrapper.getSheet(existingDS.URL, creator.rtoken, creator.atoken, creator.expire)
-        if (!sheet) {
+        if (!sheet || sheet.length === 0) {
             globalLogger.info("Fail to get sheet" + existingDS.URL)
             return res.status(400).json({
                 status: "Fail to get sheet" + existingDS.URL
@@ -710,7 +710,7 @@ const getDetailView = async (req: express.Request, res: express.Response) => {
             })
         }
         const sheet = await googleWrapper.getSheet(existingDS.URL, creator.rtoken, creator.atoken, creator.expire)
-        if (!sheet) {
+        if (!sheet || sheet.length === 0) {
             globalLogger.info("Fail to get sheet" + existingDS.URL)
             return res.status(400).json({
                 status: "Fail to get sheet" + existingDS.URL
