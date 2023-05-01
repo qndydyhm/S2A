@@ -20,11 +20,11 @@ const updateRecord = async (req: express.Request, res: express.Response) => {
                 status: "Fail to find User"
             })
         }
-        const id: any = req.query.id
-        if (!id) {
-            globalLogger.info("missing view id")
+        const key: any = req.query.key
+        if (!key) {
+            globalLogger.info("missing key")
             return res.status(400).send({
-                status: "missing view id"
+                status: "missing key"
             })
         }
         const existingView = await View.findById(id);
