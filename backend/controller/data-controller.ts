@@ -69,7 +69,7 @@ const updateRecord = async (req: express.Request, res: express.Response) => {
             })
         }
         try {
-            const keyColumn = sheetParser.getValuesByColumn(sheet, req.query.key as string)
+            const keyColumn = sheetParser.getValuesByColumn(sheet, existingDS.key)
             keyColumn.splice(0, 1);
             if (!sheetParser.checkUniqueness(keyColumn)) {
                 globalLogger.info("Key column is not unique")
@@ -194,7 +194,7 @@ const deleteRecord = async (req: express.Request, res: express.Response) => {
             })
         }
         try {
-            const keyColumn = sheetParser.getValuesByColumn(sheet, req.query.key as string)
+            const keyColumn = sheetParser.getValuesByColumn(sheet, existingDS.key)
             keyColumn.splice(0, 1);
             if (!sheetParser.checkUniqueness(keyColumn)) {
                 globalLogger.info("Key column is not unique")
