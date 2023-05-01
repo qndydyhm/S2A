@@ -1,5 +1,7 @@
 import GlobalStoreContext from "../store"
 import { useContext, useState } from "react"
+import View_Detail_Session_Columns from "./View_Detail_Session_Columns";
+import View_Detail_Session_Editable_Columns from "./View_Detail_Session_Editable_Columns";
 import { all } from "axios";
 import { InputLabel, MenuItem, Select } from "@mui/material";
 import IconButton from '@mui/material/IconButton';
@@ -37,7 +39,7 @@ import InfoIcon from '@mui/icons-material/Info';
                             <InfoIcon style={{ fontSize: '48pt'}} />
                         </IconButton>
     }
-    function handleDebug(){console.log(fullTable, columns);}
+    function handleDebug(){console.log(filter, filterName);}
 
     var selectedTable = findObjectById(idDataSourcePairs, "id" ,current_view.table)
     if (fullTable){
@@ -45,6 +47,9 @@ import InfoIcon from '@mui/icons-material/Info';
         var selectedUserFilter = findObjectById(fullTable.columns, "_id" ,current_view.userfilter);
         var selectedEditFilter = findObjectById(fullTable.columns, "_id" ,current_view.editfilter);
     }
+
+    let columnCheckbox = fullTable!=null && columns!=null ? <View_Detail_Session_Columns fullTable = {fullTable} columns = {columns} setColumns = {setColumns}/> : <div></div>
+    let editableColumnCheckbox = editableColumns!=null && columns!=null ? <View_Detail_Session_Editable_Columns editableColumns = {editableColumns} columns = {columns} setEditableColumns = {setEditableColumns}/> : <div></div>
     const [table, setTable] = useState(current_view.table);
     const [tableName, setTableName] = useState(selectedTable?selectedTable.name:null);
     const [filter, setFilter] = useState(current_view.filter);
@@ -61,7 +66,7 @@ import InfoIcon from '@mui/icons-material/Info';
             tableViewFilters = 
             <div id="table-view-filters">
                 <div id="filter-select">
-                    Select Filter: {filterName}
+                    Select Filter: {filter?filter:"no filter"}
                     <Select
                         id="filter-select-menu"
                         value={''}
@@ -76,7 +81,7 @@ import InfoIcon from '@mui/icons-material/Info';
                     </Select>
                 </div>
                 <div id="user-filter-select">
-                    Select User Filter: {userFilterName}
+                    Select User Filter: {userFilter?userFilter:"no filter"}
                     <Select
                         id="user-filter-select-menu"
                         value={''}
@@ -96,7 +101,7 @@ import InfoIcon from '@mui/icons-material/Info';
             detailViewFilters =
                 <div id="detail-view-filters">
                     <div id="edit-filter-select">
-                    Select Edit Filter: {editFilterName}
+                    Select Edit Filter: {editFilter?editFilter:"no filter"}
                     <Select
                         id="edit-filter-select-menu"
                         value={''}
@@ -122,11 +127,8 @@ import InfoIcon from '@mui/icons-material/Info';
     if(type==="detail"){
         editableColumnsField =
             <div id="editable-columns-select">
-                Editable Columns (Optional, Seperated by ","):
-                <input
-                className='modal-textfield'
-                defaultValue={editableColumns}
-                onChange={handleUpdateEditableColumnsText} />
+                Editable Columns (Optional):
+                {editableColumnCheckbox}
             </div>
         if(document.getElementById("allow-add-checkbox")){document.getElementById("allow-add-checkbox").setAttribute("disabled",true);}
         if(document.getElementById("allow-edit-checkbox")){document.getElementById("allow-edit-checkbox").removeAttribute("disabled");}
@@ -242,17 +244,19 @@ import InfoIcon from '@mui/icons-material/Info';
                 className='modal-textfield'
                 defaultValue={name}
                 onChange={handleUpdateName} />
-            View Type: {type}
-            <input
-            type="button"
-            id="set-view-type-table-button"
-            value={"table"}
-            onClick={handleToggleType} />            
-            <input
-            type="button"
-            id="set-view-type-detail-button"
-            value={"detail"}
-            onClick={handleToggleType} />
+            <div>
+                View Type: {type}
+                <input
+                type="button"
+                id="set-view-type-table-button"
+                value={"table"}
+                onClick={handleToggleType} />            
+                <input
+                type="button"
+                id="set-view-type-detail-button"
+                value={"detail"}
+                onClick={handleToggleType} />
+            </div>
             </div>
             <div>
                 <input
@@ -297,12 +301,9 @@ import InfoIcon from '@mui/icons-material/Info';
             </div>
             {filters}
             <div id="columns-select">
-                Columns (Seperated by ","):
-                <input
-                className='modal-textfield'
-                defaultValue={columns}
-                onChange={handleUpdateColumnsText} />
+                Columns:
             </div>
+            {columnCheckbox}
             {editableColumnsField}
             <div id="roles-select">
                 Roles (Seperated by ","):
