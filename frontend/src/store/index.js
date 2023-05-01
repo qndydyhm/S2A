@@ -706,7 +706,7 @@ function GlobalStoreContextProvider(props) {
     store.deleteRecord = (key) => {
         try {
             async function asyncDeleteRecord() {
-                const response = await api.updateRecord(store.currentSelectedTableData.id,key,null);
+                const response = await api.deleteReocrd(store.currentSelectedTableData.id,key);
                 if (response.status === 200) {
                     const response1 = await api.getTableData(store.currentSelectedTableData.id);
                     if (response1.status == 200) {

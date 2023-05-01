@@ -218,12 +218,12 @@ const deleteRecord = async (req: express.Request, res: express.Response) => {
                 })
             }
             sheet.splice(index+1, 1)
-            console.log(sheet+"\n")
             try {
-                googleWrapper.updateSheet(existingDS.URL, sheet, creator.rtoken, creator.atoken, creator.expire)
-                globalLogger.info(existingDS.URL + " delete " + req.query.key + " success")
-                return res.status(200).json({
-                    status: "OK"
+                googleWrapper.updateSheet(existingDS.URL, sheet, creator.rtoken, creator.atoken, creator.expire).then(async () => {
+                    globalLogger.info(existingDS.URL + " update " + req.query.key + " success")
+                    return res.status(200).json({
+                        status: "OK"
+                    })
                 })
             }
             catch (e) {

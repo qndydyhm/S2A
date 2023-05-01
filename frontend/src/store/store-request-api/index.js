@@ -36,11 +36,12 @@ const getIdTableViewPairs=(id)=>api.get(`/api/view`,{params: {id:id}});
 const getTableData=(id)=>api.get(`/api/table/${id}`)                                                                                                                                
 const getDetailView=(id,key)=>api.get(`/api/detail/${id}`,{params:{key:key}})
 const updateRecord=(id,key,table)=>api.post(`/api/data/${id}`,table,{params:{key:key}})
+const deleteReocrd=(id,key)=>api.delete(`/api/data/${id}`, {params: {key: key}})
 //api.get('/api/view', view.getViews)
 // api.get('/api/table/:id', view.getTableView)
 // api.get(`/api/detail/:id`,view.getDetailView)
 // api.post('/api/data/:id', data.updateRecord)
-
+// api.delete('/api/data/:id', data.deleteRecord)
 const apis = {
     getIdAppPairs,
     createApp,
@@ -58,7 +59,8 @@ const apis = {
     getIdTableViewPairs,
     getTableData,
     getDetailView,
-    updateRecord
+    updateRecord,
+    deleteReocrd
 }
 
 export default apis
