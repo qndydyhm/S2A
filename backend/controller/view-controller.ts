@@ -511,10 +511,13 @@ const getTableView = async (req: express.Request, res: express.Response) => {
             }
         }
         if (!inRole) {
-            globalLogger.info("")
-            return res.status(400).json
+            globalLogger.info("Access Denied: Not in the roles")
+            return res.status(400).json({
+                status: "Access Denied: Not in the roles"
+            })
         }
         const sheet = await googleWrapper.getSheet(existingDS.URL, creator.rtoken, creator.atoken, creator.expire)
+
         if (!sheet) {
             globalLogger.info("Fail to get sheet" + existingDS.URL)
             return res.status(400).json({

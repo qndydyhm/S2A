@@ -32,7 +32,7 @@ export const GlobalStoreActionType = {
     //End User Section
     SET_TABLE_DATA: "SET_TABLE_DATA",
     LOAD_TABLE_VIEW_LIST: "LOAD_TABLE_VIEW_LIST",
-    LOAD_DETAIL_VIEW_LIST:"LOAD_DETAIL_VIEW_LIST"
+    LOAD_DETAIL_VIEW:"LOAD_DETAIL_VIEW"
 
 }
 
@@ -205,11 +205,12 @@ function GlobalStoreContextProvider(props) {
                     currentSelectedDetailData:null
                 });
             }
-            case GlobalStoreActionType.LOAD_DETAIL_VIEW_LIST:{
+            case GlobalStoreActionType.LOAD_DETAIL_VIEW:{
                 return setStore({
                     currentSelectedTableData:store.currentSelectedTableData,
-                    currentSelectedDetailData: payload.pairs,
+                    currentSelectedDetailData: payload.table,
                     idAppPairs: store.idAppPairs,
+                    idTableViewPairs: store.idTableViewPairs,
                     currentApp: store.currentApp,
                     startApp: true
                 });
@@ -633,7 +634,6 @@ function GlobalStoreContextProvider(props) {
         async function asyncgetTableData() {
             const response = await api.getTableData(id);
             if (response.status == 200) {
-                response.id = id;
                 storeReducer({
                     type: GlobalStoreActionType.SET_TABLE_DATA,
                     payload: { table: response.data }
@@ -662,20 +662,20 @@ function GlobalStoreContextProvider(props) {
         asyncLoadIdTableViewPairs();
     }
 
-    store.loadDetailView=()=>{
+    store.loadDetailView=(id,key)=>{
         // change the current detailView
         async function asyncGetDetailView() {
-            // const response = await api.getDetailView();
-            // if (response.status == 200) {
-            //     let data = response.data;
-            //     storeReducer({
-            //         type: GlobalStoreActionType.LOAD_DETAIL_VIEW_LIST,
-            //         payload: { pairs: pairs, id: id }
-            //     });
-            // }
-            // else {
-            //     console.log("API FAILED TO GET THE APP PAIR");
-            // }
+            const response = await api.getDetailView(id,key);
+            if (response.status == 200) {
+                let data = response.data;
+                storeReducer({
+                    type: GlobalStoreActionType.LOAD_DETAIL_VIEW,
+                    payload: {table: response.data }
+                });
+            }
+            else {
+                console.log("API FAILED TO GET THE APP PAIR");
+            }
         }
         asyncGetDetailView();
 
@@ -711,6 +711,13 @@ function GlobalStoreContextProvider(props) {
         //     alert(error.response.data.status);
         // }
         
+    }
+    store.closeDetailView=()=>{
+        storeReducer({
+            type: GlobalStoreActionType.SET_TABLE_DATA,
+            payload: { table:store.currentSelectedTableData}
+        });
+
     }
 
     return (

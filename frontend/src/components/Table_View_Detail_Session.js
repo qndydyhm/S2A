@@ -9,11 +9,12 @@ import Add from '@mui/icons-material/Add';
 import Fab from '@mui/material/Fab';
 import DeleteIcon from '@mui/icons-material/Delete';
 
+
 export default function Table_View_Detail_Session() {
     const { store } = useContext(GlobalStoreContext);
-    const [table, setTable] = useState(store.currentSelectedTableData);
-    function handleLoadDetailView(table) {
-        store.loadDetailView(table);
+    // const [table, setTable] = useState(store.currentSelectedTableData);
+    function handleLoadDetailView(table,key) {
+        store.loadDetailView(table.id,key);
     }
     function handleCreateNewRecord() {
         store.addNewRecord();
@@ -21,7 +22,7 @@ export default function Table_View_Detail_Session() {
     function handleDeleteRecord(key) {
         store.deleteRecord(key);
     }
-    let res = table.columns != null ?
+    let res = store.currentSelectedTableData.columns != null ?
         <div style={{ width: '100%', fontSize: '15pt', backgroundColor: '#9f98a1' }}>
             <Fab
                 color="inherit"
@@ -36,7 +37,7 @@ export default function Table_View_Detail_Session() {
                     <TableHead>
                         <TableRow>
                             {
-                                table.columns.map((column) => (
+                                store.currentSelectedTableData.columns.map((column) => (
                                     <TableCell>{column}</TableCell>
                                 ))
                             }
@@ -44,9 +45,9 @@ export default function Table_View_Detail_Session() {
                     </TableHead>
                     <TableBody>
                         {
-                            table.data.map((data) => (
+                            store.currentSelectedTableData.data.map((data) => (
                                 <TableRow
-                                    key={table.data.indexOf(data)}
+                                    key={store.currentSelectedTableData.data.indexOf(data)}
                                     sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                                 >
                                     {
@@ -61,9 +62,8 @@ export default function Table_View_Detail_Session() {
                                         </IconButton>
                                     </TableCell>
                                     <TableCell><PageviewIcon
-                                        onClick={(event) => { handleLoadDetailView(table) }}
+                                        onClick={(event) => { handleLoadDetailView(store.currentSelectedTableData,store.currentSelectedTableData.keys[store.currentSelectedTableData.data.indexOf(data)]) }}
                                     ></PageviewIcon></TableCell>
-
                                 </TableRow>
                             ))
                         }
