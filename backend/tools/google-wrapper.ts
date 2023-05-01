@@ -156,10 +156,47 @@ const getSheet = async (URL: string, refresh_token?: string, access_token?: stri
     }
 }
 
+/**
+ * Get sheet from a google sheet URL
+ * @param URL The URL of a google sheet https://docs.google.com/spreadsheetsId/d/aBC-123_xYz/edit#gid=sheetId
+ * @param refresh_token This field is only present if the access_type parameter was set to offline in the authentication request. For details, see Refresh tokens.
+ * @param access_token A token that can be sent to a Google API.
+ * @param expiry_date The time in ms at which this token is thought to expire.
+ * @returns 2d array of the sheet or undefined
+ */
+const updateSheet = async (URL: string, data: any[][], refresh_token?: string, access_token?: string, expiry_date?: number) => {
+    try {
+        let client: any = getClient(refresh_token, access_token, expiry_date);
+        const sheetInfo = sheetParser.sheetUrlParser(URL)
+        const sheetName = await getSheetName(URL, refresh_token, access_token, expiry_date);
+        if (!sheetName || !sheetInfo) return undefined
+        await sheet.spreadsheets.values.clear({
+            auth: client,
+            spreadsheetId: sheetInfo.spreadsheetId,
+            range: sheetName
+        })
+        const result = await sheet.spreadsheets.values.update({
+            auth: client,
+            spreadsheetId: sheetInfo.spreadsheetId,
+            range: sheetName,
+            valueInputOption: "USER_ENTERED",
+            requestBody: {
+                values: data
+            }
+        })
+        return result
+    }
+    catch (e) {
+        globalLogger.error(e)
+        return undefined
+    }
+}
+
 export default {
     getAuthUrl,
     getToken,
     getUserInfo,
     getSheet,
-    getSheetName
+    getSheetName,
+    updateSheet,
 }
