@@ -623,7 +623,9 @@ const getTableView = async (req: express.Request, res: express.Response) => {
             id: view._id,
             data: data,
             columns: columns,
-            keys: keys
+            keys: keys,
+            add: Boolean(view.allowedactions & PERMISSION.ADD),
+            delete: Boolean(view.allowedactions & PERMISSION.DELETE)
         })
     }
     catch (e) {
@@ -763,7 +765,8 @@ const getDetailView = async (req: express.Request, res: express.Response) => {
             id: detailView._id,
             data: data,
             columns: columns,
-            keys: keys
+            keys: keys,
+            edit: Boolean(detailView.allowedactions & PERMISSION.EDIT)
         })
     }
     catch (e) {
@@ -775,6 +778,12 @@ const getDetailView = async (req: express.Request, res: express.Response) => {
 enum TYPE {
     TABLE = "table",
     DETAIL = "detail"
+}
+
+enum PERMISSION {
+    ADD = 4,
+    EDIT = 2,
+    DELETE = 1
 }
 
 export default {

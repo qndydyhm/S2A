@@ -317,7 +317,25 @@ response:
     id,
     data:[][],
     columns:[],
-    keys:[]
+    keys:[],
+    add: bool,
+    delete: bool
+}
+```
+
+- Get Detail View
+```
+GET /api/detail/:id?key=%KEY%
+request:
+null
+response:
+{
+    status,
+    id,
+    data:[][],
+    columns:[],
+    keys:[],
+    edit: bool
 }
 ```
 
