@@ -15,8 +15,8 @@ const columnSchema = new Schema<{
     name: string, initvalue: string, reference: string, type: string
 }>({
     name: {type: String, required: true},
-    initvalue: {type: String, required: true},
-    reference: {type: String, required: true},
+    initvalue: {type: String, required: false},
+    reference: {type: String, required: false},
     type: {type: String, required: true}
 })
 

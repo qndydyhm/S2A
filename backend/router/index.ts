@@ -3,6 +3,7 @@ import user from '../controller/user-controller'
 import app from '../controller/app-controller'
 import ds from '../controller/datasource-controller'
 import view from '../controller/view-controller'
+import data from '../controller/data-controller'
 
 const api = express.Router()
 
@@ -40,4 +41,8 @@ api.get('/api/view/:id', view.getView)
 api.get('/api/view', view.getViews)
 api.delete('/api/view/:id', view.deleteView)
 api.get('/api/table/:id', view.getTableView)
+
+// data
+api.delete('/api/data/:id', data.updateRecord)
+api.delete('/api/data/:id', data.deleteRecord)
 export default api
