@@ -20,11 +20,11 @@ const updateRecord = async (req: express.Request, res: express.Response) => {
                 status: "Fail to find User"
             })
         }
-        const key: any = req.query.key
-        if (!key) {
-            globalLogger.info("missing key")
+        const id: any = req.params.id
+        if (!id) {
+            globalLogger.info("missing view id")
             return res.status(400).send({
-                status: "missing key"
+                status: "missing view id"
             })
         }
         const existingView = await View.findById(id);
@@ -145,7 +145,7 @@ const deleteRecord = async (req: express.Request, res: express.Response) => {
                 status: "Fail to find User"
             })
         }
-        const id: any = req.query.id
+        const id: any = req.params.id
         if (!id) {
             globalLogger.info("missing view id")
             return res.status(400).send({
