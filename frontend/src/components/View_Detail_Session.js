@@ -1,8 +1,10 @@
-import { CheckBox } from "@mui/icons-material";
 import GlobalStoreContext from "../store"
 import { useContext, useState } from "react"
+import View_Detail_Session_Columns from "./View_Detail_Session_Columns";
 import { all } from "axios";
 import { InputLabel, MenuItem, Select } from "@mui/material";
+import IconButton from '@mui/material/IconButton';
+import InfoIcon from '@mui/icons-material/Info';
 
     //TODO: MINOR BUG: Now showing selected filter
     //TODO: check if editable columns belong to columns
@@ -29,12 +31,23 @@ import { InputLabel, MenuItem, Select } from "@mui/material";
     const [roles, setRoles] = useState(current_view.roles);
     const [rolesText, setRolesText] = useState(current_view.roles);
 
+    let debug = true;
+    let debugButton = <div></div>
+    if(debug){
+        debugButton =   <IconButton onClick={handleDebug} aria-label='debug' style={{float:'right'}}>
+                            <InfoIcon style={{ fontSize: '48pt'}} />
+                        </IconButton>
+    }
+    function handleDebug(){console.log(fullTable, columns);}
+
     var selectedTable = findObjectById(idDataSourcePairs, "id" ,current_view.table)
     if (fullTable){
         var selectedFilter = findObjectById(fullTable.columns, "_id" ,current_view.filter);
         var selectedUserFilter = findObjectById(fullTable.columns, "_id" ,current_view.userfilter);
         var selectedEditFilter = findObjectById(fullTable.columns, "_id" ,current_view.editfilter);
     }
+
+    let columnCheckbox = fullTable!=null && columns!=null ? <View_Detail_Session_Columns fullTable = {fullTable} columns = {columns} setColumns = {setColumns}/> : <div></div>
     const [table, setTable] = useState(current_view.table);
     const [tableName, setTableName] = useState(selectedTable?selectedTable.name:null);
     const [filter, setFilter] = useState(current_view.filter);
@@ -120,10 +133,14 @@ import { InputLabel, MenuItem, Select } from "@mui/material";
             </div>
         if(document.getElementById("allow-add-checkbox")){document.getElementById("allow-add-checkbox").setAttribute("disabled",true);}
         if(document.getElementById("allow-edit-checkbox")){document.getElementById("allow-edit-checkbox").removeAttribute("disabled");}
+        if(document.getElementById("set-view-type-table-button")){document.getElementById("set-view-type-table-button").removeAttribute("disabled");}
+        if(document.getElementById("set-view-type-detail-button")){document.getElementById("set-view-type-detail-button").setAttribute("disabled",true);}
     }
     if(type==="table"){
         if(document.getElementById("allow-add-checkbox")){document.getElementById("allow-add-checkbox").removeAttribute("disabled");}
         if(document.getElementById("allow-edit-checkbox")){document.getElementById("allow-edit-checkbox").setAttribute("disabled",true);}
+        if(document.getElementById("set-view-type-detail-button")){document.getElementById("set-view-type-detail-button").removeAttribute("disabled");}
+        if(document.getElementById("set-view-type-table-button")){document.getElementById("set-view-type-table-button").setAttribute("disabled",true);}
     }
     function findObjectById(array, v ,id) {
         for (var i = 0; i < array.length; i++) {
@@ -228,12 +245,19 @@ import { InputLabel, MenuItem, Select } from "@mui/material";
                 className='modal-textfield'
                 defaultValue={name}
                 onChange={handleUpdateName} />
-            View Type: 
-            <input
-            type="button"
-            id="toggle-view-type-button"
-            value={type}
-            onClick={handleToggleType} />
+            <div>
+                View Type: {type}
+                <input
+                type="button"
+                id="set-view-type-table-button"
+                value={"table"}
+                onClick={handleToggleType} />            
+                <input
+                type="button"
+                id="set-view-type-detail-button"
+                value={"detail"}
+                onClick={handleToggleType} />
+            </div>
             </div>
             <div>
                 <input
@@ -285,6 +309,7 @@ import { InputLabel, MenuItem, Select } from "@mui/material";
                 onChange={handleUpdateColumnsText} />
             </div>
             {editableColumnsField}
+            {columnCheckbox}
             <div id="roles-select">
                 Roles (Seperated by ","):
                 <input
@@ -298,7 +323,7 @@ import { InputLabel, MenuItem, Select } from "@mui/material";
             id="edit-v-confirm-button"
             value='Save'
             onClick={handleConfirmEditView} />
-
+            {debugButton}
         </div>
     );
 }

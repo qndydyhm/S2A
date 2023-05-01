@@ -76,7 +76,8 @@ const createDS = async (req: express.Request, res: express.Response) => {
         const columnsName = new Set()
         for (let key in columns) {
             const column = columns[key]
-            if (typeof (column) != "object" || typeof (column.name) != "string" || typeof (column.initvalue) != "string" || typeof (column.reference) != "string" ||
+            if (typeof (column) != "object" || typeof (column.name) != "string" || (column.initvalue != undefined && typeof (column.initvalue) != "string") ||
+                (column.reference != undefined && typeof (column.reference) != "string") ||
                 (column.type != TYPE.BOOLEAN && column.type != TYPE.NUMBER && column.type != TYPE.TEXT && column.type != TYPE.URL)) {
                 appLogger.info("Column attributes have wrong type " + JSON.stringify(column))
                 return res.status(400).json({
@@ -158,8 +159,8 @@ const updateDS = async (req: express.Request, res: express.Response) => {
         let columnsName = new Set()
         for (let key in columns) {
             const column = columns[key]
-            if (typeof (column) != "object" || typeof (column.name) != "string" || typeof (column.initvalue) != "string" ||
-                typeof (column.reference) != "string" ||
+            if (typeof (column) != "object" || typeof (column.name) != "string" || (column.initvalue != undefined && typeof (column.initvalue) != "string") ||
+            (column.reference != undefined && typeof (column.reference) != "string") ||
                 (column.type != TYPE.BOOLEAN && column.type != TYPE.NUMBER && column.type != TYPE.TEXT && column.type != TYPE.URL)) {
                 globalLogger.info("Column attributes have wrong type " + JSON.stringify(column))
                 return res.status(400).json({
