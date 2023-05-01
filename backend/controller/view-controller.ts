@@ -501,7 +501,7 @@ const getTableView = async (req: express.Request, res: express.Response) => {
                 status: "Fail to find creator " + existingApp.creator
             })
         }
-        const roleM = await googleWrapper.getSheet(existingApp.roleM);
+        const roleM = await googleWrapper.getSheet(existingApp.roleM, creator.rtoken, creator.atoken, creator.expire);
         const roles = sheetParser.getRoles(roleM, loggedInUser.email)
         let inRole = false
         for (let i = 0; i < view.roles.length; ++i) {
