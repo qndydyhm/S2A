@@ -320,3 +320,31 @@ response:
     keys:[]
 }
 ```
+
+## Data
+- Update Record
+```
+POST /api/data/:id?key=%KEY%
+request:
+{
+    col1: value,
+    col2: value,
+    ...
+}
+response:
+{
+    status
+}
+```
+
+
+- Delete Record
+```
+DELETE /api/data/:id?key=%KEY%
+request:
+null
+response:
+{
+    status
+}
+```
