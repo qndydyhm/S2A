@@ -143,7 +143,7 @@ const getSheet = async (URL: string, refresh_token?: string, access_token?: stri
         let client: any = getClient(refresh_token, access_token, expiry_date);
         const sheetInfo = sheetParser.sheetUrlParser(URL)
         if (!sheetInfo) return undefined
-        const data = await redis.get(sheetInfo.spreadsheetId+","+sheetInfo.sheetId)
+        const data = await redis.get(sheetInfo.spreadsheetId, sheetInfo.sheetId+"")
         if (data) return data
         const sheetName = await getSheetName(URL, refresh_token, access_token, expiry_date);
         if (!sheetName) return undefined
@@ -152,7 +152,7 @@ const getSheet = async (URL: string, refresh_token?: string, access_token?: stri
             spreadsheetId: sheetInfo.spreadsheetId,
             range: sheetName
         })
-        await redis.set(sheetInfo.spreadsheetId+","+sheetInfo.sheetId, sheetData.data.values)
+        await redis.set(sheetInfo.spreadsheetId, sheetInfo.sheetId+"", sheetData.data.values)
         return sheetData.data.values
     }
     catch (e) {
@@ -189,7 +189,7 @@ const updateSheet = async (URL: string, data: any[][], refresh_token?: string, a
                 values: data
             }
         })
-        await redis.del(sheetInfo.spreadsheetId+","+sheetInfo.sheetId)
+        await redis.del(sheetInfo.spreadsheetId)
         return result
     }
     catch (e) {
