@@ -663,32 +663,56 @@ const getDetailView = async (req: express.Request, res: express.Response) => {
             })
         }
         //iterate the view to find a detail view with the same datasource
-        const viewArray = await View.find({ table: view.table });
-        let detailView =null;
-        for(let i=0;i<viewArray.length;i++){
-            if(viewArray[i]._id!=view._id&&viewArray[i].viewtype==TYPE.DETAIL){
-                detailView = viewArray[i]
-                break;
-            }
-        }
-        if(detailView==null){
-            globalLogger.info("Fail to get detail view for table" + view.table)
+        const viewArray = await View.find({$or: [{ table: view.table }, {viewtype: TYPE.DETAIL}]});
+        if (!viewArray || viewArray.length === 0) {
+            globalLogger.info("Fail to find detail view with table " + view.table)
             return res.status(400).json({
-                status: "Fail to get detail view for table" + view.table
+                status: "Fail to find detail view with table " + view.table
             })
         }
-        const datasource = await DataSource.findById(view.table)
-        if (!datasource) {
+        const existingDS = await DataSource.findById(view.table)
+        if (!existingDS) {
             globalLogger.info("Fail to get datasource" + view.table)
             return res.status(400).json({
                 status: "Fail to get datasource" + view.table
             })
         }
-        const sheet = await googleWrapper.getSheet(datasource.URL)
-        if (!sheet) {
-            globalLogger.info("Fail to get sheet" + datasource.URL)
+        const existingApp = await App.findById(existingDS.owner);
+        if (!existingApp) {
+            globalLogger.info("Fail to get app " + existingDS.owner)
             return res.status(400).json({
-                status: "Fail to get sheet" + datasource.URL
+                status: "Fail to get app " + existingDS.owner
+            })
+        }
+        const creator = await User.findOne({ id: existingApp.creator })
+        if (!creator) {
+            globalLogger.info("Fail to find creator " + existingApp.creator)
+            return res.status(400).json({
+                status: "Fail to find creator " + existingApp.creator
+            })
+        }
+        const roleM = await googleWrapper.getSheet(existingApp.roleM, creator.rtoken, creator.atoken, creator.expire);
+        const roles = sheetParser.getRoles(roleM, loggedInUser.email)
+        let detailView = undefined;
+        for (let i = 0; i < viewArray.length; ++i) {
+            for (let j = 0; j < viewArray[i].roles.length; ++j) {
+                if (roles.has(viewArray[i].roles[j])) {
+                    detailView = viewArray[i]
+                    break
+                }
+            }
+        }
+        if (!detailView) {
+            globalLogger.info("Access Denied: Fail to find a detail view with permission")
+            return res.status(400).json({
+                status: "Access Denied: Fail to find a detail view with permission"
+            })
+        }
+        const sheet = await googleWrapper.getSheet(existingDS.URL, creator.rtoken, creator.atoken, creator.expire)
+        if (!sheet) {
+            globalLogger.info("Fail to get sheet" + existingDS.URL)
+            return res.status(400).json({
+                status: "Fail to get sheet" + existingDS.URL
             })
         }
         let data = []
@@ -707,7 +731,7 @@ const getDetailView = async (req: express.Request, res: express.Response) => {
         const columns = data.splice(0, 1)[0];
         let keys: any[] = []
         try {
-            keys = sheetParser.getValuesByColumn(sheet, datasource.key)
+            keys = sheetParser.getValuesByColumn(sheet, existingDS.key)
         }
         catch (e) {
             globalLogger.info(e)
@@ -717,12 +741,11 @@ const getDetailView = async (req: express.Request, res: express.Response) => {
         }
         keys.splice(0, 1)
         if (!sheetParser.checkUniqueness(keys)) {
-            globalLogger.info("key column in datasource " + datasource._id + " is not unique")
+            globalLogger.info("key column in datasource " + existingDS._id + " is not unique")
             return res.status(400).json({
-                status: "key column in datasource " + datasource._id + " is not unique"
+                status: "key column in datasource " + existingDS._id + " is not unique"
             })
         }
-
         // apply filter
         let oldData = data
         let oldKeys = keys
@@ -735,7 +758,6 @@ const getDetailView = async (req: express.Request, res: express.Response) => {
                 break
             }
         }
-
         return res.status(200).json({
             status: "OK",
             id: detailView._id,

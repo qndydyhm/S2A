@@ -44,6 +44,6 @@ api.get('/api/table/:id', view.getTableView)
 api.get(`/api/detail/:id`,view.getDetailView)
 
 // data
-api.delete('/api/data/:id', data.updateRecord)
+api.post('/api/data/:id', data.updateRecord)
 api.delete('/api/data/:id', data.deleteRecord)
 export default api
