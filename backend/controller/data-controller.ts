@@ -13,6 +13,9 @@ const updateRecord = async (req: express.Request, res: express.Response) => {
     try {
         // get user info
         // TODO: check user is end user
+        console.log(req.query.key);
+        console.log(req.params.id);
+        console.log(req.body);
         const loggedInUser: any = await auth.getUser(req);
         if (!loggedInUser) {
             globalLogger.info("Fail to find User")
@@ -100,6 +103,7 @@ const updateRecord = async (req: express.Request, res: express.Response) => {
                 })
                 }
                 const col = dict[column.name as any];
+                console.log(req.body);
                 if (req.body[column.name]) {
                     newColumn[col] = req.body[column.name]
                 }

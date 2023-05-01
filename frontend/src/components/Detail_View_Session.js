@@ -23,12 +23,24 @@ const style = {
 
 export default function Detail_View_Session() {
     const { store } = useContext(GlobalStoreContext);
-    function handleClose(){
+    const [table, setTable] = useState(store.currentSelectedDetailData);
+    function handleClose() {
         store.closeDetailView();
 
     }
-    const [table, setTable] = useState(store.currentSelectedDetailData);
-    function loadEditItItemModal(each) {
+    function handleUpdatetable(e, index) {
+        e.stopPropagation();
+        store.currentSelectedDetailData.data[0][index] = e.target.value;
+        table.data[0][index]=e.target.value;
+        store.updateRecordLocally(table);
+        
+
+    }
+    function openEditRecord() {
+        store.openEditRecord();
+    }
+    function handleConfirmEditDetailView() {
+        store.updateRecord(table);
 
     }
     let res = store.currentSelectedDetailData != null ?
@@ -39,7 +51,7 @@ export default function Detail_View_Session() {
                     <TableHead>
                         <TableRow>
                             {
-                                store.currentSelectedDetailData.columns.map((column) => (
+                                table.columns.map((column) => (
                                     <TableCell>{column}</TableCell>
                                 ))
                             }
@@ -47,19 +59,28 @@ export default function Detail_View_Session() {
                     </TableHead>
                     <TableBody>
                         {
-                            store.currentSelectedDetailData.data.map((data) => (
+                            table.data.map((data) => (
                                 <TableRow
-                                    key={store.currentSelectedDetailData.data.indexOf(data)}
+                                    key={table.data.indexOf(data)}
                                     sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                                 >
                                     {
-                                        data.map((each) => (
-                                            <TableCell>{each}</TableCell>
+                                        data.map((each, index) => (
+                                            <TableCell>{
+                                                store.editRecord ?
+                                                    <input
+                                                        className='modal-textfield'
+                                                        type="text"
+                                                        value={each}
+                                                        onChange={(e) => handleUpdatetable(e, index)}
+                                                    />
+                                                    : each}</TableCell>
 
                                         ))
+
                                     }
                                     <TableCell><CreateIcon
-                                        onClick={(event) => { loadEditItItemModal(data) }}
+                                        onClick={(event) => { openEditRecord() }}
                                     ></CreateIcon></TableCell>
                                 </TableRow>
                             ))
@@ -67,12 +88,21 @@ export default function Detail_View_Session() {
                     </TableBody>
                 </Table>
             </TableContainer>
+            {
+                store.openEditRecord ?
+                    <input
+                        type="button"
+                        id="edit-ds-confirm-button"
+                        value='Save'
+                        onClick={handleConfirmEditDetailView} /> :
+                    <div></div>
+            }
         </div>
         : <div></div>;
     return (
         <div>
             <Modal
-                open={store.currentSelectedDetailData==null?false:true}
+                open={store.currentSelectedDetailData == null ? false : true}
                 onClose={handleClose}
                 aria-labelledby="modal-modal-title"
                 aria-describedby="modal-modal-description"

@@ -17,7 +17,9 @@ const set = async (spreadsheetId: string, sheetId: string, value: any) => {
 
 const get = async (spreadsheetId: string, sheetId: string) => {
     const res = await client.hGet(spreadsheetId, sheetId)
+    console.log(res)
     return res?JSON.parse(res):undefined
+    
 }
 
 const del = async (spreadsheetId: string) => {

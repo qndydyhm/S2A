@@ -32,7 +32,10 @@ export const GlobalStoreActionType = {
     //End User Section
     SET_TABLE_DATA: "SET_TABLE_DATA",
     LOAD_TABLE_VIEW_LIST: "LOAD_TABLE_VIEW_LIST",
-    LOAD_DETAIL_VIEW:"LOAD_DETAIL_VIEW"
+    LOAD_DETAIL_VIEW:"LOAD_DETAIL_VIEW",
+
+    //Modal
+    ON_EDIT_RECORD:"ON_EDIT_RECORD"
 
 }
 
@@ -66,7 +69,8 @@ function GlobalStoreContextProvider(props) {
         startApp: false,
         idTableViewPairs: [],
         currentSelectedTableData: null,
-        currentSelectedDetailData:null
+        currentSelectedDetailData:null,
+        editRecord:false
     });
     const { auth } = useContext(AuthContext);
 
@@ -183,16 +187,19 @@ function GlobalStoreContextProvider(props) {
                     idDataSourcePairs: store.idDataSourcePairs,
                     currentSideBar: store.currentSideBar,
                     viewPairs: store.viewPairs,
-                    startApp: store.startApp
+                    startApp: store.startApp,
+                    editRecord:store.editRecord
                 });
             }
             case GlobalStoreActionType.SET_TABLE_DATA: {
                 return setStore({
                     currentSelectedTableData: payload.table,
+                    currentSelectedDetailData:null,
                     currentApp: store.currentApp,
                     idAppPairs: store.idAppPairs,
                     idTableViewPairs: store.idTableViewPairs,
-                    startApp: true
+                    startApp: true,
+                    editRecord:false
 
                 });
             }
@@ -202,7 +209,8 @@ function GlobalStoreContextProvider(props) {
                     idTableViewPairs: payload.pairs,
                     currentApp: payload.id,
                     startApp: true,
-                    currentSelectedDetailData:null
+                    currentSelectedDetailData:null,
+                    editRecord:false
                 });
             }
             case GlobalStoreActionType.LOAD_DETAIL_VIEW:{
@@ -212,7 +220,19 @@ function GlobalStoreContextProvider(props) {
                     idAppPairs: store.idAppPairs,
                     idTableViewPairs: store.idTableViewPairs,
                     currentApp: store.currentApp,
-                    startApp: true
+                    startApp: true,
+                    editRecord:store.editRecord
+                });
+            }
+            case GlobalStoreActionType.ON_EDIT_RECORD:{
+                return setStore({
+                    currentSelectedTableData:store.currentSelectedTableData,
+                    currentSelectedDetailData: store.currentSelectedDetailData,
+                    idAppPairs: store.idAppPairs,
+                    idTableViewPairs: store.idTableViewPairs,
+                    currentApp: store.currentApp,
+                    startApp: true,
+                    editRecord:true
                 });
             }
             default:
@@ -717,6 +737,46 @@ function GlobalStoreContextProvider(props) {
             type: GlobalStoreActionType.SET_TABLE_DATA,
             payload: { table:store.currentSelectedTableData}
         });
+
+    }
+    store.openEditRecord=()=>{
+        storeReducer({
+            type:GlobalStoreActionType.ON_EDIT_RECORD
+        })
+    }
+    store.updateRecordLocally=(table)=>{
+        storeReducer({
+            type: GlobalStoreActionType.LOAD_DETAIL_VIEW,
+            payload: {table:table }
+        });
+    }
+    store.updateRecord=(table)=>{
+        async function asyncEditCurrentView() {
+            try {
+                let t={};
+                for (let i=0;i<table.columns.length;i++){
+                    t[table.columns[i]]=table.data[0][i];
+                }
+                const response = await api.updateRecord(table.id,table.keys[0],t);
+                if (response.status == 200) {
+                    const response1 = await api.getTableData(store.currentSelectedTableData.id);
+                    if(response1.status==200){
+                        console.log(response1);
+                        storeReducer({
+                            type: GlobalStoreActionType.SET_TABLE_DATA,
+                            payload: {table:response1.data}
+                        })
+
+                    }
+                }
+            }
+            catch (error) {
+                console.log(error);
+                alert(error);
+            }
+        }
+        asyncEditCurrentView();
+
 
     }
 
