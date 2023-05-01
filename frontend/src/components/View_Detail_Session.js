@@ -1,5 +1,6 @@
 import GlobalStoreContext from "../store"
 import { useContext, useState } from "react"
+import View_Detail_Session_Columns from "./View_Detail_Session_Columns";
 import { all } from "axios";
 import { InputLabel, MenuItem, Select } from "@mui/material";
 import IconButton from '@mui/material/IconButton';
@@ -45,6 +46,8 @@ import InfoIcon from '@mui/icons-material/Info';
         var selectedUserFilter = findObjectById(fullTable.columns, "_id" ,current_view.userfilter);
         var selectedEditFilter = findObjectById(fullTable.columns, "_id" ,current_view.editfilter);
     }
+
+    let columnCheckbox = fullTable!=null && columns!=null ? <View_Detail_Session_Columns fullTable = {fullTable} columns = {columns} setColumns = {setColumns}/> : <div></div>
     const [table, setTable] = useState(current_view.table);
     const [tableName, setTableName] = useState(selectedTable?selectedTable.name:null);
     const [filter, setFilter] = useState(current_view.filter);
@@ -242,17 +245,19 @@ import InfoIcon from '@mui/icons-material/Info';
                 className='modal-textfield'
                 defaultValue={name}
                 onChange={handleUpdateName} />
-            View Type: {type}
-            <input
-            type="button"
-            id="set-view-type-table-button"
-            value={"table"}
-            onClick={handleToggleType} />            
-            <input
-            type="button"
-            id="set-view-type-detail-button"
-            value={"detail"}
-            onClick={handleToggleType} />
+            <div>
+                View Type: {type}
+                <input
+                type="button"
+                id="set-view-type-table-button"
+                value={"table"}
+                onClick={handleToggleType} />            
+                <input
+                type="button"
+                id="set-view-type-detail-button"
+                value={"detail"}
+                onClick={handleToggleType} />
+            </div>
             </div>
             <div>
                 <input
@@ -304,6 +309,7 @@ import InfoIcon from '@mui/icons-material/Info';
                 onChange={handleUpdateColumnsText} />
             </div>
             {editableColumnsField}
+            {columnCheckbox}
             <div id="roles-select">
                 Roles (Seperated by ","):
                 <input
