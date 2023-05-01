@@ -104,19 +104,19 @@ const createView = async (req: express.Request, res: express.Response) => {
                 newView.editablecolumns = editablecolumns as [string]
             }
         }
-        const existingDS = await DataSource.findById(table)
-        if (!existingDS) {
-            globalLogger.info("Fail to get datasource " + table)
-            return res.status(400).json({
-                status: "Fail to get datasource " + table
-            })
-        }
-        if (owner != existingDS.owner) {
-            globalLogger.info("Cannot create view for data source in different app")
-            return res.status(400).json({
-                status: "Cannot create view for data source in different app"
-            })
-        }
+        // const existingDS = await DataSource.findById(table)
+        // if (!existingDS) {
+        //     globalLogger.info("Fail to get datasource " + table)
+        //     return res.status(400).json({
+        //         status: "Fail to get datasource " + table
+        //     })
+        // }
+        // if (owner != existingDS.owner) {
+        //     globalLogger.info("Cannot create view for data source in different app")
+        //     return res.status(400).json({
+        //         status: "Cannot create view for data source in different app"
+        //     })
+        // }
         const creator = await User.findOne({ id: existingApp.creator })
         if (!creator) {
             globalLogger.info("Fail to find creator " + existingApp.creator)
@@ -166,7 +166,7 @@ const updateView = async (req: express.Request, res: express.Response) => {
             })
         }
         // TODO check owner, table, columns, roles is valid
-        // create and save datasource
+        // create and save view
         if (viewtype !== TYPE.TABLE && viewtype !== TYPE.DETAIL) {
             globalLogger.info('View type must be one of "table" or "detail"')
             return res.status(400).json({
@@ -178,6 +178,19 @@ const updateView = async (req: express.Request, res: express.Response) => {
             globalLogger.info('Fail to find view')
             return res.status(400).json({
                 status: 'Fail to find view'
+            })
+        }
+        const existingDS = await DataSource.findById(table)
+        if (!existingDS) {
+            globalLogger.info("Fail to get datasource " + table)
+            return res.status(400).json({
+                status: "Fail to get datasource " + table
+            })
+        }
+        if (existingView.owner != existingDS.owner) {
+            globalLogger.info("Cannot create view for data source in different app")
+            return res.status(400).json({
+                status: "Cannot create view for data source in different app"
             })
         }
         // check if the creator can access role membership sheet

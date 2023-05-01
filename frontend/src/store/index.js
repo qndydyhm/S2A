@@ -234,7 +234,7 @@ function GlobalStoreContextProvider(props) {
                 console.log("API FAILED TO GET THE APP PAIR");
             }
         }
-        asyncLoadIdAppPairs();
+        asyncLoadIdAppPairs().catch(e => alert(e.response.data.status));
 
 
     }
@@ -249,7 +249,7 @@ function GlobalStoreContextProvider(props) {
                 console.log("FAIL TO CHECK GLOBAL DEVELOPER");
             }
         }
-        asyncIsGlobalDeveloper();
+        asyncIsGlobalDeveloper().catch(e => alert(e.response.data.status));
     }
     //RESTORE EVERY STORE VALUE TO DEFAULT
     store.setStoreToDefault = function () {
@@ -273,7 +273,7 @@ function GlobalStoreContextProvider(props) {
                 console.log("API FAILED TO GET THE APP PAIR");
             }
         }
-        asyncLoadIdAppPairs();
+        asyncLoadIdAppPairs().catch(e => alert(e.response.data.status));
     }
     //create default App and Datasource with all values null
     store.createDefaultApp = function () {
@@ -292,7 +292,7 @@ function GlobalStoreContextProvider(props) {
                 Alert(response.data.status);
             }
         }
-        asyncCreateDefaultApp();
+        asyncCreateDefaultApp().catch(e => alert(e.response.data.status));
     }
 
     store.deleteApp = function (id) {
@@ -316,7 +316,7 @@ function GlobalStoreContextProvider(props) {
 
             }
         }
-        asyncDeleteApp();
+        asyncDeleteApp().catch(e => alert(e.response.data.status));
     }
 
     //argument app has the format {name,creator,roleM, publish}
@@ -335,7 +335,7 @@ function GlobalStoreContextProvider(props) {
                 alert(error.response.data.status);
             }
         }
-        asyncEditCurrentApp();
+        asyncEditCurrentApp().catch(e => alert(e.response.data.status));
     }
     store.loadIdDatasourcePair = function () {
         let pairs = [];
@@ -393,7 +393,7 @@ function GlobalStoreContextProvider(props) {
             }
 
         }
-        asyncGetSelectedDataSource();
+        asyncGetSelectedDataSource().catch(e => alert(e.response.data.status));
     }
     store.createNewColumn = function () {
         let value = store.currentSelectedDatasource;
@@ -438,7 +438,7 @@ function GlobalStoreContextProvider(props) {
                     }
                 }
             }
-            asyncCreateNewDataSource();
+            asyncCreateNewDataSource().catch(e => alert(e.response.data.status));
         }
         catch (error) {
             alert(error.response.data.status);
@@ -504,7 +504,7 @@ function GlobalStoreContextProvider(props) {
                 console.log("API FAILED TO GET THE APP INFO BY ID");
             }
         }
-        asyncLoadCurrentApp();
+        asyncLoadCurrentApp().catch(e => alert(e.response.data.status));
     }
 
 
@@ -556,7 +556,7 @@ function GlobalStoreContextProvider(props) {
                 });
             }
         }
-        asyncGetSelectedView();
+        asyncGetSelectedView().catch(e => alert(e.response.data.status));
     }
     store.setTableForView = function (id) {
         async function asyncSetTableForView() {
@@ -569,7 +569,7 @@ function GlobalStoreContextProvider(props) {
                 });
             }
         }
-        asyncSetTableForView();
+        asyncSetTableForView().catch(e => alert(e.response.data.status));
     }
     store.editCurrentView = function (id, view) {
         async function asyncEditCurrentView() {
@@ -643,7 +643,7 @@ function GlobalStoreContextProvider(props) {
                 console.log("API FAIL TO FETCH TABLE DATA");
             }
         }
-        asyncgetTableData();
+        asyncgetTableData().catch(e => alert(e.response.data.status));
     }
     store.startCurrentApp = (id) => {
         async function asyncLoadIdTableViewPairs() {
@@ -659,7 +659,7 @@ function GlobalStoreContextProvider(props) {
                 console.log("API FAILED TO GET THE APP PAIR");
             }
         }
-        asyncLoadIdTableViewPairs();
+        asyncLoadIdTableViewPairs().catch(e => alert(e.response.data.status));
     }
 
     store.loadDetailView=(id,key)=>{
