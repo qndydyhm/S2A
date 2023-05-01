@@ -58,10 +58,23 @@ const checkUniqueness = (column: any[]) => {
     return true
 }
 
+const getRoles = (sheet: any[][], email: string) => {
+    const set = new Set();
+    for (let i = 0; i < sheet.length; ++i) {
+        for (let j = 0; j < sheet[i].length && j < sheet[0].length; ++j) {
+            if (sheet[i][j] == email) {
+                set.add(sheet[0][j])
+            }
+        }
+    }
+    return set;
+}
+
 export default {
     sheetUrlParser,
     getValuesByColumn,
     getDeveloperList,
     transposeTable,
-    checkUniqueness
+    checkUniqueness,
+    getRoles
 }

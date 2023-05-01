@@ -13,7 +13,6 @@ import User from '../models/user-model'
 const createView = async (req: express.Request, res: express.Response) => {
     try {
         // get user info
-        // TODO: check user is developer
         const loggedInUser: any = await auth.getUser(req);
         if (!loggedInUser) {
             globalLogger.info("Fail to find User")
@@ -105,6 +104,32 @@ const createView = async (req: express.Request, res: express.Response) => {
                 newView.editablecolumns = editablecolumns as [string]
             }
         }
+        const existingDS = await DataSource.findById(table)
+        if (!existingDS) {
+            globalLogger.info("Fail to get datasource " + table)
+            return res.status(400).json({
+                status: "Fail to get datasource " + table
+            })
+        }
+        if (owner != existingDS.owner) {
+            globalLogger.info("Cannot create view for data source in different app")
+            return res.status(400).json({
+                status: "Cannot create view for data source in different app"
+            })
+        }
+        const creator = await User.findById(existingApp.creator);
+        if (!creator) {
+            globalLogger.info("Fail to find creator " + existingApp.creator)
+            return res.status(400).json({
+                status: "Fail to find creator " + existingApp.creator
+            })
+        }
+        if (loggedInUser.id !== creator.id && !await accessControl.isInDeveloperList(loggedInUser.email, existingApp.roleM, creator.rtoken, creator.atoken, creator.expire, existingApp._id.toString())) {
+            globalLogger.info("User " + loggedInUser.id + " is not in developer role of app " + existingApp._id)
+            return res.status(400).json({
+                status: "User " + loggedInUser.email + " is not in developer role of app " + existingApp._id
+            })
+        }
         const savedView = await newView.save();
         existingApp.views.push(savedView._id.toString())
         existingApp.save()
@@ -121,7 +146,6 @@ const createView = async (req: express.Request, res: express.Response) => {
 const updateView = async (req: express.Request, res: express.Response) => {
     try {
         // get user info
-        // TODO: check user is developer
         const loggedInUser: any = await auth.getUser(req);
         if (!loggedInUser) {
             globalLogger.info("Fail to find User")
@@ -258,7 +282,6 @@ const updateView = async (req: express.Request, res: express.Response) => {
 const getView = async (req: express.Request, res: express.Response) => {
     try {
         // get user info
-        // TODO: check user is end user
         const loggedInUser: any = await auth.getUser(req);
         if (!loggedInUser) {
             globalLogger.info("Fail to find User")
@@ -309,6 +332,40 @@ const deleteView = async (req: express.Request, res: express.Response) => {
                 status: "Missing parameter"
             })
         }
+        const view = await View.findById(viewId)
+        if (!view) {
+            globalLogger.info("Fail to get view " + viewId)
+            return res.status(400).json({
+                status: "Fail to get view " + viewId
+            })
+        }
+        const existingDS = await DataSource.findById(view.table)
+        if (!existingDS) {
+            globalLogger.info("Fail to get datasource" + view.table)
+            return res.status(400).json({
+                status: "Fail to get datasource" + view.table
+            })
+        }
+        const existingApp = await App.findById(existingDS.owner);
+        if (!existingApp) {
+            globalLogger.info("Fail to get app " + existingDS.owner)
+            return res.status(400).json({
+                status: "Fail to get app " + existingDS.owner
+            })
+        }
+        const creator = await User.findById(existingApp.creator);
+        if (!creator) {
+            globalLogger.info("Fail to find creator " + existingApp.creator)
+            return res.status(400).json({
+                status: "Fail to find creator " + existingApp.creator
+            })
+        }
+        if (loggedInUser.id !== creator.id && !await accessControl.isInDeveloperList(loggedInUser.email, existingApp.roleM, creator.rtoken, creator.atoken, creator.expire, existingApp._id.toString())) {
+            globalLogger.info("User " + loggedInUser.id + " is not in developer role of app " + existingApp._id)
+            return res.status(400).json({
+                status: "User " + loggedInUser.email + " is not in developer role of app " + existingApp._id
+            })
+        }
         // find and delete view
         const existingView = await View.findOneAndDelete({ _id: viewId });
         if (!existingView) {
@@ -343,7 +400,6 @@ const deleteView = async (req: express.Request, res: express.Response) => {
 const getViews = async (req: express.Request, res: express.Response) => {
     try {
         // get user info
-        // TODO: check user is end user
         const loggedInUser: any = await auth.getUser(req);
         if (!loggedInUser) {
             globalLogger.info("Fail to find User")
@@ -365,7 +421,6 @@ const getViews = async (req: express.Request, res: express.Response) => {
                 status: "Fail to find owner " + id
             })
         }
-        // TODO access control
         const appLogger = getLogger(id)
         const viewlist = Array();
         for (let key in owner.views) {
@@ -398,7 +453,6 @@ const getViews = async (req: express.Request, res: express.Response) => {
 const getTableView = async (req: express.Request, res: express.Response) => {
     try {
         // get user info
-        // TODO check user is end user
         const loggedInUser: any = await auth.getUser(req);
         if (!loggedInUser) {
             globalLogger.info("Fail to find User")
@@ -426,18 +480,45 @@ const getTableView = async (req: express.Request, res: express.Response) => {
                 status: "View type is not table"
             })
         }
-        const datasource = await DataSource.findById(view.table)
-        if (!datasource) {
+        const existingDS = await DataSource.findById(view.table)
+        if (!existingDS) {
             globalLogger.info("Fail to get datasource" + view.table)
             return res.status(400).json({
                 status: "Fail to get datasource" + view.table
             })
         }
-        const sheet = await googleWrapper.getSheet(datasource.URL)
-        if (!sheet) {
-            globalLogger.info("Fail to get sheet" + datasource.URL)
+        const existingApp = await App.findById(existingDS.owner);
+        if (!existingApp) {
+            globalLogger.info("Fail to get app " + existingDS.owner)
             return res.status(400).json({
-                status: "Fail to get sheet" + datasource.URL
+                status: "Fail to get app " + existingDS.owner
+            })
+        }
+        const creator = await User.findById(existingApp.creator);
+        if (!creator) {
+            globalLogger.info("Fail to find creator " + existingApp.creator)
+            return res.status(400).json({
+                status: "Fail to find creator " + existingApp.creator
+            })
+        }
+        const roleM = await googleWrapper.getSheet(existingApp.roleM);
+        const roles = sheetParser.getRoles(roleM, loggedInUser.email)
+        let inRole = false
+        for (let i = 0; i < view.roles.length; ++i) {
+            if (roles.has(view.roles[i])) {
+                inRole = true
+                break
+            }
+        }
+        if (!inRole) {
+            globalLogger.info("")
+            return res.status(400).json
+        }
+        const sheet = await googleWrapper.getSheet(existingDS.URL, creator.rtoken, creator.atoken, creator.expire)
+        if (!sheet) {
+            globalLogger.info("Fail to get sheet" + existingDS.URL)
+            return res.status(400).json({
+                status: "Fail to get sheet" + existingDS.URL
             })
         }
         let data = []
@@ -453,10 +534,10 @@ const getTableView = async (req: express.Request, res: express.Response) => {
             })
         }
         data = sheetParser.transposeTable(data)
-        const columns = data.splice(0,1)[0];
+        const columns = data.splice(0, 1)[0];
         let keys = []
         try {
-            keys = sheetParser.getValuesByColumn(sheet, datasource.key)
+            keys = sheetParser.getValuesByColumn(sheet, existingDS.key)
         }
         catch (e) {
             globalLogger.info(e)
@@ -464,11 +545,11 @@ const getTableView = async (req: express.Request, res: express.Response) => {
                 status: e
             })
         }
-        keys.splice(0,1)
+        keys.splice(0, 1)
         if (!sheetParser.checkUniqueness(keys)) {
-            globalLogger.info("key column in datasource " + datasource._id + " is not unique")
+            globalLogger.info("key column in datasource " + existingDS.URL + " is not unique")
             return res.status(400).json({
-                status: "key column in datasource " + datasource._id + " is not unique"
+                status: "key column in datasource " + existingDS.URL + " is not unique"
             })
         }
         if (view.filter) {
