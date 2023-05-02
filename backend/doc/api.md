@@ -335,6 +335,7 @@ response:
     data:[][],
     columns:[],
     keys:[],
+    editablecolumns: [],
     edit: bool
 }
 ```
