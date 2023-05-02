@@ -32,7 +32,7 @@ import InfoIcon from '@mui/icons-material/Info';
     const [roles, setRoles] = useState(current_view.roles);
     const [rolesText, setRolesText] = useState(current_view.roles);
 
-    let debug = true;
+    let debug = false;
     let debugButton = <div></div>
     if(debug){
         debugButton =   <IconButton onClick={handleDebug} aria-label='debug' style={{float:'right'}}>

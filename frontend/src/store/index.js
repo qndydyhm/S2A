@@ -734,7 +734,7 @@ function GlobalStoreContextProvider(props) {
                 console.log("API FAILED TO GET THE APP PAIR");
             }
         }
-        asyncGetDetailView();
+        asyncGetDetailView().catch(e => alert(e.response.data.status));
 
     }
     store.deleteRecord = (key) => {
@@ -825,7 +825,7 @@ function GlobalStoreContextProvider(props) {
             }
             catch (error) {
                 console.log(error);
-                alert(error);
+                alert(error.response.data.status);
             }
         }
         asyncEditCurrentView();
