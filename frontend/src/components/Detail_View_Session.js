@@ -50,7 +50,7 @@ export default function Detail_View_Session() {
                         {
                                     store.currentSelectedDetailData.data[0].map((each, index) => (
                                         <TableRow
-                                            key={store.currentSelectedDetailData.data.indexOf(each)}
+                                            key={index}
                                         >
                                             <TableCell size="small">
                                                 {<span fontSize=''>{store.currentSelectedDetailData.columns[index]}:</span>}
@@ -71,7 +71,7 @@ export default function Detail_View_Session() {
                 </Table>
             </TableContainer>
             {
-                store.openEditRecord ?
+                store.editRecord ?
                     <input
                         type="button"
                         id="edit-ds-confirm-button"

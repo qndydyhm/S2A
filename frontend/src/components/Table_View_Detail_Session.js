@@ -8,6 +8,7 @@ import { GlobalStoreContext } from '../store';
 import Add from '@mui/icons-material/Add';
 import Fab from '@mui/material/Fab';
 import DeleteIcon from '@mui/icons-material/Delete';
+import Add_Record_Modal from './Add_Record_Modal';
 
 
 export default function Table_View_Detail_Session() {
@@ -16,8 +17,9 @@ export default function Table_View_Detail_Session() {
     function handleLoadDetailView(table, key) {
         store.loadDetailView(table.id, key);
     }
-    function handleCreateNewRecord() {
-        store.addNewRecord();
+    function handleCreateNewRecord(event) {
+        event.stopPropagation();
+        store.openAddRecord();
     }
     function handleDeleteRecord(event, key) {
         event.stopPropagation();
@@ -30,7 +32,7 @@ export default function Table_View_Detail_Session() {
                     color="inherit"
                     aria-label="add"
                     id="add-list-button"
-                    onClick={handleCreateNewRecord}
+                    onClick={(e)=>{handleCreateNewRecord(e)}}
                 >
                     <Add />
                 </Fab>:
@@ -41,30 +43,29 @@ export default function Table_View_Detail_Session() {
                     <TableHead>
                         <TableRow>
                             {
-                                store.currentSelectedTableData.columns.map((column) => (
-                                    <TableCell>{column}</TableCell>
+                                store.currentSelectedTableData.columns.map((column,j) => (
+                                    <TableCell key={j}>{column}</TableCell>
                                 ))
                             }
                         </TableRow>
                     </TableHead>
                     <TableBody>
                         {
-                            store.currentSelectedTableData.data.map((data) => (
+                            store.currentSelectedTableData.data.map((data,i) => (
                                 <TableRow
-                                    key={store.currentSelectedTableData.data.indexOf(data)}
+                                    key={i}
                                     sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                                 >
                                     {
-                                        data.map((each) => (
-                                            <TableCell>{each}</TableCell>
+                                        data.map((each,index) => (
+                                            <TableCell key={index}>{each}</TableCell>
                                         ))
                                     }
                                     <TableCell>
                                         {
                                             store.currentSelectedTableData.delete ?
-                                                <IconButton aria-label='delete' style={{ float: 'right' }}>
+                                                <IconButton aria-label='delete' style={{ float: 'right' }} onClick={(event) => handleDeleteRecord(event, store.currentSelectedTableData.keys[store.currentSelectedTableData.data.indexOf(data)])}>
                                                     <DeleteIcon style={{ fontSize: '20pt' }}
-                                                        onClick={(event) => handleDeleteRecord(event, store.currentSelectedTableData.keys[store.currentSelectedTableData.data.indexOf(data)])}
                                                     />
                                                 </IconButton>
                                                 : <span></span>
@@ -84,9 +85,10 @@ export default function Table_View_Detail_Session() {
             </TableContainer>
         </div>
         : <div></div>;
-    return (
-        <div>
-            {res}
-        </div>);
+        return (
+            <div>
+                {res}
+                {store.onAddRecord?<Add_Record_Modal></Add_Record_Modal>:<span></span>}
+            </div>);
 
 }

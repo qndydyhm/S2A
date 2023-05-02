@@ -36,6 +36,7 @@ export const GlobalStoreActionType = {
 
     //Modal
     ON_EDIT_RECORD: "ON_EDIT_RECORD",
+    ON_ADD_RECORD:"ON_ADD_RECORD",
     LOAD_THE_PAGE:"LOAD_THE_PAGE"
 
 }
@@ -72,6 +73,7 @@ function GlobalStoreContextProvider(props) {
         currentSelectedTableData: null,
         currentSelectedDetailData: null,
         editRecord: false,
+        onAddRecord:false,
         loadThePage:false
     });
     const { auth } = useContext(AuthContext);
@@ -190,7 +192,8 @@ function GlobalStoreContextProvider(props) {
                     currentSideBar: store.currentSideBar,
                     viewPairs: store.viewPairs,
                     startApp: store.startApp,
-                    editRecord: store.editRecord
+                    editRecord: store.editRecord,
+                    OnAddRecord:false
                 });
             }
             case GlobalStoreActionType.SET_TABLE_DATA: {
@@ -201,7 +204,8 @@ function GlobalStoreContextProvider(props) {
                     idAppPairs: store.idAppPairs,
                     idTableViewPairs: store.idTableViewPairs,
                     startApp: true,
-                    editRecord: false
+                    editRecord: false,
+                    onAddRecord:false
 
                 });
             }
@@ -213,6 +217,7 @@ function GlobalStoreContextProvider(props) {
                     startApp: true,
                     currentSelectedDetailData: null,
                     editRecord: false,
+                    onAddRecord:false,
                     loadThePage:false
                 });
             }
@@ -225,6 +230,7 @@ function GlobalStoreContextProvider(props) {
                     currentApp: store.currentApp,
                     startApp: true,
                     editRecord: store.editRecord,
+                    onAddRecord:false,
                     loadThePage:false
                 });
             }
@@ -237,6 +243,7 @@ function GlobalStoreContextProvider(props) {
                     currentApp: store.currentApp,
                     startApp: true,
                     editRecord: true,
+                    onAddRecord:false,
                     loadThePage:false
                 });
             }
@@ -251,6 +258,19 @@ function GlobalStoreContextProvider(props) {
                     editRecord: true,
                     loadThePage:true
                 });
+            }
+            case GlobalStoreActionType.ON_ADD_RECORD:{
+                setStore({
+                    currentSelectedTableData: store.currentSelectedTableData,
+                    currentSelectedDetailData: store.currentSelectedDetailData,
+                    idAppPairs: store.idAppPairs,
+                    idTableViewPairs: store.idTableViewPairs,
+                    currentApp: store.currentApp,
+                    startApp: true,
+                    editRecord: false,
+                    onAddRecord:true,
+                    loadThePage:false
+                }); 
             }
             default:
                 return store;
@@ -763,15 +783,11 @@ function GlobalStoreContextProvider(props) {
             payload: { table: table }
         });
     }
-    store.addNewRecord = () => {
+    store.addNewRecord = (key) => {
         console.log(store.currentSelectedTableData)
         async function asyncAddNewRecord() {
             try {
-                let t = {};
-                for (let i = 0; i < store.currentSelectedTableData.columns.length; i++) {
-                    t[store.currentSelectedTableData.columns[i]] = null;
-                }
-                const response = await api.updateRecord(store.currentSelectedTableData.id, null, t);
+                const response = await api.updateRecord(store.currentSelectedTableData.id, key, {});
                 if(response.status == 200){
                     const response1 = await api.getTableData(store.currentSelectedTableData.id);
                     if (response1.status == 200) {
@@ -798,9 +814,6 @@ function GlobalStoreContextProvider(props) {
                 const response = await api.updateRecord(table.id, table.keys[0], t);
                 if (response.status == 200) {
                     const response1 = await api.getTableData(store.currentSelectedTableData.id);
-                    storeReducer({
-                        type:GlobalStoreActionType.LOAD_THE_PAGE
-                    })
                     if (response1.status == 200) {
                         storeReducer({
                             type: GlobalStoreActionType.SET_TABLE_DATA,
@@ -816,8 +829,11 @@ function GlobalStoreContextProvider(props) {
             }
         }
         asyncEditCurrentView();
-
-
+    }
+    store.openAddRecord=()=>{
+        storeReducer({
+            type: GlobalStoreActionType.ON_ADD_RECORD,
+        })
     }
 
     return (

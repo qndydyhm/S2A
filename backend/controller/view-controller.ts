@@ -750,25 +750,25 @@ const getDetailView = async (req: express.Request, res: express.Response) => {
         // apply filter
         let oldData = data
         let oldKeys = keys
-        let editable = false
+        let editable = true
         data = [];
         keys = [];
-        for (let key in oldKeys) {
+        for (let key = 0; key < oldKeys.length; ++key) {
             if (oldKeys[key] == keyValue ) {
                 data.push(oldData[key])
                 keys.push(oldKeys[key])
-                if (view.editfilter) {
+                if (detailView.editfilter) {
                     let index = undefined
-                    for (let i in columns) {
-                        if (columns[i] == view.editfilter) {
+                    for (let i in sheet[0]) {
+                        if (sheet[0][i] == detailView.editfilter) {
                             index = i
                             break
                         }
                     }
                     if (index === undefined) {
-                        globalLogger.info("edit filter " + view.editfilter + " is not in columns")
+                        globalLogger.info("edit filter " + detailView.editfilter + " is not in columns")
                         return res.status(400).json({
-                            status: "edit filter " + view.editfilter + " is not in columns"
+                            status: "edit filter " + detailView.editfilter + " is not in columns"
                         })
                     }
                     editable = ((sheet[key+1][index] as string).toUpperCase() === "TRUE")

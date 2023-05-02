@@ -109,8 +109,13 @@ const updateRecord = async (req: express.Request, res: express.Response) => {
                 if (req.body[column.name]) {
                     newColumn[col] = req.body[column.name]
                 }
-                else if (row == keyColumn.length && column.initvalue != undefined) {
-                    newColumn[col] = column.initvalue
+                else if (row == keyColumn.length && (column.name === existingDS.key || column.initvalue != undefined)) {
+                    if (column.name === existingDS.key) {
+                        newColumn[col] = req.query.key
+                    }
+                    else {
+                        newColumn[col] = column.initvalue
+                    }
                 }
             }
             sheet.splice(row+1, 1, newColumn)
