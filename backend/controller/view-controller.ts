@@ -750,12 +750,29 @@ const getDetailView = async (req: express.Request, res: express.Response) => {
         // apply filter
         let oldData = data
         let oldKeys = keys
+        let editable = false
         data = [];
         keys = [];
         for (let key in oldKeys) {
             if (oldKeys[key] == keyValue ) {
                 data.push(oldData[key])
                 keys.push(oldKeys[key])
+                if (view.editfilter) {
+                    let index = undefined
+                    for (let i in columns) {
+                        if (columns[i] == view.editfilter) {
+                            index = i
+                            break
+                        }
+                    }
+                    if (index === undefined) {
+                        globalLogger.info("edit filter " + view.editfilter + " is not in columns")
+                        return res.status(400).json({
+                            status: "edit filter " + view.editfilter + " is not in columns"
+                        })
+                    }
+                    editable = ((sheet[key+1][index] as string).toUpperCase() === "TRUE")
+                }
                 break
             }
         }
@@ -765,7 +782,8 @@ const getDetailView = async (req: express.Request, res: express.Response) => {
             data: data,
             columns: columns,
             keys: keys,
-            edit: Boolean(detailView.allowedactions & PERMISSION.EDIT)
+            editablecolumns: detailView.editablecolumns,
+            edit: Boolean(detailView.allowedactions & PERMISSION.EDIT) && editable
         })
     }
     catch (e) {
