@@ -12,7 +12,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 
 export default function Table_View_Detail_Session() {
     const { store } = useContext(GlobalStoreContext);
-    // const [table, setTable] = useState(store.currentSelectedTableData);
+    const [table, setTable] = useState(store.currentSelectedTableData);
     function handleLoadDetailView(table, key) {
         store.loadDetailView(table.id, key);
     }

@@ -700,9 +700,6 @@ function GlobalStoreContextProvider(props) {
         asyncGetDetailView();
 
     }
-    store.addNewRecord = () => {
-        // create the modal to add record for user
-    }
     store.deleteRecord = (key) => {
         try {
             async function asyncDeleteRecord() {
@@ -748,6 +745,31 @@ function GlobalStoreContextProvider(props) {
             type: GlobalStoreActionType.LOAD_DETAIL_VIEW,
             payload: { table: table }
         });
+    }
+    store.addNewRecord = () => {
+        console.log(store.currentSelectedTableData)
+        async function asyncAddNewRecord() {
+            try {
+                let t = {};
+                for (let i = 0; i < store.currentSelectedTableData.columns.length; i++) {
+                    t[store.currentSelectedTableData.columns[i]] = null;
+                }
+                const response = await api.updateRecord(store.currentSelectedTableData.id, null, t);
+                if(response.status == 200){
+                    const response1 = await api.getTableData(store.currentSelectedTableData.id);
+                    if (response1.status == 200) {
+                        console.log(response1);
+                        storeReducer({
+                            type: GlobalStoreActionType.SET_TABLE_DATA,
+                            payload: { table: response1.data }
+                        })
+                    }
+                }
+            }catch(e){
+                alert(e.response.data.status);
+            }
+        }
+        asyncAddNewRecord();
     }
     store.updateRecord = (table) => {
         async function asyncEditCurrentView() {

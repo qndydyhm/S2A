@@ -21,8 +21,6 @@ export default function Detail_View_Session() {
         store.currentSelectedDetailData.data[0][index] = e.target.value;
         table.data[0][index] = e.target.value;
         store.updateRecordLocally(table);
-
-
     }
     function openEditRecord() {
         store.openEditRecord();
