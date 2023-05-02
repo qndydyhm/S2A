@@ -80,6 +80,12 @@ const updateRecord = async (req: express.Request, res: express.Response) => {
             const newColumn = Array(sheet[0].length).fill("")
             let row = keyColumn.length;
             for (let i = 0; i < keyColumn.length; ++i) {
+                if (keyColumn[i] === req.body[existingDS.key] && keyColumn[i] !== req.query.key) {
+                    globalLogger.info("Cannot set key to existing key value")
+                    return res.status(400).json({
+                        status: "Cannot set key to existing key value"
+                    })
+                }
                 if (keyColumn[i] === req.query.key) {
                     row = i
                     for (let j = 0; j < sheet[i+1].length && j < newColumn.length; ++j) {
