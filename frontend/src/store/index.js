@@ -35,7 +35,8 @@ export const GlobalStoreActionType = {
     LOAD_DETAIL_VIEW: "LOAD_DETAIL_VIEW",
 
     //Modal
-    ON_EDIT_RECORD: "ON_EDIT_RECORD"
+    ON_EDIT_RECORD: "ON_EDIT_RECORD",
+    LOAD_THE_PAGE:"LOAD_THE_PAGE"
 
 }
 
@@ -70,7 +71,8 @@ function GlobalStoreContextProvider(props) {
         idTableViewPairs: [],
         currentSelectedTableData: null,
         currentSelectedDetailData: null,
-        editRecord: false
+        editRecord: false,
+        loadThePage:false
     });
     const { auth } = useContext(AuthContext);
 
@@ -210,7 +212,8 @@ function GlobalStoreContextProvider(props) {
                     currentApp: payload.id,
                     startApp: true,
                     currentSelectedDetailData: null,
-                    editRecord: false
+                    editRecord: false,
+                    loadThePage:false
                 });
             }
             case GlobalStoreActionType.LOAD_DETAIL_VIEW: {
@@ -221,7 +224,8 @@ function GlobalStoreContextProvider(props) {
                     idTableViewPairs: store.idTableViewPairs,
                     currentApp: store.currentApp,
                     startApp: true,
-                    editRecord: store.editRecord
+                    editRecord: store.editRecord,
+                    loadThePage:false
                 });
             }
             case GlobalStoreActionType.ON_EDIT_RECORD: {
@@ -232,7 +236,20 @@ function GlobalStoreContextProvider(props) {
                     idTableViewPairs: store.idTableViewPairs,
                     currentApp: store.currentApp,
                     startApp: true,
-                    editRecord: true
+                    editRecord: true,
+                    loadThePage:false
+                });
+            }
+            case GlobalStoreActionType.LOAD_THE_PAGE:{
+                setStore({
+                    currentSelectedTableData: store.currentSelectedTableData,
+                    currentSelectedDetailData: store.currentSelectedDetailData,
+                    idAppPairs: store.idAppPairs,
+                    idTableViewPairs: store.idTableViewPairs,
+                    currentApp: store.currentApp,
+                    startApp: true,
+                    editRecord: true,
+                    loadThePage:true
                 });
             }
             default:
@@ -759,8 +776,10 @@ function GlobalStoreContextProvider(props) {
                 const response = await api.updateRecord(table.id, table.keys[0], t);
                 if (response.status == 200) {
                     const response1 = await api.getTableData(store.currentSelectedTableData.id);
+                    storeReducer({
+                        type:GlobalStoreActionType.LOAD_THE_PAGE
+                    })
                     if (response1.status == 200) {
-                        console.log(response1);
                         storeReducer({
                             type: GlobalStoreActionType.SET_TABLE_DATA,
                             payload: { table: response1.data }

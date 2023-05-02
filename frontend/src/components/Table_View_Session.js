@@ -2,6 +2,7 @@ import React, { useContext, useEffect } from 'react'
 import { GlobalStoreContext } from '../store'
 import Table_View_Card from './Table_View_Card';
 import List from '@mui/material/List';
+import CircularProgress from '@mui/material/CircularProgress';
 
 export default function Table_View_Session() {
     const { store } = useContext(GlobalStoreContext);
@@ -22,6 +23,7 @@ export default function Table_View_Session() {
     return (
         <div>
             {tableViewCard}
+            {store.loadThePage?<CircularProgress color="secondary" />:<span></span>}
         </div>);
 
 }
