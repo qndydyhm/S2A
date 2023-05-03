@@ -36,3 +36,8 @@
     transform: rotate(360deg);
   }
 }
+
+.checkbox_wrapper {
+  display: flex;
+  flex-wrap: wrap;
+}
