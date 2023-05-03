@@ -787,7 +787,7 @@ function GlobalStoreContextProvider(props) {
         console.log(store.currentSelectedTableData)
         async function asyncAddNewRecord() {
             try {
-                const response = await api.updateRecord(store.currentSelectedTableData.id, key, {});
+                const response = (await api.updateRecord(store.currentSelectedTableData.id, key, {}));
                 if(response.status == 200){
                     const response1 = await api.getTableData(store.currentSelectedTableData.id);
                     if (response1.status == 200) {

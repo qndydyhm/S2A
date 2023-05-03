@@ -352,18 +352,11 @@ const deleteView = async (req: express.Request, res: express.Response) => {
                 status: "Fail to get view " + viewId
             })
         }
-        const existingDS = await DataSource.findById(view.table)
-        if (!existingDS) {
-            globalLogger.info("Fail to get datasource" + view.table)
-            return res.status(400).json({
-                status: "Fail to get datasource" + view.table
-            })
-        }
-        const existingApp = await App.findById(existingDS.owner);
+        const existingApp = await App.findById(view.owner);
         if (!existingApp) {
-            globalLogger.info("Fail to get app " + existingDS.owner)
+            globalLogger.info("Fail to get app " + view.owner)
             return res.status(400).json({
-                status: "Fail to get app " + existingDS.owner
+                status: "Fail to get app " + view.owner
             })
         }
         const creator = await User.findOne({ id: existingApp.creator })

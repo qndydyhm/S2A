@@ -1,7 +1,7 @@
 import './App.css';
 import { React } from 'react';
-import { useState,useEffect} from 'react';
-import { BrowserRouter, Route,Routes } from 'react-router-dom'
+import { useState, useEffect } from 'react';
+import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import { AuthContextProvider } from './auth';
 import { GlobalStoreContextProvider } from './store'
 import AppBanner from './components/AppBanner';
@@ -12,40 +12,34 @@ import axios from 'axios';
 
 
 function App() {
-  const [connecting, setConnecting] = useState(true);
-  useEffect(()=>{
-    try{
+  useEffect(() => {
+    try {
       const getLoggedIn = async () => {
         const response = await axios.get(`/auth/loggedIn`);
-      if(response.data.loggedIn){
-        setConnecting(false);
-      }
-      else{
-        window.open('/auth/login','_self');
-      }
+        if (!response.data.loggedIn)
+          window.open('/auth/login', '_self');
       }
       getLoggedIn();
-      
+
     }
-    catch(error){
+    catch (error) {
       console.log(error);
     }
 
 
 
   });
-   return connecting?<div>Connecting</div>:
-      <BrowserRouter>
+  return <BrowserRouter>
       <AuthContextProvider>
-          <GlobalStoreContextProvider>              
-              <AppBanner />
-              <HomeScreen/>
-              <Routes>
-              <Route exact component={HomeScreen} />
-              </Routes>
-          </GlobalStoreContextProvider>
+        <GlobalStoreContextProvider>
+          <AppBanner />
+          <HomeScreen />
+          <Routes>
+            <Route exact component={HomeScreen} />
+          </Routes>
+        </GlobalStoreContextProvider>
       </AuthContextProvider>
-  </BrowserRouter>;
+    </BrowserRouter>;
 }
 
 export default App;
