@@ -454,7 +454,7 @@ function GlobalStoreContextProvider(props) {
     }
     store.createNewColumn = function () {
         let value = store.currentSelectedDatasource;
-        value.columns.push({ name: "Untitled", reference: " ", type: "Boolean", initvalue: " " });
+        value.columns.push({ name: "Untitled", reference: "", type: "Boolean", initvalue: "" });
         storeReducer({
             type: GlobalStoreActionType.UPDATE_DATA_SOURCE,
             payload: { data_source: value, pairs: store.idDataSourcePairs, app: store.currentApp }
