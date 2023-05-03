@@ -1,51 +1,25 @@
-import GlobalStoreContext from "../store"
-import View_Detail_Session from "./View_Detail_Session";
 import { useContext, useState, useEffect, useRef } from "react"
-
-//Current BUG: can only update one checkbox at a time
+import View_Detail_Session_Checkboxes from "./View_Detail_Session_Checkboxes";
 
 export default function View_Detail_Session_Columns(props){
     let fullTable = props.fullTable;
-    const [viewColumns, setViewColumns] = useState(props.columns);
+    const [checkedColumns, setCheckedColumns] = useState(props.columns);
     let tableColumns = fullTable.columns.map((item)=>{return item.name});
-
-    const containerRef = useRef(null);
-
-    useEffect(() => {
-        function createCheckboxes(){
-            const container = containerRef.current;
-            for (var i=0; i<tableColumns.length; i++) {
-                if(!document.getElementById("column-checkbox-"+i)){
-                    var checkbox = document.createElement("input");
-                    checkbox.type = "checkbox";
-                    checkbox.value = tableColumns[i];
-                    checkbox.id = "column-checkbox-"+i;
-                    var label = document.createElement("label");
-                    label.innerHTML = tableColumns[i];
-                    container.appendChild(checkbox);
-                    container.appendChild(label);
-                    if(viewColumns.includes(tableColumns[i])){
-                        checkbox.checked = true;
-                    }
-                    checkbox.addEventListener('change', handleToggleCheck);
-                }
-            }
-        }
-
-        createCheckboxes();
-    }, []);
+    tableColumns.sort();
 
     useEffect(() => {
-        props.setColumns(viewColumns);
-    }, [viewColumns]);
+        props.setColumns(checkedColumns);
+    }, [checkedColumns]);
 
-    function handleToggleCheck(event){
-        if (viewColumns.includes(event.target.value)) {
-            setViewColumns(viewColumns.filter((column) => column !== event.target.value));
-        } else {
-            setViewColumns([...viewColumns, event.target.value]);
+    return(<div class="checkbox_wrapper">
+        {
+            tableColumns.map((box) => (
+                <View_Detail_Session_Checkboxes
+                    id={box}
+                    checkedColumns={checkedColumns}
+                    setCheckedColumns = {setCheckedColumns}
+                />
+            ))
         }
-    }
-
-    return(<div ref={containerRef} id="checkbox-container"></div>);
+    </div>);
 }
