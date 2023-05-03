@@ -14,7 +14,6 @@ export default function Detail_View_Session() {
     const [table, setTable] = useState(store.currentSelectedDetailData);
     function handleClose() {
         store.closeDetailView();
-
     }
     function handleUpdatetable(e, index) {
         e.stopPropagation();
@@ -29,7 +28,7 @@ export default function Detail_View_Session() {
         store.updateRecord(table);
 
     }
-    let res = store.currentSelectedDetailData != null ?
+    let res = store.currentSelectedDetailData != null?
         <div style={{ width: '30%', fontSize: '15pt', backgroundColor: '#9f98a1',  position: 'absolute', top: '30%',left: '30%' }}>
             <div>DETAIL VIEW:</div>
             <TableContainer component={Paper}>
@@ -42,9 +41,9 @@ export default function Detail_View_Session() {
                                 ))
                             }
                         </TableRow> */}
-                        <TableCell>{store.currentSelectedDetailData.edit ? <CreateIcon
+                        {/* <TableCell>{store.currentSelectedDetailData.edit ? <CreateIcon
                             onClick={(event) => { openEditRecord() }}
-                        ></CreateIcon> : <span></span>}</TableCell>
+                        ></CreateIcon> : <span></span>}</TableCell> */}
                     </TableHead>
                     <TableBody>
                         {
@@ -55,7 +54,7 @@ export default function Detail_View_Session() {
                                             <TableCell size="small">
                                                 {<span fontSize=''>{store.currentSelectedDetailData.columns[index]}:</span>}
                                                 {
-                                                    store.editRecord ?
+                                                    store.currentSelectedDetailData.edit&&(store.currentSelectedDetailData.editablecolumns.indexOf(store.currentSelectedDetailData.columns[index])!=-1) ?
                                                         <input
                                                             className='modal-textfield'
                                                             type="text"
@@ -70,16 +69,13 @@ export default function Detail_View_Session() {
                     </TableBody>
                 </Table>
             </TableContainer>
-            {
-                store.editRecord ?
                     <input
                         type="button"
                         id="edit-ds-confirm-button"
                         value='Save'
-                        onClick={handleConfirmEditDetailView} /> :
-                    <div></div>
-            }
-        </div>
+                        onClick={handleConfirmEditDetailView} /> 
+    </div>
+
         : <div></div>;
     return (
             <Modal
